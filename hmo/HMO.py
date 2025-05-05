@@ -1,13 +1,3 @@
-import tkinter as tk
-from tkinter import filedialog, messagebox, font, ttk
-from PIL import Image, ImageTk
-import numpy as np
-import pandas as pd
-from pathlib import Path
-import re
-
-# ========================================================================================================
-
 """
 Hückel Molecule Drawer & Viewer (HMO Tool)
 
@@ -35,25 +25,25 @@ Display organization (Tkinter-based):
 The program is built with the Tkinter library, which manages all graphical interfaces:
 
 1. **Molecule Drawer (main window)**:
-   - Handled by the `MoleculeDrawer` class, this main window (based on `Tk()`) contains:
-     - Left section: a `Canvas` where the user builds the molecule (grid, atoms, bonds),
-     - Right section: a toolbar with buttons for main actions (run analysis, save/load molecule,
+    - Handled by the `MoleculeDrawer` class, this main window (based on `Tk()`) contains:
+    - Left section: a `Canvas` where the user builds the molecule (grid, atoms, bonds),
+    - Right section: a toolbar with buttons for main actions (run analysis, save/load molecule,
        access visualizations, export data).
 
 2. **HMO Viewer (dedicated MO visualization window)**:
-   - Instantiated by the `HMOViewer` class when the user clicks the visualization button.
-   - This secondary window uses `Toplevel` to open independently.
-   - It displays:
-     - an energy diagram (MO energy levels),
-     - graphical representations of occupied and virtual orbitals,
-     - a miniature view of the molecule to show its overall topology.
+    - Instantiated by the `HMOViewer` class when the user clicks the visualization button.
+    - This secondary window uses `Toplevel` to open independently.
+    - It displays:
+        - an energy diagram (MO energy levels),
+        - graphical representations of occupied and virtual orbitals,
+        - a miniature view of the molecule to show its overall topology.
 
 3. **Numerical Results Window**:
-   - Managed by the `ResultsViewer` class and also opened via `Toplevel`.
-   - Displays:
-     - molecular orbital coefficients in a table format,
-     - π-charges, π-bond orders,
-     - global descriptors (total energy, HOMO-LUMO gap, etc.).
+    - Managed by the `ResultsViewer` class and also opened via `Toplevel`.
+    - Displays:
+        - molecular orbital coefficients in a table format,
+        - π-charges, π-bond orders,
+        - global descriptors (total energy, HOMO-LUMO gap, etc.).
 
 Usage:
 ------
@@ -71,8 +61,18 @@ Notes:
 - Visualization and layout parameters for the HMOViewer interface are provided by the `HMOViewerParameters` class
 """
 
+# ========================================================================================================
+
+import tkinter as tk
+from tkinter import filedialog, messagebox, font, ttk
+from PIL import Image, ImageTk
+import numpy as np
+import pandas as pd
+from pathlib import Path
+import re
 
 # ========================================================================================================
+
 
 class HuckelParameters:
     """
@@ -281,6 +281,7 @@ class HMOViewerParameters:
     >>> HMOViewerParameters.Path2Imgs
     PosixPath('DesignMOdiagram')
     """
+    
     # Frames for MO visualization
     FRAME_WIDTH = 700
     FRAME_HEIGHT = 450
@@ -1771,16 +1772,14 @@ class MoleculeDrawer:
         1. `df_bond_orders_matrix`: A symmetric matrix showing π-bond orders between all atom pairs.
         2. `df_atoms`: A table containing atom indices, types, positions (grid units), π charges, and colors.
         3. `df_bonds`: A table listing all bonds between atoms with atom labels.
-        4. `df_summary`: A summary table of molecular descriptors, such as total π-electron energy, 
-           HOMO-LUMO gap, chemical potential, hardness, softness, and electrophilicity.
-    
+        4. `df_summary`: A summary table of molecular descriptors, such as total π-electron energy, HOMO-LUMO gap, chemical potential, hardness, softness, and electrophilicity.
+
         The resulting DataFrames are stored as attributes for export or display in other parts of the application.
     
         Returns
         -------
         None
-        (The method updates internal attributes: `df_bond_orders_matrix`, `df_atoms`, 
-        `df_bonds`, and `df_summary`)
+        (The method updates internal attributes: `df_bond_orders_matrix`, `df_atoms`, `df_bonds`, and `df_summary`)
     
         Notes
         -----
@@ -1794,11 +1793,12 @@ class MoleculeDrawer:
         -------
         >>> mol = MoleculeDrawer(root)
         >>> mol.build_dataframes()
-        # The following attributes are now available:
-        # - mol.df_bond_orders_matrix
-        # - mol.df_atoms
-        # - mol.df_bonds
-        # - mol.df_summary
+        
+        The following attributes are now available:
+        - mol.df_bond_orders_matrix
+        - mol.df_atoms
+        - mol.df_bonds
+        - mol.df_summary
         """
 
         # DataFrame pour les indices de liaison (π-bond orders)
@@ -2299,8 +2299,6 @@ class ToolTip(object):
     hide_tooltip(event=None)
         Destroys the tooltip window when the mouse leaves the widget.
     """
-
-
 
     def __init__(self, widget, text='widget info'):
         

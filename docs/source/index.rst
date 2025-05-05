@@ -6,10 +6,20 @@
 HMO documentation
 =================
 
-Add your content using ``reStructuredText`` syntax. See the
-`reStructuredText <https://www.sphinx-doc.org/en/master/usage/restructuredtext/index.html>`_
-documentation for details.
+.. automodule:: hmo.HMO
+   :members:
+   :undoc-members:
+   :exclude-members: HMOViewerParameters, HuckelParameters
 
+.. autoclass:: hmo.HMO.HMOViewerParameters
+   :members:
+   :no-undoc-members:
+   :noindex:
+
+.. autoclass:: hmo.HMO.HuckelParameters
+   :members:
+   :no-undoc-members:
+   :noindex:
 
 .. toctree::
    :maxdepth: 2

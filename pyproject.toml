@@ -1,6 +1,6 @@
 [project]
 name = "HMO"
-version = "0.1.1"
+version = "0.1.2"
 description = "A Python package to analyze magnetic molecular orbitals (SOMOs) from Gaussian outputs"
 authors = [{name = "Romuald POTEAU, LPCNO", email = "romuald.poteau@univ-tlse3.fr"}]
 readme = "README.md"
@@ -24,7 +24,7 @@ build-backend = "setuptools.build_meta"
 packages = ["hmo"]
 
 [project.urls]
-Documentation = "https://gsomos.readthedocs.io/"
+Documentation = "https://hmo.readthedocs.io/"
 
 Repository = "https://github.com/rpoteau/HMO"
 Changelog = "https://github.com/rpoteau/HMO/blob/main/CHANGELOG.md"
