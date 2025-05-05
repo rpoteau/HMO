@@ -28,13 +28,10 @@ docs/_build/
 Thumbs.db
 
 # Custom project
-# logs/
+Biblio/
+dev/
 *.xlsx
-*.png
-!*-C.png
-*.pdf
-!doc-latex/*.pdf
-!docs/source/_static/*.pdf
+hmo/Examples/
 
 # Swap and temporary
 *~

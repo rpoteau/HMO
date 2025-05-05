@@ -7,7 +7,7 @@ include LICENSE
 # Include everything inside docs and doc-latex
 recursive-include docs *
 
-# Include all source code inside somos
+# Include all source code inside hmo
 recursive-include hmo *
 
 # Include example notebooks
@@ -15,3 +15,11 @@ include *.ipynb
 
 # Include md files
 include *.md
+
+# Exclude develomment previous versions and the Biblio folder (copyright articles)
+exclude dev/*
+exclude Biblio/*
+exclude *dev.py
+# Do not include additional graphic material, for developpers (but available on github)
+exclude Design_ofMOdiagram *
+exclude icons *
