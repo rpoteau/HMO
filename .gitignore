@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*-dev.py
+*.so
+*.pyd
+*.egg-info/
+.eggs/
+build/
+!docs/build/
+dist/
+# *.log
+
+# Jupyter notebooks
+.ipynb_checkpoints/
+*.ipynb~
+
+# VSCode / IDEs
+.vscode/
+.idea/
+
+# Sphinx / mkdocs builds
+_site/
+docs/_build/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Custom project
+# logs/
+*.xlsx
+*.png
+!*-C.png
+*.pdf
+!doc-latex/*.pdf
+!docs/source/_static/*.pdf
+
+# Swap and temporary
+*~
+*.swp
+*.swo
+

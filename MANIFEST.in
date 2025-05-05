@@ -1,0 +1,16 @@
+include README.md
+include CHANGELOG.md
+include pyproject.toml
+include MANIFEST.in
+
+# Include everything inside docs and doc-latex
+recursive-include docs *
+
+# Include all source code inside somos
+recursive-include hmo *
+
+# Include example notebooks
+include *.ipynb
+
+# Include md files
+include *.md

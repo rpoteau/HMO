@@ -1,0 +1,44 @@
+[project]
+name = "HMO"
+version = "0.1"
+description = "A Python package to analyze magnetic molecular orbitals (SOMOs) from Gaussian outputs"
+authors = [{name = "Romuald POTEAU, LPCNO", email = "romuald.poteau@univ-tlse3.fr"}]
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "cclib",
+    "numpy",
+    "pandas",
+    "matplotlib",
+    "seaborn",
+    "scipy",
+    "scikit-learn",
+    "ipywidgets",
+    "openpyxl",
+    "plotly",
+    "tqdm" ,
+    "jupyter"
+]
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["hmo"]
+
+[project.urls]
+Documentation = "https://gsomos.readthedocs.io/"
+
+Repository = "https://github.com/rpoteau/HMO"
+Changelog = "https://github.com/rpoteau/HMO/blob/main/CHANGELOG.md"
+
+[project.optional-dependencies]
+docs = [
+  "sphinx",
+  "sphinx_rtd_theme",
+  "myst-parser",
+  "numpydoc"
+]
+
+

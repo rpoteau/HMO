@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   fill="none"
+   height="512"
+   viewBox="0 0 24 24"
+   width="512"
+   version="1.1"
+   id="svg1"
+   sodipodi:docname="excel.svg"
+   inkscape:export-filename="excel.png"
+   inkscape:export-xdpi="6"
+   inkscape:export-ydpi="6"
+   inkscape:version="1.4.1 (unknown)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1" />
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="2.2304688"
+     inkscape:cx="256"
+     inkscape:cy="256"
+     inkscape:window-width="2544"
+     inkscape:window-height="1344"
+     inkscape:window-x="83"
+     inkscape:window-y="58"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg1" />
+  <path
+     d="m2.85902 2.87697 12.56998-1.795c.071-.01018.1433-.00498.212.01523.0688.02021.1324.05496.1865.1019.0542.04695.0976.10498.1274.17018.0297.06519.0451.13602.0451.20769v20.84603c0 .0715-.0154.1423-.0451.2074s-.073.1231-.127.17c-.0541.0469-.1176.0817-.1862.102s-.1408.0256-.2117.0156l-12.57198-1.795c-.23838-.034-.4565-.1528-.61431-.3347-.1578-.1818-.24468-.4145-.24469-.6553v-16.26603c.00001-.24079.08689-.47349.24469-.65536.15781-.18186.37593-.30069.61431-.33464zm14.14098.123h4c.2652 0 .5196.10536.7071.29289.1876.18754.2929.44189.2929.70711v16.00003c0 .2652-.1053.5195-.2929.7071-.1875.1875-.4419.2929-.7071.2929h-4zm-6.8 9.00003 2.8-4.00003h-2.4l-1.59998 2.28603-1.6-2.28603h-2.4l2.8 4.00003-2.8 4h2.4l1.6-2.286 1.59998 2.286h2.4z"
+     fill="rgb(0,0,0)"
+     id="path1" />
+</svg>
