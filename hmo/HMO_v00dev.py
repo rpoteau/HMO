@@ -5,74 +5,7 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 import re
-
-# ========================================================================================================
-
-"""
-Hückel Molecule Drawer & Viewer (HMO Tool)
-
-This program provides a complete graphical interface for the interactive construction of
-(planar π-conjugated) molecules and the analysis of their molecular orbitals using the Hückel model.
-It allows the user to draw the molecular skeleton on a grid, select atom types (C·, N:, O·, etc.),
-add bonds, and perform a full Hückel analysis that includes:
-
-- generation of the Hückel matrix,
-- solving for orbital energies (eigenvalues),
-- calculating the molecular orbital coefficients (eigenvectors),
-- determining π-charges on atoms and π-bond orders,
-- computing global descriptors: total energy, HOMO-LUMO gap, hardness, chemical potential, etc.
-
-Main features:
---------------
-- Manual construction of the molecular skeleton (adding/removing atoms and bonds),
-- Saving and loading the sigma skeleton of molecules (.hmo format),
-- Running Hückel analysis and directly visualizing results,
-- Exporting complete results (MO coefficients, π-charges, bond orders, descriptors) to Excel or PDF,
-- Graphical visualization of molecular orbitals (shapes and energies) in a dedicated window.
-
-Display organization (Tkinter-based):
--------------------------------------
-The program is built with the Tkinter library, which manages all graphical interfaces:
-
-1. **Molecule Drawer (main window)**:
-   - Handled by the `MoleculeDrawer` class, this main window (based on `Tk()`) contains:
-     - Left section: a `Canvas` where the user builds the molecule (grid, atoms, bonds),
-     - Right section: a toolbar with buttons for main actions (run analysis, save/load molecule,
-       access visualizations, export data).
-
-2. **HMO Viewer (dedicated MO visualization window)**:
-   - Instantiated by the `HMOViewer` class when the user clicks the visualization button.
-   - This secondary window uses `Toplevel` to open independently.
-   - It displays:
-     - an energy diagram (MO energy levels),
-     - graphical representations of occupied and virtual orbitals,
-     - a miniature view of the molecule to show its overall topology.
-
-3. **Numerical Results Window**:
-   - Managed by the `ResultsViewer` class and also opened via `Toplevel`.
-   - Displays:
-     - molecular orbital coefficients in a table format,
-     - π-charges, π-bond orders,
-     - global descriptors (total energy, HOMO-LUMO gap, etc.).
-
-Usage:
-------
-The user starts by constructing the molecule, then runs the Hückel analysis. After computation,
-results can be explored numerically (`ResultsViewer` window) and graphically (`HMOViewer` window),
-and exported. The graphical visualization allows easy exploration of molecular orbitals and their energy levels.
-
-Notes:
-------
-- Most graphical interactions (atom placement, bond drawing) are done with the mouse,
-  with keyboard shortcuts for efficiency.
-- The program is structured around the main classes: `MoleculeDrawer` (main interface),
-  `HMOViewer` (MO visualization), `ResultsViewer` (numerical results), and `Node` (management of individual atoms).
-- Hückel parameters and some visulization settings are defined in the `HuckelParameters` class
-- Visualization and layout parameters for the HMOViewer interface are provided by the `HMOViewerParameters` class
-"""
-
-
-# ========================================================================================================
+from dataclasses import dataclass
 
 class HuckelParameters:
     """
