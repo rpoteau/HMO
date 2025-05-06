@@ -1,0 +1,12 @@
+pyinstaller --onefile --windowed --icon=HMOicon.ico \
+    --add-data "icons:icons" \
+    --add-data "Fonts:Fonts" \
+    --add-data "DesignOfMOdiagram:DesignOfMOdiagram" \
+    --exclude-module PyQt6 \
+    --exclude-module PyQt6.QtWidgets \
+    --exclude-module PyQt6.QtCore \
+    --exclude-module PyQt6.QtGui \
+    --exclude-module PySide6 \
+    --hidden-import PIL._tkinter_finder \
+    HMO.py
+

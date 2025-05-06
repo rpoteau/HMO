@@ -9,6 +9,8 @@ recursive-include docs *
 
 # Include all source code inside hmo
 recursive-include hmo *
+recursive-include hmo/Fonts *
+recursive-include hmo/icons-logos-banner *
 
 # Include example notebooks
 include *.ipynb
@@ -17,9 +19,11 @@ include *.ipynb
 include *.md
 
 # Exclude develomment previous versions and the Biblio folder (copyright articles)
-exclude dev/*
+exclude *dev/*
 exclude Biblio/*
 exclude *dev.py
 # Do not include additional graphic material, for developpers (but available on github)
-exclude Design_ofMOdiagram *
-exclude icons *
+exclude Design_ofMOdiagram/*
+exclude icons/*
+exclude hmo/Examples-dev/*
+prune hmo/__pycache__/*

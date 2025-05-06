@@ -326,9 +326,11 @@ class HMOViewerParameters:
 class HMOViewer:
     """
     GUI application for visualizing Hückel Molecular Orbitals (MOs) and their energy diagrams.
-    
-    This class provides a graphical interface to render the molecular structure and the associated energy levels of the molecular orbitals (occupied and virtual). It allows the user to explore the molecule's π-system, display orbital diagrams, adjust visualization parameters in real time, and save high-quality images.
-    
+
+    This class provides a graphical interface to render the molecular structure and the 
+    associated energy levels of the molecular orbitals (occupied and virtual). It allows 
+    the user to explore the molecule's π-system, display orbital diagrams, and save visualizations.
+
     Parameters
     ----------
     master : tk.Toplevel or tk.Tk
@@ -343,58 +345,20 @@ class HMOViewer:
         DataFrame containing computed molecular descriptors (e.g., number of π electrons, symmetry).
     project_name : str
         Name of the current project, used in window titles and when saving files.
-    
+
     Attributes
     ----------
     canvas : tk.Canvas
         The canvas widget where the molecule and energy levels are drawn.
-    scale_slider : tk.Scale
-        Slider widget that allows dynamic adjustment of the overall molecular diagram scale (×0.5 to ×3.0).
-    lobe_slider : tk.Scale
-        Slider widget that allows dynamic adjustment of orbital lobe sizes (×0.5 to ×3.0).
-    homo_lumo_button : tk.Button
-        Button that resets the view to the default HOMO and LUMO orbitals.
-    skeleton_button : tk.Button
-        Button to toggle skeleton-only mode (hide or show atom labels).
-    save_button : tk.Button
-        Button to save the full diagram as a high-quality PNG image.
-    close_button : tk.Button
-        Button to close the viewer window.
-    show_atom_labels : bool
-        Tracks whether atom labels are displayed in the skeleton overview.
-    skeleton_items : list
-        List of graphical items representing the skeleton; used for easy refresh.
-    user_scale_multiplier : float
-        Multiplier applied to the default molecule scaling (set by the scale_slider).
-    user_lobe_multiplier : float
-        Multiplier applied to the orbital lobe scaling (set by the lobe_slider).
-    
-    Notes
-    -----
-    - Energy levels can be clicked to view individual MOs.
-    - The visualization is interactive: adjusting sliders immediately refreshes the displayed orbitals.
-    - Pressing the Escape key closes the viewer.
-
-    Example
-    -------
-    >>> root = tk.Tk()
-    >>> viewer = HMOViewer(
-    ...     master=root,
-    ...     df_MOs=df_mos,
-    ...     df_atoms=df_atoms,
-    ...     df_bonds=df_bonds,
-    ...     df_descriptors=df_descriptors,
-    ...     project_name="Benzene"
-    ... )
-    >>> root.mainloop()
-    
-    - The window opens showing the molecular diagram and energy levels.
-    - Click the "HOMO/LUMO" button to quickly reset the view.
-    - Adjust the "Molecule Scale" and "Lobe Scale" sliders to change the diagram in real-time.
-    - Save the diagram using the "Save as PNG" button.
-    - Close the window by pressing Escape or clicking "Close".
+    scale_factor : float
+        Factor used to scale the molecular diagram to fit the canvas.
+    atom_radius : int
+        Radius in pixels for drawing atom circles.
+    bond_width : int
+        Width of bond lines in pixels.
+    energy_levels : list of floats
+        List of orbital energies for plotting the energy diagram.
     """
-
 
     def __init__(self, master, df_MOs, df_atoms, df_bonds, df_descriptors, project_name):
         self.master = master
@@ -420,31 +384,12 @@ class HMOViewer:
         self.canvas = tk.Canvas(master, width=HMOViewerParameters.CANVAS_WIDTH, height=HMOViewerParameters.CANVAS_HEIGHT, bg='white')
         self.canvas.pack()
 
-        # Sliders
-        self.user_scale_multiplier = 1.0
-        self.user_lobe_multiplier = 1.0
-
-        # Shortcuts
         self.master.bind('<Escape>', self.on_escape)
 
         # === 🟦 Ajout des boutons sous le diagramme ===
         button_frame = tk.Frame(self.master)
         button_frame.pack(pady=10)  # petit espacement vertical
         
-        # Bouton HOMO/LUMO
-        self.homo_lumo_button = tk.Button(button_frame, text="HOMO/LUMO", command=self.display_default_homo_lumo)
-        self.homo_lumo_button.pack(side=tk.LEFT, padx=5)
-        
-        # === Slider pour la taille globale ===
-        self.scale_slider = tk.Scale(button_frame, from_=0.5, to=3.0, resolution=0.1, orient=tk.HORIZONTAL, label="Molecule Scale (×)")
-        self.scale_slider.set(1.0)
-        self.scale_slider.pack(side=tk.LEFT, padx=5)
-        
-        # === Slider pour la taille des lobes ===
-        self.lobe_slider = tk.Scale(button_frame, from_=0.5, to=3.0, resolution=0.1, orient=tk.HORIZONTAL, label="Lobe Scale (×)")
-        self.lobe_slider.set(1.0)
-        self.lobe_slider.pack(side=tk.LEFT, padx=5)
-
         # Bouton Skeleton Only
         self.skeleton_button = tk.Button(button_frame, text="Skeleton Only", command=self.toggle_skeleton)
         self.skeleton_button.pack(side=tk.LEFT, padx=5)
@@ -456,9 +401,6 @@ class HMOViewer:
         # Bouton Close
         self.close_button = tk.Button(button_frame, text="Close", command=self.master.destroy)
         self.close_button.pack(side=tk.LEFT, padx=5)
-        
-        self.scale_slider.config(command=lambda event: self.refresh_MOs())
-        self.lobe_slider.config(command=lambda event: self.refresh_MOs())
 
         self.draw_layout()
         self.draw_energy_levels()
@@ -846,31 +788,21 @@ class HMOViewer:
     def display_om(self, idx, occupied=True):
         """
         Displays a specific molecular orbital (MO) in its corresponding frame (occupied or virtual).
-        
-        This method draws the selected MO, including bonds and orbital lobes, in the appropriate frame (HOMO or LUMO area), scaled and centered within the available space. The visualization responds dynamically to user-controlled scaling factors from the sliders:
-        - 'Molecule Scale' slider: adjusts the overall size of the molecule,
-        - 'Lobe Scale' slider: adjusts the relative size of the orbital lobes.
-        
+    
         Parameters
         ----------
         idx : int
             The index of the MO to display.
         occupied : bool, default=True
             Whether the MO is an occupied orbital (True) or a virtual one (False).
-        
+    
         Notes
         -----
-        - Centers and scales the molecule to fit inside its frame.
-        - Draws bonds and orbital lobes, with size and color depending on MO coefficients.
-        - Adds atom labels if 'Skeleton Only' mode is off.
-        - The user-defined scaling factors (sliders) affect both molecule size and lobe size in real time.
-        - Handles rendering of both positive (red) and negative (blue) lobes with layered drawing.
-        """
-
-
-        scale_user = self.scale_slider.get()
-        lobe_user = self.lobe_slider.get()
-
+        - Centers and scales the molecule to fit inside the frame.
+        - Draws bonds and orbital lobes (with size and color depending on coefficients).
+        - Adds labels and a header describing the MO (number, energy, occupancy).
+        - Handles rendering of both positive (red) and negative (blue) lobes.
+        """    
         # === 🖼️ Cadre d'affichage ===
         frame_x = HMOViewerParameters.FRAME_HOMO_X if occupied else HMOViewerParameters.FRAME_LUMO_X
         frame_y = HMOViewerParameters.FRAME_HOMO_Y if occupied else HMOViewerParameters.FRAME_LUMO_Y
@@ -914,8 +846,7 @@ class HMOViewer:
         else:
             scale = scale_bond_based
             # print(f"[DEBUG] Using target scale: {scale:.2f}")
-        scale *= scale_user  # <<<< ajoute ce facteur d'utilisateur
-
+        
         # Offset pour bien centrer la molécule
         offset_x = frame_x + HMOViewerParameters.FRAME_WIDTH/2 - ((min_x + max_x) / 2) * scale
         offset_y = frame_y + HMOViewerParameters.FRAME_HEIGHT/2 - ((min_y + max_y) / 2) * scale
@@ -927,12 +858,12 @@ class HMOViewer:
         # Fixer la taille max du lobe : quand coef == max_coef_global, le rayon est 90% de longueur liaison/2
         desired_radius = 0.90 * self.mean_bond_length * scale / 2
         scale_lobe_factor = desired_radius / max_coef_global
-        scale_lobe_factor *= lobe_user  # <<<< ajoute ce facteur d'utilisateur
         # print(f"[DEBUG] max_coef_global = {max_coef_global:.3f}, desired_radius = {desired_radius:.1f}, scale_lobe_factor = {scale_lobe_factor:.1f}")
 
         # === Coeffs
         coeffs = self.df_MOs.iloc[:, idx]
 
+        
         # === ➿ Tracer les liaisons ===
         for _, row in self.df_bonds.iterrows():
             a1, a2 = row['Atom 1'], row['Atom 2']
@@ -1202,7 +1133,7 @@ class MoleculeDrawer:
         self.scale_x = 1.0
         self.scale_y = 1.0
         self.undo_stack, self.redo_stack = [], []
-
+        
         self.load_icons()
         self.create_toolbar()
         self.bind_shortcuts()
@@ -1216,14 +1147,11 @@ class MoleculeDrawer:
 
         self.om_window = None  # stocke la fenêtre DataFrame
 
-        self.default_project_name = 'my_molecule'
         self.project_name = None
         self.safe_project_name = None
-        self.molecule_is_new = True  # Nouvelle molécule par défaut
-        
+
         self.df = None
         self.summary_data = None
-
 
     def sanitize_filename(self, name):
         return re.sub(r'[\\/*?:"<>|]', "_", name)
@@ -1419,7 +1347,6 @@ class MoleculeDrawer:
         else:
             self.selected_node = idx
             self.dragging = True
-        self.molecule_is_new = True
 
     def right_click(self, event):
         idx = self.find_node(event.x, event.y)
@@ -1437,7 +1364,6 @@ class MoleculeDrawer:
                 menu.tk_popup(event.x_root, event.y_root)
             finally:
                 menu.grab_release()
-            self.molecule_is_new = True
 
     def change_atom_type(self, idx, new_type):
         if new_type in HuckelParameters.ATOM_COLORS:
@@ -1499,20 +1425,12 @@ class MoleculeDrawer:
         del self.nodes[idx]
         self.bonds = [(i, j) for i, j in self.bonds if i != idx and j != idx]
         self.bonds = [(i - (i > idx), j - (j > idx)) for i, j in self.bonds]
-        self.molecule_is_new = True
-        if not self.nodes:
-            self.project_name = self.default_project_name
-            print(f"[INFO] Molecule is now empty; project name reset to: {self.project_name}")
 
     def clear(self):
         self.nodes.clear()
         self.bonds.clear()
         self.undo_stack.clear()
         self.redo_stack.clear()
-        self.molecule_is_new = True
-        self.project_name = self.default_project_name
-        print(f"[INFO] Project name reset to default: {self.project_name}")
-        
         self.df = None  # Optionnel si tu veux réinitialiser la dernière analyse Hückel
         self.redraw()
 
@@ -1524,7 +1442,6 @@ class MoleculeDrawer:
             self.om_window.destroy()
             self.om_window = None
 
-        
     def save_molecule(self):
         """
         Save the current molecular structure to a .hmo file.
@@ -1611,12 +1528,6 @@ class MoleculeDrawer:
                 # print(self.nodes)
                 # print(self.bonds)
                 self.redraw()
-                # Update project_name based on the file name (without extension)
-                filename = os.path.basename(path)
-                project_name_no_ext = os.path.splitext(filename)[0]
-                self.project_name = project_name_no_ext
-                print(f"[INFO] Project name set to: {self.project_name}")
-                self.molecule_is_new = True
             except Exception as e:
                 messagebox.showerror("Error", f"Failed to load molecule: {e}")
 
@@ -2721,22 +2632,18 @@ class MoleculeDrawer:
         self.run_huckel_analysis()
         from tkinter import simpledialog
 
-        # Determine initial value for the project name
-        initial_value = self.project_name if self.project_name else self.default_project_name
-    
         self.project_name = simpledialog.askstring(
             "Project name",
             "Enter a name for your project:",
-            initialvalue=initial_value
+            initialvalue="my_molecule"
         )
-        if not self.project_name:
-            self.project_name = self.default_project_name
-        print(f"[INFO] Project name set to: {self.project_name}")
-    
-        self.safe_project_name = self.sanitize_filename(self.project_name)
-        self.build_dataframes()
-        self.molecule_is_new = False  # Reset after analysis
         
+        if not self.project_name:
+            self.project_name = "my_molecule"
+
+        self.safe_project_name = self.sanitize_filename(self.project_name)
+
+        self.build_dataframes()
         # self.show_dataframe_in_window()
         # === Ouvre la visualisation des OM ===
         print("[DEBUG] df_MOs shape:", self.df.shape)

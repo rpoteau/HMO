@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=HMO
+Comment=Hückel Molecular Orbital App
+Exec=/usr/local/bin/HMO
+Icon=/usr/local/share/icons/hmo.png
+Terminal=false
+Type=Application
+Categories=Science;Education;
