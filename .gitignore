@@ -32,6 +32,9 @@ Biblio/
 dev/
 *.xlsx
 hmo/Examples/
+hmo/build/
+hmo/HMO-Installer-Linux/
+hmo/HMO-Installer.tar.gz
 
 # Swap and temporary
 *~
