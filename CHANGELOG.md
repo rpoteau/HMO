@@ -3,6 +3,26 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.0] - 2025-05-07
+
+### [Added] Support for formal molecular charges
+- Added a "Charge" button to place a non-bonding formal charge on the canvas.
+- Charges are displayed as colored disks (red = negative, blue = positive) with the symbol centered.
+- Right-click on a charge opens a dialog to edit its value (`+`, `-2`, `1`, etc.).
+- Only one formal charge can exist at a time.
+- New variable `self.charge_mol` is used in the total π-electron count:
+  ```python
+  total_pi_electrons -= self.charge_mol
+- Imported `simpledialog` from `tkinter`.
+- Function `add_plus_if_needed(text)` to display `+x` when appropriate on charge labels.
+- Optional coordinates `x`, `y` for `draw()` method in `ChargeNode`, allowing custom positioning.s
+
+### Changed
+- Default `charge` parameter in `ChargeNode.__init__` changed from `'-'` to `'-1'`.
+- Charge text color is now always set to white, instead of being conditional on its sign.
+- Charge drawing now uses custom coordinates (`draw_x`, `draw_y`) instead of `self.x`, `self.y`.
+- Attribute `charges` replaced by `formal_charges`.
+
 ## [0.2.0] - 2025-05-06
 
 ### Added

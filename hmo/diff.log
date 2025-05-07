@@ -1,0 +1,314 @@
+67c67
+< from tkinter import filedialog, messagebox, font, ttk, simpledialog
+---
+> from tkinter import filedialog, messagebox, font, ttk
+1063a1064
+> 
+1066c1067
+<     def __init__(self, x, y, charge='-1'):
+---
+>     def __init__(self, x, y, charge='-'):
+1076c1077
+<     def draw(self, canvas, x=None, y=None):
+---
+>     def draw(self, canvas):
+1078c1079
+<         Draws the charge on the canvas. Uses scaled x/y if provided.
+---
+>         Draws the charge on the canvas with its associated style (color, label, selection halo).
+1080,1089d1080
+<         def ajouter_plus_si_necessaire(texte):
+<             if texte.startswith('-') or texte.startswith('+'):
+<                 return texte
+<             try:
+<                 # Vérifie que c'est bien un entier
+<                 int(texte)
+<                 return f'+{texte}'
+<             except ValueError:
+<                 return texte  # Ne change rien si ce n'est pas un entier
+< 
+1091,1093d1081
+<         draw_x = x if x is not None else self.x
+<         draw_y = y if y is not None else self.y
+<     
+1095c1083
+<             canvas.create_oval(draw_x - r - 4, draw_y - r - 4, draw_x + r + 4, draw_y + r + 4,
+---
+>             canvas.create_oval(self.x - r - 4, self.y - r - 4, self.x + r + 4, self.y + r + 4,
+1098,1101c1086,1088
+<         text_color = 'white'
+<         # text_color = 'white' if '-' in self.charge else 'black'
+<         canvas.create_oval(draw_x - r, draw_y - r, draw_x + r, draw_y + r, fill=color)
+<         canvas.create_text(draw_x, draw_y, text=ajouter_plus_si_necessaire(self.charge), fill=text_color, font=('Helvetica', 12, 'bold'))
+---
+>         text_color = 'white' if '-' in self.charge else 'black'
+>         canvas.create_oval(self.x - r, self.y - r, self.x + r, self.y + r, fill=color)
+>         canvas.create_text(self.x, self.y, text=self.charge, fill=text_color, font=('Helvetica', 12, 'bold'))
+1279,1287c1266
+<         self.formal_charges = []  # list of ChargeNode instances
+<         self.charge_mol = 0
+<         self.mode = None
+< 
+<         self.alpha_value_num = -11.0 # eV
+<         self.beta_value_num = -2.7 # eV
+<         self.alpha_value = 0 # reduced unit
+<         self.beta_value = -1 # reduced unit
+< 
+---
+>         self.charges = []  # list of ChargeNode instances
+1330d1308
+<         
+1462,1463c1440
+<         x_canvas, y_canvas = event.x, event.y
+<         x, y = self.snap_to_grid(x_canvas, y_canvas)
+---
+>         x, y = self.snap_to_grid(event.x, event.y)
+1467,1474d1443
+<             # Try to erase a charge first
+<             for i, c in enumerate(self.formal_charges):
+<                 if c.contains(x, y):
+<                     self.save_state()
+<                     del self.formal_charges[i]
+<                     self.redraw()
+<                     return
+<                     
+1488,1501d1456
+< 
+<         # If mode is 'add_charge', add a new one
+<         if self.mode == 'add_charge':
+<             if self.node_exists_at(x, y):
+<                 messagebox.showwarning("Invalid location", "You cannot place a charge on top of an atom.")
+<                 return
+<             for other in self.formal_charges:
+<                 other.selected = False
+<             self.formal_charges.append(ChargeNode(x, y))
+<             self.mode = None  # exit charge mode after placing one
+<             self.charge_mol = -1  # valeur formelle de la charge
+<             self.redraw()
+<             return
+< 
+1514,1547c1469
+<         x_canvas, y_canvas = event.x, event.y
+<         x, y = self.snap_to_grid(x_canvas, y_canvas)
+<         x /= self.scale_x
+<         y /= self.scale_y
+< 
+<         # Vérifie si une charge a été cliquée
+<         for c in self.formal_charges:
+<             if c.contains(x_canvas / self.scale_x, y_canvas / self.scale_y):
+<                 for other in self.formal_charges:
+<                     other.selected = False
+<                 c.selected = True
+<                 new_charge = simpledialog.askstring(
+<                     "Edit charge", 
+<                     "Enter charge (e.g., -1, +2, -1, -2):", 
+<                     initialvalue=c.charge
+<                 )
+<                 if new_charge:
+<                     # Suppression des espaces
+<                     cleaned = new_charge.replace(" ", "")
+<                     # Vérification avec une expression régulière stricte
+<                     if re.fullmatch(r"[+-]?\d+", cleaned):
+<                         try:
+<                             val = int(cleaned)
+<                             c.charge = cleaned
+<                             self.charge_mol = val
+<                         except ValueError:
+<                             messagebox.showerror("Invalid charge", f"Could not convert '{cleaned}' to integer.")
+<                     else:
+<                         messagebox.showerror("Invalid charge", f"Invalid charge format: '{new_charge}'")
+<                         
+<                 self.redraw()
+<                 return  # ne continue pas vers le menu des atomes
+<         
+<         idx = self.find_node(x_canvas, y_canvas)
+---
+>         idx = self.find_node(event.x, event.y)
+1818,1822d1739
+<             
+<         for c in self.formal_charges:
+<             x, y = self.apply_scale(c.x, c.y)
+<             c.draw(self.canvas, x, y)
+< 
+1826,1827c1743,1744
+<          
+<     def build_huckel_matrix(self, alpha=0.0, beta=-1.0):
+---
+>     
+>     def build_huckel_matrix(self, alpha=-11.0, beta=-2.7):
+1842c1759
+<             The Coulomb integral (diagonal value), default is 0.
+---
+>             The Coulomb integral (diagonal value), default is -11.0.
+1844,1857c1761,1762
+<             The resonance integral (off-diagonal value), default is -1.
+<             
+<         Note:
+<         -----
+<         The Hückel matrix H is transformed using the standard variable change:
+<             x = (alpha - epsilon) / beta
+<         where x = 0 is chosen as the energy origin.
+<         The entire matrix is divided by beta, so all energies (eigenvalues) are expressed in units of beta.
+<         Alpha is conceptually shifted to zero during this transformation.
+<     
+<         The total π-electron energy is separated into:
+<         - alpha_part = n_pi_total * alpha
+<         - beta_part  = sum of occupied eigenvalues (in beta units)    
+<         
+---
+>             The resonance integral (off-diagonal value), default is -2.7.
+>     
+1881c1786
+<         >>> H = drawer.build_huckel_matrix(alpha=-11.0, beta=-2.7) or H = drawer.build_huckel_matrix(alpha=0, beta=-1) in reduced units
+---
+>         >>> H = drawer.build_huckel_matrix(alpha=-11.0, beta=-2.7)
+1903c1808
+<             H[i, i] = self.evaluate(param["alpha_expr"], self.alpha_value, self.beta_value)
+---
+>             H[i, i] = self.evaluate(param["alpha_expr"], alpha, beta)
+1922c1827
+<             H[i, j] = H[j, i] = k_ij * self.beta_value
+---
+>             H[i, j] = H[j, i] = k_ij * beta
+1925c1830
+<     def props(self, eigvals, occupation_dict):
+---
+>     def props(self, eigvals, occupation_dict, sorted_indices, alpha, beta):
+1946a1852,1857
+>         sorted_indices : list
+>             List of indices sorting the eigenvalues in ascending order (can be used if needed).
+>         alpha : float
+>             The reference on-site energy parameter α (Hückel theory).
+>         beta : float
+>             The reference coupling parameter β (Hückel theory).
+1955c1866
+<         # Total π-electron energy = beta part, if reduced unit
+---
+>         # Total π-electron energy
+1958,1959d1868
+<         beta_part = total_energy
+<         
+1961c1870
+<             print(j,eigvals[j], occ)
+---
+>             print("[DEBUG] EIGENVALS", j,eigvals[j], occ)
+1965a1875
+>         print("alpha",alpha,beta)
+1970c1880
+<                 alpha_atom = eval(params["alpha_expr"], {"alpha": self.alpha_value, "beta": self.beta_value})
+---
+>                 alpha_atom = eval(params["alpha_expr"], {"alpha": alpha, "beta": beta})
+1973c1883,1884
+<                 alpha_atom = self.alpha_value  # fallback sécurité
+---
+>                 alpha_atom = alpha  # fallback sécurité
+> 
+1975,1988c1886,1890
+<             print(i,alpha_atom,n_pi, alpha_atoms)
+<         alpha_part = self.total_pi_electrons
+<         
+<         # Determine if atomization energy is valid
+<         atom_types = set(n.atom_type for n in self.nodes)
+<         is_all_carbons = atom_types == {"C"}
+<         is_neutral = (self.charge_mol == 0)
+<         if is_neutral or is_all_carbons:
+<             atomization_energy = total_energy - alpha_atoms
+<             atomization_energy_per_atom = atomization_energy / len(self.nodes) if self.nodes else 0
+<         else:
+<             print("[INFO] Atomization energy skipped: molecule is charged and contains heteroatoms.")
+<             atomization_energy = None
+<             atomization_energy_per_atom = None
+---
+>             alpha_part += n_pi * alpha
+>             print(i,alpha_atom,n_pi, alpha_part, alpha_atoms)
+>     
+>         # Partie beta : ce qui reste
+>         beta_part = total_energy - alpha_part
+2163,2164c2065
+<             # eigvals_sorted = np.sort(eigvals)
+<             eigvals_sorted = eigvals.copy()
+---
+>             eigvals_sorted = np.sort(eigvals)
+2218c2119,2124
+<         H = self.build_huckel_matrix(self.alpha_value, self.beta_value)
+---
+>         alpha = -11.0
+>         beta = -2.7
+>         self.alpha_value = alpha
+>         self.beta_value = beta
+> 
+>         H = self.build_huckel_matrix(alpha, beta)
+2223d2128
+<         eigvals = eigvals/ self.beta_value
+2233c2138
+<                 alpha_value = self.evaluate(param["alpha_expr"], self.alpha_value, self.beta_value)
+---
+>                 alpha_value = self.evaluate(param["alpha_expr"], alpha, beta)
+2256,2260d2160
+<         # ➕ Correction par la charge globale
+<         print(f"[INFO] Total π-electrons before charge adjustment: {self.total_pi_electrons}")
+<         print(f"[INFO] Charge correction applied: {self.charge_mol}")
+<         self.total_pi_electrons -= self.charge_mol
+<         print(f"[INFO] Final π-electron count: {self.total_pi_electrons}")
+2262,2264c2162
+<         occupation_dict = compute_occupations(eigvals, self.total_pi_electrons)
+<         # sorted_indices = np.argsort(eigvals)[::-1]
+<         sorted_indices = np.arange(0, len(occupation_dict))
+---
+>         print(f"[INFO] Total π-electron count: {self.total_pi_electrons}")
+2265a2164,2166
+>         occupation_dict = compute_occupations(eigvals, self.total_pi_electrons)
+>         sorted_indices = np.argsort(eigvals)[::-1]
+> 
+2268c2169
+<         self.props(eigvals, occupation_dict)
+---
+>         self.props(eigvals, occupation_dict, sorted_indices, alpha, beta)
+2285c2186
+<             energy_coeff = eigvals[j]
+---
+>             energy_coeff = (eigvals[j] - alpha) / beta
+2300c2201
+<         # df = df.iloc[:, ::-1]
+---
+>         df = df.iloc[:, ::-1]
+2396c2297
+<                 f"{self.alpha_part:.0f}α + {self.beta_part:.2f}β",
+---
+>                 f"{self.alpha_part/alpha:.0f}α + {self.beta_part/beta:.2f}β",
+2398,2404c2299,2305
+<                 f"{self.atomization_energy:.2f}",
+<                 f"{self.atomization_energy_per_atom:.2f}",
+<                 f"{abs(self.homo_lumo_gap):.2f}",
+<                 f"{self.mu:.2f}",
+<                 f"{abs(self.eta):.2f}",
+<                 f"{abs(self.softness):.2f}",
+<                 f"{self.omega:.2f}",
+---
+>                 f"{self.atomization_energy / beta:.2f}",
+>                 f"{self.atomization_energy_per_atom / beta:.2f}",
+>                 f"{abs(self.homo_lumo_gap / beta):.2f}",
+>                 f"{self.mu / beta:.2f}",
+>                 f"{abs(self.eta / beta):.2f}",
+>                 f"{abs(self.softness * beta):.2f}",
+>                 f"{self.omega / (beta**2):.2f}",
+2757c2658
+<             f"Total π-electron energy: {self.alpha_part:.0f}α + {self.beta_part:.2f}β\n"
+---
+>             f"Total π-electron energy: {self.alpha_part/alpha:.0f}α + {self.beta_part/beta:.2f}β\n"
+2759,2765c2660,2666
+<             f"Atomization energy: {self.atomization_energy:.2f}β\n"
+<             f"Atomization energy per π atom: {self.atomization_energy_per_atom:.2f}β\n"
+<             f"HOMO-LUMO gap: {abs(self.homo_lumo_gap):.2f}|β|\n"
+<             f"Electronic potential μ: {self.mu:.2f}β\n"
+<             f"Chemical hardness η: {abs(self.eta):.2f}|β|\n"
+<             f"Chemical softness S: {abs(self.softness):.2f}/|β|\n"
+<             f"Electrophilicity index ω: {self.omega:.2f}β\n"
+---
+>             f"Atomization energy: {self.atomization_energy / beta:.2f}β\n"
+>             f"Atomization energy per π atom: {self.atomization_energy_per_atom / beta:.2f}β\n"
+>             f"HOMO-LUMO gap: {abs(self.homo_lumo_gap / beta):.2f}|β|\n"
+>             f"Electronic potential μ: {self.mu / beta:.2f}β\n"
+>             f"Chemical hardness η: {abs(self.eta / beta):.2f}|β|\n"
+>             f"Chemical softness S: {abs(self.softness * beta):.2f}/|β|\n"
+>             f"Electrophilicity index ω: {self.omega / (beta**2):.2f}β\n"

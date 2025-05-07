@@ -1,5 +1,5 @@
 <div style="text-align:center">
-<img src="https://raw.githubusercontent.com/rpoteau/HMO/main/hmo/icons-logos-banner/HMO_Banner.png" alt="HMObanner" width="1000"/>
+<img src="https://raw.githubusercontent.com/rpoteau/HMO/main/hmo/icons-logos-banner/HMO_Banner.png" alt="HMObanner" width="800"/>
 </div>
 
 # Hückel Molecular Orbital (HMO) Viewer & Drawer

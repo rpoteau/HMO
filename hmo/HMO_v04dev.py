@@ -64,7 +64,7 @@ Notes:
 # ========================================================================================================
 
 import tkinter as tk
-from tkinter import filedialog, messagebox, font, ttk, simpledialog
+from tkinter import filedialog, messagebox, font, ttk
 import matplotlib
 matplotlib.use("TkAgg") ### mandatory for building a standalone Linux application
 import matplotlib.pyplot as plt
@@ -1061,9 +1061,10 @@ class ChargeNode:
     Represents a charge element on the canvas that cannot form bonds.
     It has a visual indicator (colored disk with sign), and affects the total number of π electrons.
     """
+
     charge_radius = 15  # display and interaction radius in pixels
 
-    def __init__(self, x, y, charge='-1'):
+    def __init__(self, x, y, charge='-'):
         """
         Initialize a charge at (x, y) with the given charge label.
         Default is a single negative charge.
@@ -1073,32 +1074,18 @@ class ChargeNode:
         self.charge = charge
         self.selected = False
 
-    def draw(self, canvas, x=None, y=None):
+    def draw(self, canvas):
         """
-        Draws the charge on the canvas. Uses scaled x/y if provided.
+        Draws the charge on the canvas with its associated style (color, label, selection halo).
         """
-        def ajouter_plus_si_necessaire(texte):
-            if texte.startswith('-') or texte.startswith('+'):
-                return texte
-            try:
-                # Vérifie que c'est bien un entier
-                int(texte)
-                return f'+{texte}'
-            except ValueError:
-                return texte  # Ne change rien si ce n'est pas un entier
-
         r = self.charge_radius
-        draw_x = x if x is not None else self.x
-        draw_y = y if y is not None else self.y
-    
         if self.selected:
-            canvas.create_oval(draw_x - r - 4, draw_y - r - 4, draw_x + r + 4, draw_y + r + 4,
+            canvas.create_oval(self.x - r - 4, self.y - r - 4, self.x + r + 4, self.y + r + 4,
                                outline='yellow', width=3)
         color = 'red' if '-' in self.charge else 'blue'
-        text_color = 'white'
-        # text_color = 'white' if '-' in self.charge else 'black'
-        canvas.create_oval(draw_x - r, draw_y - r, draw_x + r, draw_y + r, fill=color)
-        canvas.create_text(draw_x, draw_y, text=ajouter_plus_si_necessaire(self.charge), fill=text_color, font=('Helvetica', 12, 'bold'))
+        text_color = 'white' if '-' in self.charge else 'black'
+        canvas.create_oval(self.x - r, self.y - r, self.x + r, self.y + r, fill=color)
+        canvas.create_text(self.x, self.y, text=self.charge, fill=text_color, font=('Helvetica', 12, 'bold'))
 
     def contains(self, x, y):
         """
@@ -1276,15 +1263,7 @@ class MoleculeDrawer:
         self.df = None
         self.summary_data = None
 
-        self.formal_charges = []  # list of ChargeNode instances
-        self.charge_mol = 0
-        self.mode = None
-
-        self.alpha_value_num = -11.0 # eV
-        self.beta_value_num = -2.7 # eV
-        self.alpha_value = 0 # reduced unit
-        self.beta_value = -1 # reduced unit
-
+        self.charges = []  # list of ChargeNode instances
 
     def sanitize_filename(self, name):
         return re.sub(r'[\\/*?:"<>|]', "_", name)
@@ -1327,7 +1306,6 @@ class MoleculeDrawer:
         self.master.bind('<Control-d>', lambda e: self.clear())
         self.master.bind('<Control-s>', lambda e: self.save_data())
         self.master.bind('<Control-q>', lambda e: self.quit_program())
-        
     def set_mode_add_charge(self):
         """Sets the current interaction mode to adding a new charge."""
         self.mode = 'add_charge'
@@ -1459,19 +1437,10 @@ class MoleculeDrawer:
             self.redraw()
 
     def left_click(self, event):
-        x_canvas, y_canvas = event.x, event.y
-        x, y = self.snap_to_grid(x_canvas, y_canvas)
+        x, y = self.snap_to_grid(event.x, event.y)
         x /= self.scale_x
         y /= self.scale_y
         if self.eraser_mode:
-            # Try to erase a charge first
-            for i, c in enumerate(self.formal_charges):
-                if c.contains(x, y):
-                    self.save_state()
-                    del self.formal_charges[i]
-                    self.redraw()
-                    return
-                    
             idx = self.find_node(event.x, event.y)
             if idx is not None:
                 self.save_state()
@@ -1485,20 +1454,6 @@ class MoleculeDrawer:
                 self.redraw()
                 return
             return
-
-        # If mode is 'add_charge', add a new one
-        if self.mode == 'add_charge':
-            if self.node_exists_at(x, y):
-                messagebox.showwarning("Invalid location", "You cannot place a charge on top of an atom.")
-                return
-            for other in self.formal_charges:
-                other.selected = False
-            self.formal_charges.append(ChargeNode(x, y))
-            self.mode = None  # exit charge mode after placing one
-            self.charge_mol = -1  # valeur formelle de la charge
-            self.redraw()
-            return
-
         idx = self.find_node(event.x, event.y)
         if idx is None:
             if not self.node_exists_at(x, y):
@@ -1511,40 +1466,7 @@ class MoleculeDrawer:
         self.molecule_is_new = True
 
     def right_click(self, event):
-        x_canvas, y_canvas = event.x, event.y
-        x, y = self.snap_to_grid(x_canvas, y_canvas)
-        x /= self.scale_x
-        y /= self.scale_y
-
-        # Vérifie si une charge a été cliquée
-        for c in self.formal_charges:
-            if c.contains(x_canvas / self.scale_x, y_canvas / self.scale_y):
-                for other in self.formal_charges:
-                    other.selected = False
-                c.selected = True
-                new_charge = simpledialog.askstring(
-                    "Edit charge", 
-                    "Enter charge (e.g., -1, +2, -1, -2):", 
-                    initialvalue=c.charge
-                )
-                if new_charge:
-                    # Suppression des espaces
-                    cleaned = new_charge.replace(" ", "")
-                    # Vérification avec une expression régulière stricte
-                    if re.fullmatch(r"[+-]?\d+", cleaned):
-                        try:
-                            val = int(cleaned)
-                            c.charge = cleaned
-                            self.charge_mol = val
-                        except ValueError:
-                            messagebox.showerror("Invalid charge", f"Could not convert '{cleaned}' to integer.")
-                    else:
-                        messagebox.showerror("Invalid charge", f"Invalid charge format: '{new_charge}'")
-                        
-                self.redraw()
-                return  # ne continue pas vers le menu des atomes
-        
-        idx = self.find_node(x_canvas, y_canvas)
+        idx = self.find_node(event.x, event.y)
         if idx is not None:
             menu = tk.Menu(self.master, tearoff=0)
             menu.configure(font=font.Font(family="Arial", size=12))
@@ -1815,16 +1737,11 @@ class MoleculeDrawer:
                 fill=color
             )
             self.canvas.create_text(x, y, text=node.atom_type, fill='white', font=('Arial', 8, 'bold'))
-            
-        for c in self.formal_charges:
-            x, y = self.apply_scale(c.x, c.y)
-            c.draw(self.canvas, x, y)
-
     
     def evaluate(self,expr, alpha, beta):
         return eval(expr, {"alpha": alpha, "beta": beta})
-         
-    def build_huckel_matrix(self, alpha=0.0, beta=-1.0):
+    
+    def build_huckel_matrix(self, alpha=-11.0, beta=-2.7):
         """
         Constructs the Hückel matrix (Hamiltonian) for the current molecular graph.
     
@@ -1839,22 +1756,10 @@ class MoleculeDrawer:
         Parameters
         ----------
         alpha : float, optional
-            The Coulomb integral (diagonal value), default is 0.
+            The Coulomb integral (diagonal value), default is -11.0.
         beta : float, optional
-            The resonance integral (off-diagonal value), default is -1.
-            
-        Note:
-        -----
-        The Hückel matrix H is transformed using the standard variable change:
-            x = (alpha - epsilon) / beta
-        where x = 0 is chosen as the energy origin.
-        The entire matrix is divided by beta, so all energies (eigenvalues) are expressed in units of beta.
-        Alpha is conceptually shifted to zero during this transformation.
+            The resonance integral (off-diagonal value), default is -2.7.
     
-        The total π-electron energy is separated into:
-        - alpha_part = n_pi_total * alpha
-        - beta_part  = sum of occupied eigenvalues (in beta units)    
-        
         Returns
         -------
         np.ndarray
@@ -1878,7 +1783,7 @@ class MoleculeDrawer:
     
         Example
         -------
-        >>> H = drawer.build_huckel_matrix(alpha=-11.0, beta=-2.7) or H = drawer.build_huckel_matrix(alpha=0, beta=-1) in reduced units
+        >>> H = drawer.build_huckel_matrix(alpha=-11.0, beta=-2.7)
         """
 
         n = len(self.nodes)
@@ -1900,7 +1805,7 @@ class MoleculeDrawer:
                 )
                 self.master.quit()
                 return
-            H[i, i] = self.evaluate(param["alpha_expr"], self.alpha_value, self.beta_value)
+            H[i, i] = self.evaluate(param["alpha_expr"], alpha, beta)
         ### beta (non-diagonal value)
         for i, j in self.bonds:
             a = self.nodes[i].atom_type
@@ -1919,10 +1824,10 @@ class MoleculeDrawer:
                 )
                 self.master.quit()
                 return
-            H[i, j] = H[j, i] = k_ij * self.beta_value
+            H[i, j] = H[j, i] = k_ij * beta
         return H
 
-    def props(self, eigvals, occupation_dict):
+    def props(self, eigvals, occupation_dict, sorted_indices, alpha, beta):
         """
         Compute global energetic and chemical descriptors from Hückel eigenvalues.
     
@@ -1944,6 +1849,12 @@ class MoleculeDrawer:
         occupation_dict : dict
             A dictionary mapping orbital indices to their occupation numbers (typically 2 for
             occupied, 0 for virtual).
+        sorted_indices : list
+            List of indices sorting the eigenvalues in ascending order (can be used if needed).
+        alpha : float
+            The reference on-site energy parameter α (Hückel theory).
+        beta : float
+            The reference coupling parameter β (Hückel theory).
     
         Notes
         -----
@@ -1952,40 +1863,31 @@ class MoleculeDrawer:
           `atomization_energy_per_atom`, `homo_lumo_gap`, `mu`, `eta`, `softness`, `omega`.
         - Includes debug print statements for tracing the calculation steps.
         """
-        # Total π-electron energy = beta part, if reduced unit
+        # Total π-electron energy
         print(eigvals)
         total_energy = sum(eigvals[j] * occ for j, occ in occupation_dict.items())
-        beta_part = total_energy
-        
         for j, occ in occupation_dict.items():
-            print(j,eigvals[j], occ)
+            print("[DEBUG] EIGENVALS", j,eigvals[j], occ)
     
         # Partie alpha réelle (somme sur chaque atome : n_pi * alpha_effectif)
         alpha_part = 0
         alpha_atoms = 0
+        print("alpha",alpha,beta)
         for i,n in enumerate(self.nodes):
             params = HuckelParameters.Huckel_atomic_parameters.get(n.atom_type)
             n_pi = params["n_pi"]
             try:
-                alpha_atom = eval(params["alpha_expr"], {"alpha": self.alpha_value, "beta": self.beta_value})
+                alpha_atom = eval(params["alpha_expr"], {"alpha": alpha, "beta": beta})
             except Exception as e:
                 print(f"Erreur pour {n.atom_type} : {e}")
-                alpha_atom = self.alpha_value  # fallback sécurité
+                alpha_atom = alpha  # fallback sécurité
+
             alpha_atoms += n_pi * alpha_atom
-            print(i,alpha_atom,n_pi, alpha_atoms)
-        alpha_part = self.total_pi_electrons
-        
-        # Determine if atomization energy is valid
-        atom_types = set(n.atom_type for n in self.nodes)
-        is_all_carbons = atom_types == {"C"}
-        is_neutral = (self.charge_mol == 0)
-        if is_neutral or is_all_carbons:
-            atomization_energy = total_energy - alpha_atoms
-            atomization_energy_per_atom = atomization_energy / len(self.nodes) if self.nodes else 0
-        else:
-            print("[INFO] Atomization energy skipped: molecule is charged and contains heteroatoms.")
-            atomization_energy = None
-            atomization_energy_per_atom = None
+            alpha_part += n_pi * alpha
+            print(i,alpha_atom,n_pi, alpha_part, alpha_atoms)
+    
+        # Partie beta : ce qui reste
+        beta_part = total_energy - alpha_part
     
         # Atomization energy (comme avant)
         atomization_energy = total_energy - alpha_atoms
@@ -2160,8 +2062,7 @@ class MoleculeDrawer:
             # Output: {0: 2, 1: 2, 2: 2, 3: 0, ...}
             """
 
-            # eigvals_sorted = np.sort(eigvals)
-            eigvals_sorted = eigvals.copy()
+            eigvals_sorted = np.sort(eigvals)
             n_electrons = self.total_pi_electrons
             
             # === Initialisation ===
@@ -2215,12 +2116,16 @@ class MoleculeDrawer:
 
             return occupation_dict
 
-        H = self.build_huckel_matrix(self.alpha_value, self.beta_value)
+        alpha = -11.0
+        beta = -2.7
+        self.alpha_value = alpha
+        self.beta_value = beta
+
+        H = self.build_huckel_matrix(alpha, beta)
         if H is None:
             print("[INFO] Hückel analysis stopped due to a matrix-building error.")
             return
         eigvals, eigvecs = np.linalg.eigh(H)
-        eigvals = eigvals/ self.beta_value
 
         self.total_pi_electrons = 0
         for idx, n in enumerate(self.nodes):
@@ -2230,7 +2135,7 @@ class MoleculeDrawer:
                 n_pi = param["n_pi"]
                 if n_pi is None:
                     raise ValueError(f"The 'n_pi' parameter is None for atom '{atom_type}'.")
-                alpha_value = self.evaluate(param["alpha_expr"], self.alpha_value, self.beta_value)
+                alpha_value = self.evaluate(param["alpha_expr"], alpha, beta)
                 print(f"[INFO] Atom #{idx+1} ('{atom_type}'): n_pi = {n_pi}, alpha = {alpha_value:.2f}")  # ✅ log for each atom
             except KeyError:
                 print(f"[ERROR] Unknown atom type '{atom_type}' when counting π electrons.")
@@ -2253,19 +2158,15 @@ class MoleculeDrawer:
                 self.master.quit()
                 return
             self.total_pi_electrons += n_pi
-        # ➕ Correction par la charge globale
-        print(f"[INFO] Total π-electrons before charge adjustment: {self.total_pi_electrons}")
-        print(f"[INFO] Charge correction applied: {self.charge_mol}")
-        self.total_pi_electrons -= self.charge_mol
-        print(f"[INFO] Final π-electron count: {self.total_pi_electrons}")
+        
+        print(f"[INFO] Total π-electron count: {self.total_pi_electrons}")
         
         occupation_dict = compute_occupations(eigvals, self.total_pi_electrons)
-        # sorted_indices = np.argsort(eigvals)[::-1]
-        sorted_indices = np.arange(0, len(occupation_dict))
-        
+        sorted_indices = np.argsort(eigvals)[::-1]
+
         self.charges, self.bond_orders = self.compute_charges_and_bond_orders(eigvecs, occupation_dict)
 
-        self.props(eigvals, occupation_dict)
+        self.props(eigvals, occupation_dict, sorted_indices, alpha, beta)
 
         labels = {}
         counts = {}
@@ -2282,7 +2183,7 @@ class MoleculeDrawer:
         for idx, j in enumerate(sorted_indices):
             e_rounded = round(eigvals[j], 5)
             occ = occupation_dict[j]
-            energy_coeff = eigvals[j]
+            energy_coeff = (eigvals[j] - alpha) / beta
             energy_coeff_rounded = round(energy_coeff, 2)
             
             # Évite les + -0.00 ou -0.00 avec formatage intelligent
@@ -2297,7 +2198,7 @@ class MoleculeDrawer:
             columns.append(header)
         index_labels = [labels[i] for i in range(len(self.nodes))]
         df = pd.DataFrame(data, index=index_labels, columns=columns)
-        # df = df.iloc[:, ::-1]
+        df = df.iloc[:, ::-1]
         self.df = df
         del df
         
@@ -2393,15 +2294,15 @@ class MoleculeDrawer:
                 "ω (electrophilicity)"
             ],
             "Value": [
-                f"{self.alpha_part:.0f}α + {self.beta_part:.2f}β",
+                f"{self.alpha_part/alpha:.0f}α + {self.beta_part/beta:.2f}β",
                 f"{self.total_pi_electrons}",
-                f"{self.atomization_energy:.2f}",
-                f"{self.atomization_energy_per_atom:.2f}",
-                f"{abs(self.homo_lumo_gap):.2f}",
-                f"{self.mu:.2f}",
-                f"{abs(self.eta):.2f}",
-                f"{abs(self.softness):.2f}",
-                f"{self.omega:.2f}",
+                f"{self.atomization_energy / beta:.2f}",
+                f"{self.atomization_energy_per_atom / beta:.2f}",
+                f"{abs(self.homo_lumo_gap / beta):.2f}",
+                f"{self.mu / beta:.2f}",
+                f"{abs(self.eta / beta):.2f}",
+                f"{abs(self.softness * beta):.2f}",
+                f"{self.omega / (beta**2):.2f}",
             ],
             "Unit": [
                 f"",
@@ -2754,15 +2655,15 @@ class MoleculeDrawer:
         summary_title.pack(pady=(5, 0))
 
         summary_text = (
-            f"Total π-electron energy: {self.alpha_part:.0f}α + {self.beta_part:.2f}β\n"
+            f"Total π-electron energy: {self.alpha_part/alpha:.0f}α + {self.beta_part/beta:.2f}β\n"
             f"Number of π electrons: {self.total_pi_electrons}\n"
-            f"Atomization energy: {self.atomization_energy:.2f}β\n"
-            f"Atomization energy per π atom: {self.atomization_energy_per_atom:.2f}β\n"
-            f"HOMO-LUMO gap: {abs(self.homo_lumo_gap):.2f}|β|\n"
-            f"Electronic potential μ: {self.mu:.2f}β\n"
-            f"Chemical hardness η: {abs(self.eta):.2f}|β|\n"
-            f"Chemical softness S: {abs(self.softness):.2f}/|β|\n"
-            f"Electrophilicity index ω: {self.omega:.2f}β\n"
+            f"Atomization energy: {self.atomization_energy / beta:.2f}β\n"
+            f"Atomization energy per π atom: {self.atomization_energy_per_atom / beta:.2f}β\n"
+            f"HOMO-LUMO gap: {abs(self.homo_lumo_gap / beta):.2f}|β|\n"
+            f"Electronic potential μ: {self.mu / beta:.2f}β\n"
+            f"Chemical hardness η: {abs(self.eta / beta):.2f}|β|\n"
+            f"Chemical softness S: {abs(self.softness * beta):.2f}/|β|\n"
+            f"Electrophilicity index ω: {self.omega / (beta**2):.2f}β\n"
         )
         self.summary_text = summary_text  # sauvegarde pour le PDF
         summary_label = tk.Label(frame_main, text=summary_text, font=("DejaVu Sans", 10), justify="left")
