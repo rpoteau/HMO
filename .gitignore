@@ -35,6 +35,7 @@ hmo/Examples/
 hmo/build/
 hmo/HMO-Installer-Linux/
 hmo/HMO-Installer.tar.gz
+hmo/installer/HMO
 
 # Swap and temporary
 *~

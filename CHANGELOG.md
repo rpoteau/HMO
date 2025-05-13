@@ -1,7 +1,37 @@
+<div style="text-align:center">
+<img src="https://raw.githubusercontent.com/rpoteau/HMO/main/hmo/icons-logos-banner/HMO_Banner.png" alt="HMObanner" width="800"/>
+</div>
 
 # Changelog
 
 All notable changes to this project will be documented in this file.
+
+## [0.4.1] - 2025-05-13
+
+### Fixed
+- Prevented Hückel run on an empty molecule: a warning is now shown if no atoms are defined.
+- The "Clear" button now also removes all formal charges, not just the molecular skeleton.
+- Closing behavior improved: all related windows (MO viewer, OM diagram, and charge/bond view) are now properly closed when the molecule is cleared.
+
+### Added
+- Confirmation prompt when clearing a molecule to prevent accidental deletion.
+
+---
+
+## [0.4.0] - 2025-05-11
+
+### Added
+- New `show_charge_bond_view()` method and `descriptors` button for visualizing molecular structures with atom types, formal charges, and π bond indices using matplotlib.
+- Added GUI window with export options (PNG, SVG, PDF, EPS) and enhanced styling for atoms and labels.
+
+---
+
+## [0.3.1] - 2025-05-08
+
+### Fixed
+- when all MOs are occupied (eg, H2N-CH-NH2 radical), there is no LUMO within HMO. Error when displaying or saving HOMO-LUMO gaps and reactivity descriptors (eta,..) fixed 
+
+---
 
 ## [0.3.0] - 2025-05-07
 
@@ -22,6 +52,8 @@ All notable changes to this project will be documented in this file.
 - Charge text color is now always set to white, instead of being conditional on its sign.
 - Charge drawing now uses custom coordinates (`draw_x`, `draw_y`) instead of `self.x`, `self.y`.
 - Attribute `charges` replaced by `formal_charges`.
+
+---
 
 ## [0.2.0] - 2025-05-06
 

@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HMO documentation &mdash; HMO 0.1.0 documentation</title>
+  <title>HMO documentation &mdash; HMO 0.4.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
@@ -14,12 +14,13 @@
     <link rel="canonical" href="https://hmo.readthedocs.io/index.html" />
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=01f34227"></script>
+      <script src="_static/documentation_options.js?v=6c02275b"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="📄 Hand-on exercises" href="HMO_exercises.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -41,136 +42,11 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <!-- Local TOC -->
-              <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">HMO documentation</a><ul>
-<li><a class="reference internal" href="#main-features">Main features:</a></li>
-<li><a class="reference internal" href="#display-organization-tkinter-based">Display organization (Tkinter-based):</a></li>
-<li><a class="reference internal" href="#usage">Usage:</a></li>
-<li><a class="reference internal" href="#notes">Notes:</a></li>
-<li><a class="reference internal" href="#hmo.HMO.HMOViewer"><code class="docutils literal notranslate"><span class="pre">HMOViewer</span></code></a><ul>
-<li><a class="reference internal" href="#hmo.HMO.HMOViewer.canvas"><code class="docutils literal notranslate"><span class="pre">HMOViewer.canvas</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.HMOViewer.scale_slider"><code class="docutils literal notranslate"><span class="pre">HMOViewer.scale_slider</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.HMOViewer.lobe_slider"><code class="docutils literal notranslate"><span class="pre">HMOViewer.lobe_slider</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.HMOViewer.homo_lumo_button"><code class="docutils literal notranslate"><span class="pre">HMOViewer.homo_lumo_button</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.HMOViewer.skeleton_button"><code class="docutils literal notranslate"><span class="pre">HMOViewer.skeleton_button</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.HMOViewer.save_button"><code class="docutils literal notranslate"><span class="pre">HMOViewer.save_button</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.HMOViewer.close_button"><code class="docutils literal notranslate"><span class="pre">HMOViewer.close_button</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.HMOViewer.show_atom_labels"><code class="docutils literal notranslate"><span class="pre">HMOViewer.show_atom_labels</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.HMOViewer.skeleton_items"><code class="docutils literal notranslate"><span class="pre">HMOViewer.skeleton_items</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.HMOViewer.user_scale_multiplier"><code class="docutils literal notranslate"><span class="pre">HMOViewer.user_scale_multiplier</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.HMOViewer.user_lobe_multiplier"><code class="docutils literal notranslate"><span class="pre">HMOViewer.user_lobe_multiplier</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.HMOViewer.display_default_homo_lumo"><code class="docutils literal notranslate"><span class="pre">HMOViewer.display_default_homo_lumo()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.HMOViewer.display_om"><code class="docutils literal notranslate"><span class="pre">HMOViewer.display_om()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.HMOViewer.draw_energy_levels"><code class="docutils literal notranslate"><span class="pre">HMOViewer.draw_energy_levels()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.HMOViewer.draw_energy_scale_and_descriptors"><code class="docutils literal notranslate"><span class="pre">HMOViewer.draw_energy_scale_and_descriptors()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.HMOViewer.draw_layout"><code class="docutils literal notranslate"><span class="pre">HMOViewer.draw_layout()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.HMOViewer.draw_skeleton_overview"><code class="docutils literal notranslate"><span class="pre">HMOViewer.draw_skeleton_overview()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.HMOViewer.load_images"><code class="docutils literal notranslate"><span class="pre">HMOViewer.load_images()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.HMOViewer.on_escape"><code class="docutils literal notranslate"><span class="pre">HMOViewer.on_escape()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.HMOViewer.on_level_click"><code class="docutils literal notranslate"><span class="pre">HMOViewer.on_level_click()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.HMOViewer.prepare_data"><code class="docutils literal notranslate"><span class="pre">HMOViewer.prepare_data()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.HMOViewer.refresh_MOs"><code class="docutils literal notranslate"><span class="pre">HMOViewer.refresh_MOs()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.HMOViewer.refresh_skeleton"><code class="docutils literal notranslate"><span class="pre">HMOViewer.refresh_skeleton()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.HMOViewer.save_canvas_as_png"><code class="docutils literal notranslate"><span class="pre">HMOViewer.save_canvas_as_png()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.HMOViewer.toggle_skeleton"><code class="docutils literal notranslate"><span class="pre">HMOViewer.toggle_skeleton()</span></code></a></li>
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="HMO_exercises.html">📄 Hand-on exercises</a></li>
 </ul>
-</li>
-<li><a class="reference internal" href="#hmo.HMO.MoleculeDrawer"><code class="docutils literal notranslate"><span class="pre">MoleculeDrawer</span></code></a><ul>
-<li><a class="reference internal" href="#hmo.HMO.MoleculeDrawer.nodes"><code class="docutils literal notranslate"><span class="pre">MoleculeDrawer.nodes</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.MoleculeDrawer.bonds"><code class="docutils literal notranslate"><span class="pre">MoleculeDrawer.bonds</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.MoleculeDrawer.undo_stack"><code class="docutils literal notranslate"><span class="pre">MoleculeDrawer.undo_stack</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.MoleculeDrawer.redo_stack"><code class="docutils literal notranslate"><span class="pre">MoleculeDrawer.redo_stack</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.MoleculeDrawer.df"><code class="docutils literal notranslate"><span class="pre">MoleculeDrawer.df</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.MoleculeDrawer.df_atoms"><code class="docutils literal notranslate"><span class="pre">MoleculeDrawer.df_atoms</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.MoleculeDrawer.df_bonds"><code class="docutils literal notranslate"><span class="pre">MoleculeDrawer.df_bonds</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.MoleculeDrawer.df_summary"><code class="docutils literal notranslate"><span class="pre">MoleculeDrawer.df_summary</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.MoleculeDrawer.project_name"><code class="docutils literal notranslate"><span class="pre">MoleculeDrawer.project_name</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.MoleculeDrawer.safe_project_name"><code class="docutils literal notranslate"><span class="pre">MoleculeDrawer.safe_project_name</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.MoleculeDrawer.mo_viewer_window"><code class="docutils literal notranslate"><span class="pre">MoleculeDrawer.mo_viewer_window</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.MoleculeDrawer.om_window"><code class="docutils literal notranslate"><span class="pre">MoleculeDrawer.om_window</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.MoleculeDrawer.apply_scale"><code class="docutils literal notranslate"><span class="pre">MoleculeDrawer.apply_scale()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.MoleculeDrawer.bind_shortcuts"><code class="docutils literal notranslate"><span class="pre">MoleculeDrawer.bind_shortcuts()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.MoleculeDrawer.build_dataframes"><code class="docutils literal notranslate"><span class="pre">MoleculeDrawer.build_dataframes()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.MoleculeDrawer.build_huckel_matrix"><code class="docutils literal notranslate"><span class="pre">MoleculeDrawer.build_huckel_matrix()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.MoleculeDrawer.change_atom_type"><code class="docutils literal notranslate"><span class="pre">MoleculeDrawer.change_atom_type()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.MoleculeDrawer.clear"><code class="docutils literal notranslate"><span class="pre">MoleculeDrawer.clear()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.MoleculeDrawer.compute_charges_and_bond_orders"><code class="docutils literal notranslate"><span class="pre">MoleculeDrawer.compute_charges_and_bond_orders()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.MoleculeDrawer.count_bonds"><code class="docutils literal notranslate"><span class="pre">MoleculeDrawer.count_bonds()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.MoleculeDrawer.create_button"><code class="docutils literal notranslate"><span class="pre">MoleculeDrawer.create_button()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.MoleculeDrawer.create_toolbar"><code class="docutils literal notranslate"><span class="pre">MoleculeDrawer.create_toolbar()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.MoleculeDrawer.delete_node"><code class="docutils literal notranslate"><span class="pre">MoleculeDrawer.delete_node()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.MoleculeDrawer.draw_grid"><code class="docutils literal notranslate"><span class="pre">MoleculeDrawer.draw_grid()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.MoleculeDrawer.evaluate"><code class="docutils literal notranslate"><span class="pre">MoleculeDrawer.evaluate()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.MoleculeDrawer.find_bond"><code class="docutils literal notranslate"><span class="pre">MoleculeDrawer.find_bond()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.MoleculeDrawer.find_node"><code class="docutils literal notranslate"><span class="pre">MoleculeDrawer.find_node()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.MoleculeDrawer.find_node_by_coords"><code class="docutils literal notranslate"><span class="pre">MoleculeDrawer.find_node_by_coords()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.MoleculeDrawer.left_click"><code class="docutils literal notranslate"><span class="pre">MoleculeDrawer.left_click()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.MoleculeDrawer.load_icons"><code class="docutils literal notranslate"><span class="pre">MoleculeDrawer.load_icons()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.MoleculeDrawer.load_molecule"><code class="docutils literal notranslate"><span class="pre">MoleculeDrawer.load_molecule()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.MoleculeDrawer.mouse_drag"><code class="docutils literal notranslate"><span class="pre">MoleculeDrawer.mouse_drag()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.MoleculeDrawer.mouse_motion"><code class="docutils literal notranslate"><span class="pre">MoleculeDrawer.mouse_motion()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.MoleculeDrawer.mouse_release"><code class="docutils literal notranslate"><span class="pre">MoleculeDrawer.mouse_release()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.MoleculeDrawer.node_exists_at"><code class="docutils literal notranslate"><span class="pre">MoleculeDrawer.node_exists_at()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.MoleculeDrawer.on_run_huckel"><code class="docutils literal notranslate"><span class="pre">MoleculeDrawer.on_run_huckel()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.MoleculeDrawer.props"><code class="docutils literal notranslate"><span class="pre">MoleculeDrawer.props()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.MoleculeDrawer.quit_program"><code class="docutils literal notranslate"><span class="pre">MoleculeDrawer.quit_program()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.MoleculeDrawer.redo"><code class="docutils literal notranslate"><span class="pre">MoleculeDrawer.redo()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.MoleculeDrawer.redraw"><code class="docutils literal notranslate"><span class="pre">MoleculeDrawer.redraw()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.MoleculeDrawer.resize_canvas"><code class="docutils literal notranslate"><span class="pre">MoleculeDrawer.resize_canvas()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.MoleculeDrawer.right_click"><code class="docutils literal notranslate"><span class="pre">MoleculeDrawer.right_click()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.MoleculeDrawer.run_huckel_analysis"><code class="docutils literal notranslate"><span class="pre">MoleculeDrawer.run_huckel_analysis()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.MoleculeDrawer.sanitize_filename"><code class="docutils literal notranslate"><span class="pre">MoleculeDrawer.sanitize_filename()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.MoleculeDrawer.save_data"><code class="docutils literal notranslate"><span class="pre">MoleculeDrawer.save_data()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.MoleculeDrawer.save_dataframe_as_pdf"><code class="docutils literal notranslate"><span class="pre">MoleculeDrawer.save_dataframe_as_pdf()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.MoleculeDrawer.save_dataframe_as_xlsx"><code class="docutils literal notranslate"><span class="pre">MoleculeDrawer.save_dataframe_as_xlsx()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.MoleculeDrawer.save_molecule"><code class="docutils literal notranslate"><span class="pre">MoleculeDrawer.save_molecule()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.MoleculeDrawer.save_state"><code class="docutils literal notranslate"><span class="pre">MoleculeDrawer.save_state()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.MoleculeDrawer.show_about"><code class="docutils literal notranslate"><span class="pre">MoleculeDrawer.show_about()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.MoleculeDrawer.show_dataframe_in_window"><code class="docutils literal notranslate"><span class="pre">MoleculeDrawer.show_dataframe_in_window()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.MoleculeDrawer.show_numerical_data"><code class="docutils literal notranslate"><span class="pre">MoleculeDrawer.show_numerical_data()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.MoleculeDrawer.snap_to_grid"><code class="docutils literal notranslate"><span class="pre">MoleculeDrawer.snap_to_grid()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.MoleculeDrawer.toggle_eraser"><code class="docutils literal notranslate"><span class="pre">MoleculeDrawer.toggle_eraser()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.MoleculeDrawer.undo"><code class="docutils literal notranslate"><span class="pre">MoleculeDrawer.undo()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#hmo.HMO.Node"><code class="docutils literal notranslate"><span class="pre">Node</span></code></a><ul>
-<li><a class="reference internal" href="#hmo.HMO.Node.x"><code class="docutils literal notranslate"><span class="pre">Node.x</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.Node.y"><code class="docutils literal notranslate"><span class="pre">Node.y</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.Node.radius"><code class="docutils literal notranslate"><span class="pre">Node.radius</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.Node.atom_type"><code class="docutils literal notranslate"><span class="pre">Node.atom_type</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.Node.color"><code class="docutils literal notranslate"><span class="pre">Node.color</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.Node.circle"><code class="docutils literal notranslate"><span class="pre">Node.circle</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.Node.label"><code class="docutils literal notranslate"><span class="pre">Node.label</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.Node.pi_charge"><code class="docutils literal notranslate"><span class="pre">Node.pi_charge</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.Node.draw"><code class="docutils literal notranslate"><span class="pre">Node.draw()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.Node.update_label"><code class="docutils literal notranslate"><span class="pre">Node.update_label()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.Node.is_within"><code class="docutils literal notranslate"><span class="pre">Node.is_within()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.Node.move_to"><code class="docutils literal notranslate"><span class="pre">Node.move_to()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.Node.set_pi_charge"><code class="docutils literal notranslate"><span class="pre">Node.set_pi_charge()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#hmo.HMO.ToolTip"><code class="docutils literal notranslate"><span class="pre">ToolTip</span></code></a><ul>
-<li><a class="reference internal" href="#hmo.HMO.ToolTip.widget"><code class="docutils literal notranslate"><span class="pre">ToolTip.widget</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.ToolTip.text"><code class="docutils literal notranslate"><span class="pre">ToolTip.text</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.ToolTip.tooltip_window"><code class="docutils literal notranslate"><span class="pre">ToolTip.tooltip_window</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.ToolTip.OpenSansReg_font"><code class="docutils literal notranslate"><span class="pre">ToolTip.OpenSansReg_font</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.ToolTip.show_tooltip"><code class="docutils literal notranslate"><span class="pre">ToolTip.show_tooltip</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.ToolTip.hide_tooltip"><code class="docutils literal notranslate"><span class="pre">ToolTip.hide_tooltip</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.ToolTip.enter"><code class="docutils literal notranslate"><span class="pre">ToolTip.enter()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.ToolTip.hidetip"><code class="docutils literal notranslate"><span class="pre">ToolTip.hidetip()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.ToolTip.leave"><code class="docutils literal notranslate"><span class="pre">ToolTip.leave()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.ToolTip.motion"><code class="docutils literal notranslate"><span class="pre">ToolTip.motion()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.ToolTip.schedule"><code class="docutils literal notranslate"><span class="pre">ToolTip.schedule()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.ToolTip.showtip"><code class="docutils literal notranslate"><span class="pre">ToolTip.showtip()</span></code></a></li>
-<li><a class="reference internal" href="#hmo.HMO.ToolTip.unschedule"><code class="docutils literal notranslate"><span class="pre">ToolTip.unschedule()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#hmo.HMO.resource_path"><code class="docutils literal notranslate"><span class="pre">resource_path()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</div>
+
         </div>
       </div>
     </nav>
@@ -195,9 +71,11 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-hmo.HMO">
-<span id="hmo-documentation"></span><h1>HMO documentation<a class="headerlink" href="#module-hmo.HMO" title="Link to this heading"></a></h1>
-<p>Hückel Molecule Drawer &amp; Viewer (HMO Tool)</p>
+  <section id="hmo-documentation">
+<h1>HMO documentation<a class="headerlink" href="#hmo-documentation" title="Link to this heading"></a></h1>
+<a class="reference internal image-reference" href="_images/HMO_Banner.svg"><img alt="HMO banner" class="align-center" src="_images/HMO_Banner.svg" style="width: 1000px;" />
+</a>
+<br><p id="module-hmo.HMO">Hückel Molecule Drawer &amp; Viewer (HMO Tool)</p>
 <p>This program provides a complete graphical interface for the interactive construction of
 (planar π-conjugated) molecules and the analysis of their molecular orbitals using the Hückel model.
 It allows the user to draw the molecular skeleton on a grid, select atom types (C·, N:, O·, etc.),
@@ -289,6 +167,30 @@ with keyboard shortcuts for efficiency.</p></li>
 </ul>
 </section>
 <dl class="py class">
+<dt class="sig sig-object py" id="hmo.HMO.ChargeNode">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">hmo.HMO.</span></span><span class="sig-name descname"><span class="pre">ChargeNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charge</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'-1'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.ChargeNode" title="Link to this definition"></a></dt>
+<dd><p>Represents a charge element on the canvas that cannot form bonds.
+It has a visual indicator (colored disk with sign), and affects the total number of π electrons.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hmo.HMO.ChargeNode.charge_radius">
+<span class="sig-name descname"><span class="pre">charge_radius</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">15</span></em><a class="headerlink" href="#hmo.HMO.ChargeNode.charge_radius" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.ChargeNode.contains">
+<span class="sig-name descname"><span class="pre">contains</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.ChargeNode.contains" title="Link to this definition"></a></dt>
+<dd><p>Checks if a point (x, y) lies within the charge disk (used for click detection).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.ChargeNode.draw">
+<span class="sig-name descname"><span class="pre">draw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">canvas</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.ChargeNode.draw" title="Link to this definition"></a></dt>
+<dd><p>Draws the charge on the canvas. Uses scaled x/y if provided.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="hmo.HMO.HMOViewer">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">hmo.HMO.</span></span><span class="sig-name descname"><span class="pre">HMOViewer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_MOs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_bonds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_descriptors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.HMOViewer" title="Link to this definition"></a></dt>
 <dd><p>GUI application for visualizing Hückel Molecular Orbitals (MOs) and their energy diagrams.</p>
@@ -330,7 +232,7 @@ with keyboard shortcuts for efficiency.</p></li>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="hmo.HMO.HMOViewer.lobe_slider">
 <span class="sig-name descname"><span class="pre">lobe_slider</span></span><a class="headerlink" href="#hmo.HMO.HMOViewer.lobe_slider" title="Link to this definition"></a></dt>
-<dd><p>Slider widget that allows dynamic adjustment of orbital lobe sizes (×0.5 to ×3.0).</p>
+<dd><p>Slider widget that allows dynamic adjustment of orbital lobe sizes (×0.7 to ×1.3).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>tk.Scale</p>
@@ -828,7 +730,7 @@ representations as <cite>.png</cite> or <cite>.pdf</cite>.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.build_huckel_matrix">
-<span class="sig-name descname"><span class="pre">build_huckel_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-11.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-2.7</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.build_huckel_matrix" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">build_huckel_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.build_huckel_matrix" title="Link to this definition"></a></dt>
 <dd><p>Constructs the Hückel matrix (Hamiltonian) for the current molecular graph.</p>
 <p>This method builds the square matrix H of size n×n, where n is the number of atoms (nodes)
 in the molecule. The diagonal elements (alpha) represent Coulomb integrals, while the
@@ -839,8 +741,18 @@ atom’s type (e.g., ‘C’, ‘N’, etc.), and bond parameters are retrieved 
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>alpha</strong> (<em>float</em><em>, </em><em>optional</em>) – The Coulomb integral (diagonal value), default is -11.0.</p></li>
-<li><p><strong>beta</strong> (<em>float</em><em>, </em><em>optional</em>) – The resonance integral (off-diagonal value), default is -2.7.</p></li>
+<li><p><strong>alpha</strong> (<em>- alpha_part = n_pi_total *</em>) – The Coulomb integral (diagonal value), default is 0.</p></li>
+<li><p><strong>beta</strong> (<em>The entire matrix is divided by</em>) – The resonance integral (off-diagonal value), default is -1.</p></li>
+<li><p><strong>Note</strong></p></li>
+<li><p><strong>-----</strong></p></li>
+<li><p><strong>change</strong> (<em>The Hückel matrix H is transformed using the standard variable</em>) – x = (alpha - epsilon) / beta</p></li>
+<li><p><strong>origin.</strong> (<em>where x = 0 is chosen as the energy</em>)</p></li>
+<li><p><strong>beta</strong></p></li>
+<li><p><strong>beta.</strong> (<em>so all energies</em><em> (</em><em>eigenvalues</em><em>) </em><em>are expressed in units of</em>)</p></li>
+<li><p><strong>transformation.</strong> (<em>Alpha is conceptually shifted to zero during this</em>)</p></li>
+<li><p><strong>into</strong> (<em>The total π-electron energy is separated</em>)</p></li>
+<li><p><strong>alpha</strong></p></li>
+<li><p><strong>units</strong><strong>)</strong> (<em>- beta_part  = sum</em><em> of </em><em>occupied eigenvalues</em><em> (</em><em>in beta</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -864,7 +776,7 @@ different atom types (e.g., C-N, C-O).</p></li>
 substitutes the global alpha and beta values.</p></li>
 </ul>
 <p class="rubric">Example</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">H</span> <span class="o">=</span> <span class="n">drawer</span><span class="o">.</span><span class="n">build_huckel_matrix</span><span class="p">(</span><span class="n">alpha</span><span class="o">=-</span><span class="mf">11.0</span><span class="p">,</span> <span class="n">beta</span><span class="o">=-</span><span class="mf">2.7</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">H</span> <span class="o">=</span> <span class="n">drawer</span><span class="o">.</span><span class="n">build_huckel_matrix</span><span class="p">(</span><span class="n">alpha</span><span class="o">=-</span><span class="mf">11.0</span><span class="p">,</span> <span class="n">beta</span><span class="o">=-</span><span class="mf">2.7</span><span class="p">)</span> <span class="ow">or</span> <span class="n">H</span> <span class="o">=</span> <span class="n">drawer</span><span class="o">.</span><span class="n">build_huckel_matrix</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">beta</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> <span class="ow">in</span> <span class="n">reduced</span> <span class="n">units</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -1033,7 +945,7 @@ i j
 
 <dl class="py method">
 <dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.props">
-<span class="sig-name descname"><span class="pre">props</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eigvals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occupation_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sorted_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.props" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">props</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eigvals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occupation_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.props" title="Link to this definition"></a></dt>
 <dd><p>Compute global energetic and chemical descriptors from Hückel eigenvalues.</p>
 <p>This method calculates the total π-electron energy of the molecule, decomposed into
 its alpha (on-site) and beta (interaction) parts, as well as the atomization energy
@@ -1050,9 +962,6 @@ its alpha (on-site) and beta (interaction) parts, as well as the atomization ene
 <li><p><strong>eigvals</strong> (<em>array-like</em>) – The eigenvalues (orbital energies) from the Hückel matrix diagonalization.</p></li>
 <li><p><strong>occupation_dict</strong> (<em>dict</em>) – A dictionary mapping orbital indices to their occupation numbers (typically 2 for
 occupied, 0 for virtual).</p></li>
-<li><p><strong>sorted_indices</strong> (<em>list</em>) – List of indices sorting the eigenvalues in ascending order (can be used if needed).</p></li>
-<li><p><strong>alpha</strong> (<em>float</em>) – The reference on-site energy parameter α (Hückel theory).</p></li>
-<li><p><strong>beta</strong> (<em>float</em>) – The reference coupling parameter β (Hückel theory).</p></li>
 </ul>
 </dd>
 </dl>
@@ -1236,6 +1145,12 @@ The molecule is saved in a simple text format:
 <dd></dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.set_mode_add_charge">
+<span class="sig-name descname"><span class="pre">set_mode_add_charge</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.set_mode_add_charge" title="Link to this definition"></a></dt>
+<dd><p>Sets the current interaction mode to adding a new charge.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.show_about">
 <span class="sig-name descname"><span class="pre">show_about</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.show_about" title="Link to this definition"></a></dt>
 <dd><p>Display the ‘About’ window for the HMO application.</p>
@@ -1245,6 +1160,13 @@ The molecule is saved in a simple text format:
 - The current version of the application,
 - A ‘Close’ button to dismiss the window.</p>
 <p>The window is non-resizable and can also be closed using the Escape key.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.show_charge_bond_view">
+<span class="sig-name descname"><span class="pre">show_charge_bond_view</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.show_charge_bond_view" title="Link to this definition"></a></dt>
+<dd><p>Displays the molecule using matplotlib in a Tkinter window with atom colors, formal charges,
+and π bond indices. Includes buttons to save (PNG, SVG, PDF, EPS) and close.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -1940,13 +1862,19 @@ of α_C and β_C</strong>, enabling a transferability of parameters while keepin
 </dd></dl>
 
 <div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="HMO_exercises.html">📄 Hand-on exercises</a></li>
+</ul>
 </div>
 </section>
 
 
            </div>
           </div>
-          <footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="HMO_exercises.html" class="btn btn-neutral float-right" title="📄 Hand-on exercises" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
 
   <hr/>
 

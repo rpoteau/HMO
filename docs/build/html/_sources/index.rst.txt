@@ -6,6 +6,15 @@
 HMO documentation
 =================
 
+.. image:: _static/HMO_Banner.svg
+   :alt: HMO banner
+   :align: center
+   :width: 1000px
+
+.. raw:: html
+
+    <br>
+
 .. automodule:: hmo.HMO
    :members:
    :undoc-members:
@@ -25,3 +34,4 @@ HMO documentation
    :maxdepth: 2
    :caption: Contents:
 
+   HMO_exercises.md

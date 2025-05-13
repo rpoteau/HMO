@@ -64,12 +64,10 @@ Notes:
 # ========================================================================================================
 
 import tkinter as tk
-from tkinter import filedialog, messagebox, font, ttk, simpledialog, Toplevel, Frame
+from tkinter import filedialog, messagebox, font, ttk, simpledialog
 import matplotlib
 matplotlib.use("TkAgg") ### mandatory for building a standalone Linux application
 import matplotlib.pyplot as plt
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-
 from PIL import Image, ImageTk
 import numpy as np
 import pandas as pd
@@ -77,9 +75,6 @@ from pandas.plotting import table
 import re
 import sys, os
 from pathlib import Path
-
-
-import openpyxl
 
 # Helper function (global)
 def resource_path(relative_path):
@@ -554,6 +549,7 @@ class HMOViewer:
 
     def save_canvas_as_png(self):
         """Sauvegarde le canvas entier en PNG haute qualité."""
+        from tkinter import filedialog
         file = filedialog.asksaveasfilename(
             defaultextension=".png",
             filetypes=[("PNG files", "*.png")],
@@ -1258,15 +1254,23 @@ class MoleculeDrawer:
         self.scale_y = 1.0
         self.undo_stack, self.redo_stack = [], []
 
+        # === drag an existing atom on a new position
+        # Parameters for long-click selection (in milliseconds)
+        self.long_click_duration = 1000  # 1 second threshold
+        self.click_timer = None
+        self.long_click_node = None
+        # Binding mouse events for long-click detection
+        self.canvas.bind("<ButtonPress-1>", self.on_button_press)
+        self.canvas.bind("<ButtonRelease-1>", self.on_button_release_combined)
+
+
         self.load_icons()
         self.create_toolbar()
         self.bind_shortcuts()
 
-        self.canvas.bind("<Button-1>", self.left_click)
         self.canvas.bind("<Button-3>", self.right_click)
         self.canvas.bind("<Motion>", self.mouse_motion)
         self.canvas.bind("<B1-Motion>", self.mouse_drag)
-        self.canvas.bind("<ButtonRelease-1>", self.mouse_release)
         self.canvas.bind("<Configure>", self.resize_canvas)
 
         self.om_window = None  # stocke la fenêtre DataFrame
@@ -1281,13 +1285,13 @@ class MoleculeDrawer:
 
         self.formal_charges = []  # list of ChargeNode instances
         self.charge_mol = 0
-        self.charge_bond_window = None
         self.mode = None
 
         self.alpha_value_num = -11.0 # eV
         self.beta_value_num = -2.7 # eV
         self.alpha_value = 0 # reduced unit
         self.beta_value = -1 # reduced unit
+
 
 
     def sanitize_filename(self, name):
@@ -1297,7 +1301,6 @@ class MoleculeDrawer:
         self.btn_run = self.create_button(self.icons['run'], self.on_run_huckel, "Run")
         self.create_button(self.icons['charge'], self.set_mode_add_charge, "Add a charge")
         self.create_button(self.icons['matrix'], self.show_numerical_data, "Show numerical results")
-        self.create_button(self.icons['descriptors'], self.show_charge_bond_view, "Show descriptors (charges and bond indices)")
         self.create_button(self.icons['save'], self.save_molecule, "Save sigma skeleton")
         self.create_button(self.icons['load'], self.load_molecule, "Load sigma skeleton")
         self.create_button(self.icons['undo'], self.undo, "Undo last action")
@@ -1311,7 +1314,7 @@ class MoleculeDrawer:
         
     def load_icons(self):
         self.icons = {}
-        for name in ['run',  'charge', 'matrix', 'descriptors','save', 'load', 'undo', 'redo', 'eraser', 'clear', 'savedata', 'quit', 'about']:
+        for name in ['run', 'matrix', 'charge', 'save', 'load', 'undo', 'redo', 'eraser', 'clear', 'savedata', 'quit', 'about']:
             icon = resource_path(f"icons-logos-banner/{name}.png")
             self.icons[name] = ImageTk.PhotoImage(Image.open(icon))
 
@@ -1391,7 +1394,7 @@ class MoleculeDrawer:
         author_label.pack(pady=(5, 5))
     
         # === Version ===
-        version_label = tk.Label(about_win, text="Version 0.4.1", font=("DejaVu Sans", 10, "bold"))
+        version_label = tk.Label(about_win, text="Version 0.2.0", font=("DejaVu Sans", 10, "bold"))
         version_label.pack(pady=(5, 10))
         
         # Add Escape key binding to close the window
@@ -1446,7 +1449,213 @@ class MoleculeDrawer:
             if abs(mid_x - x) < HuckelParameters.ATOM_RADIUS and abs(mid_y - y) < HuckelParameters.ATOM_RADIUS:
                 return idx
         return None
+        
+    def on_button_release_combined(self, event):
+        """
+        Handles all left-button release logic, including both short and long click behaviors.
+    
+        This method combines and replaces the previous behaviors of `left_click` and `mouse_release`.
+        It supports:
+          - Long click on an atom: moves the atom to a new empty grid position (highlighted in green).
+          - Short click + drag: creates a bond between the selected atom and another existing or new atom.
+          - Short click on empty space: adds a new atom.
+        
+        It also works in conjunction with:
+          - Eraser mode: activated during `on_button_press`.
+          - Charge placement mode: managed during `on_button_press`.
+    
+        Parameters
+        ----------
+        event : tk.Event
+            Mouse event triggered when the left mouse button is released.
+        """
+        if self.click_timer:
+            self.master.after_cancel(self.click_timer)
+            self.click_timer = None
+    
+        if self.long_click_node is not None:
+            # Gestion clic long : déplacement d'atome existant vers un nœud vide
+            x_snap, y_snap = self.snap_to_grid(event.x, event.y)
+            x_grid = x_snap / self.scale_x
+            y_grid = y_snap / self.scale_y
+    
+            if not self.node_exists_at(x_grid, y_grid) and not self.charge_exists_at(x_grid, y_grid):
+                self.move_node_to_empty(self.long_click_node, x_grid, y_grid)
+            else:
+                messagebox.showwarning(
+                    "Occupied position",
+                    "The target position is already occupied. Please select an empty node."
+                )
+    
+            self.long_click_node = None
+            self.redraw()
+    
+        elif self.dragging and self.selected_node is not None:
+            # Gestion classique : création liaison vers un nouveau nœud ou existant
+            x_snap, y_snap = self.snap_to_grid(event.x, event.y)
+            x_grid = x_snap / self.scale_x
+            y_grid = y_snap / self.scale_y
+    
+            idx_target = self.find_node_by_coords(x_grid, y_grid)
+            if idx_target is None:
+                idx_target = self.find_node(event.x, event.y)
+    
+            if idx_target is None:
+                self.save_state()
+                self.nodes.append(Node(x_grid, y_grid))
+                idx_target = len(self.nodes) - 1
+    
+            if (self.selected_node, idx_target) not in self.bonds and \
+               (idx_target, self.selected_node) not in self.bonds and \
+               self.selected_node != idx_target:
+                self.save_state()
+                self.bonds.append((self.selected_node, idx_target))
+    
+            self.selected_node = None
+            self.dragging = False
+            self.redraw()
+    
+        else:
+            # Simple clic court sur un emplacement vide : création d'atome
+            x_snap, y_snap = self.snap_to_grid(event.x, event.y)
+            x_grid = x_snap / self.scale_x
+            y_grid = y_snap / self.scale_y
+            if not self.node_exists_at(x_grid, y_grid):
+                self.save_state()
+                self.nodes.append(Node(x_grid, y_grid))
+                self.redraw()
+    
+        self.molecule_is_new = True
 
+
+    
+    def on_button_press(self, event):
+        """
+        Detects mouse button press and starts a timer if the user clicked on an existing atom.
+    
+        Parameters:
+        -----------
+        event : tk.Event
+            Mouse event triggered by pressing button-1.
+        """
+        x_canvas, y_canvas = event.x, event.y
+        x, y = self.snap_to_grid(x_canvas, y_canvas)
+        x /= self.scale_x
+        y /= self.scale_y
+        
+        # 1️⃣ Gomme : suppression de charges, d'atomes ou de liaisons
+        if self.eraser_mode:
+            for i, c in enumerate(self.formal_charges):
+                if c.contains(x, y):
+                    self.save_state()
+                    del self.formal_charges[i]
+                    self.redraw()
+                    return
+            idx = self.find_node(event.x, event.y)
+            if idx is not None:
+                self.save_state()
+                self.delete_node(idx)
+                self.redraw()
+                return
+            idx = self.find_bond(event.x, event.y)
+            if idx is not None:
+                self.save_state()
+                del self.bonds[idx]
+                self.redraw()
+                return
+            return
+        
+        # 2️⃣ Mode ajout de charge
+        if self.mode == 'add_charge':
+            if self.node_exists_at(x, y):
+                messagebox.showwarning("Invalid location", "You cannot place a charge on top of an atom.")
+                return
+            for other in self.formal_charges:
+                other.selected = False
+            self.formal_charges.append(ChargeNode(x, y))
+            self.mode = None  # exit charge mode after placing one
+            self.charge_mol = -1
+            self.redraw()
+            return
+
+        idx = self.find_node(event.x, event.y)
+        if idx is not None:
+            # Start timer to detect long-click on existing atom
+            self.click_timer = self.master.after(
+                self.long_click_duration,
+                lambda: self.start_long_click(idx)
+            )
+            self.selected_node = idx
+            self.dragging = True
+
+    def start_long_click(self, idx):
+        """
+        Activates the long-click state by highlighting the selected atom.
+    
+        Parameters:
+        -----------
+        idx : int
+            Index of the atom in self.nodes that was clicked.
+        """
+        self.long_click_node = idx
+        self.highlight_node(idx)
+
+    def highlight_node(self, idx):
+        """
+        Visually highlights the atom to indicate selection for moving.
+    
+        Parameters:
+        -----------
+        idx : int
+            Index of the atom to highlight.
+        """
+        node = self.nodes[idx]
+        x, y = self.apply_scale(node.x, node.y)
+        r = HuckelParameters.ATOM_RADIUS + 6
+        self.canvas.create_oval(
+            x - r, y - r, x + r, y + r,
+            outline='green', width=3, tag='highlight'
+        )
+
+    def move_node_to_empty(self, node_idx, new_x, new_y):
+        """
+        Moves the selected atom to a new empty location, preserving its existing bonds.
+    
+        Parameters:
+        -----------
+        node_idx : int
+            Index of the atom to move.
+        new_x : float
+            X-coordinate (grid units) of the new empty location.
+        new_y : float
+            Y-coordinate (grid units) of the new empty location.
+        """
+        node = self.nodes[node_idx]
+        node.x = new_x
+        node.y = new_y
+
+    def charge_exists_at(self, x, y):
+        """
+        Checks if a charge node already exists at the given grid position.
+    
+        Parameters:
+        -----------
+        x : float
+            X-coordinate (grid units) to check.
+        y : float
+            Y-coordinate (grid units) to check.
+    
+        Returns:
+        --------
+        bool
+            True if a charge exists at the location, False otherwise.
+        """
+        for charge in self.formal_charges:
+            if abs(charge.x - x) < 1e-3 and abs(charge.y - y) < 1e-3:
+                return True
+        return False
+
+    
     def save_state(self):
         self.undo_stack.append((self.nodes.copy(), self.bonds.copy()))
         self.redo_stack.clear()
@@ -1463,57 +1672,6 @@ class MoleculeDrawer:
             self.nodes, self.bonds = self.redo_stack.pop()
             self.redraw()
 
-    def left_click(self, event):
-        x_canvas, y_canvas = event.x, event.y
-        x, y = self.snap_to_grid(x_canvas, y_canvas)
-        x /= self.scale_x
-        y /= self.scale_y
-        if self.eraser_mode:
-            # Try to erase a charge first
-            for i, c in enumerate(self.formal_charges):
-                if c.contains(x, y):
-                    self.save_state()
-                    del self.formal_charges[i]
-                    self.redraw()
-                    return
-                    
-            idx = self.find_node(event.x, event.y)
-            if idx is not None:
-                self.save_state()
-                self.delete_node(idx)
-                self.redraw()
-                return
-            idx = self.find_bond(event.x, event.y)
-            if idx is not None:
-                self.save_state()
-                del self.bonds[idx]
-                self.redraw()
-                return
-            return
-
-        # If mode is 'add_charge', add a new one
-        if self.mode == 'add_charge':
-            if self.node_exists_at(x, y):
-                messagebox.showwarning("Invalid location", "You cannot place a charge on top of an atom.")
-                return
-            for other in self.formal_charges:
-                other.selected = False
-            self.formal_charges.append(ChargeNode(x, y))
-            self.mode = None  # exit charge mode after placing one
-            self.charge_mol = -1  # valeur formelle de la charge
-            self.redraw()
-            return
-
-        idx = self.find_node(event.x, event.y)
-        if idx is None:
-            if not self.node_exists_at(x, y):
-                self.save_state()
-                self.nodes.append(Node(x, y))
-                self.redraw()
-        else:
-            self.selected_node = idx
-            self.dragging = True
-        self.molecule_is_new = True
 
     def right_click(self, event):
         x_canvas, y_canvas = event.x, event.y
@@ -1587,37 +1745,6 @@ class MoleculeDrawer:
                 return idx
         return None
 
-    def mouse_release(self, event):
-
-        if self.dragging and self.selected_node is not None:
-            x_snap, y_snap = self.snap_to_grid(event.x, event.y)
-            x_grid = x_snap / self.scale_x
-            y_grid = y_snap / self.scale_y
-    
-            # 1️⃣ Test précis sur grille
-            idx_target = self.find_node_by_coords(x_grid, y_grid)
-    
-            if idx_target is None:
-                # 2️⃣ Test tolérant (pixels) si l'utilisateur n'était pas parfaitement sur un noeud
-                idx_target = self.find_node(event.x, event.y)
-    
-            if idx_target is None:
-                # Aucun atome existant : crée un nouveau noeud + liaison
-                self.save_state()
-                self.nodes.append(Node(x_grid, y_grid))
-                idx_target = len(self.nodes) - 1
-    
-            # Crée la liaison si elle n'existe pas encore
-            if (self.selected_node, idx_target) not in self.bonds and \
-               (idx_target, self.selected_node) not in self.bonds and \
-               self.selected_node != idx_target:
-                self.save_state()
-                self.bonds.append((self.selected_node, idx_target))
-    
-            self.selected_node = None
-            self.dragging = False
-            self.redraw()
-            # print(f"Release: target found by coords={idx_target is not None}")
     
     def count_bonds(self, idx):
         return sum(1 for i, j in self.bonds if i == idx or j == idx)
@@ -1632,14 +1759,8 @@ class MoleculeDrawer:
             print(f"[INFO] Molecule is now empty; project name reset to: {self.project_name}")
 
     def clear(self):
-        if not self.nodes and not self.formal_charges:
-            return  # nothing to clear
-    
-        if not messagebox.askyesno("Clear molecule", "Are you sure you want to clear the molecule and all charges?"):
-            return
         self.nodes.clear()
         self.bonds.clear()
-        self.formal_charges.clear()
         self.undo_stack.clear()
         self.redo_stack.clear()
         self.molecule_is_new = True
@@ -1657,9 +1778,6 @@ class MoleculeDrawer:
             self.om_window.destroy()
             self.om_window = None
 
-        if self.charge_bond_window is not None and self.charge_bond_window.winfo_exists():
-            self.charge_bond_window.destroy()
-            self.charge_bond_window = None
         
     def save_molecule(self):
         """
@@ -1790,7 +1908,8 @@ class MoleculeDrawer:
 
         self.canvas.delete("all")
         self.draw_grid()
-
+        self.canvas.delete('highlight')  # remove existing highlight if any
+    
         if self.dragging:
             snap_x, snap_y = self.snap_to_grid(*self.current_mouse_pos)
             self.canvas.create_oval(
@@ -1935,104 +2054,6 @@ class MoleculeDrawer:
                 return
             H[i, j] = H[j, i] = k_ij * self.beta_value
         return H
-        
-
-    def show_charge_bond_view(self):
-        """
-        Displays the molecule using matplotlib in a Tkinter window with atom colors, formal charges,
-        and π bond indices. Includes buttons to save (PNG, SVG, PDF, EPS) and close.
-        """
-    
-        if self.df is None:
-            messagebox.showwarning("Missing data", "Please run the Hückel calculation first.")
-            return
-    
-        top = Toplevel(self.master)
-        self.charge_bond_window = top
-        top.title("Charges and Bond Indices")
-        top.geometry("900x900")
-        top.bind("<Escape>", lambda e: top.destroy())
-    
-        fig, ax = plt.subplots(figsize=(8, 8))
-        ax.set_aspect("equal")
-        ax.axis("off")
-    
-        scale_x = self.scale_x
-        scale_y = self.scale_y
-    
-        xs = [node.x for node in self.nodes]
-        ys = [node.y for node in self.nodes]
-        if not xs or not ys:
-            return
-    
-        center_x = (min(xs) + max(xs)) / 2
-        center_y = (min(ys) + max(ys)) / 2
-    
-        # Draw bonds and π indices
-        for i1, i2 in self.bonds:
-            n1, n2 = self.nodes[i1], self.nodes[i2]
-            x1 = (n1.x - center_x) * scale_x
-            y1 = (n1.y - center_y) * scale_y
-            x2 = (n2.x - center_x) * scale_x
-            y2 = (n2.y - center_y) * scale_y
-            ax.plot([x1, x2], [y1, y2], color="black", linewidth=2)
-    
-            idx = (i1, i2) if (i1, i2) in self.bond_orders else (i2, i1)
-            if idx in self.bond_orders:
-                mx = (x1 + x2) / 2
-                my = (y1 + y2) / 2
-                ax.text(mx, my, f"{self.bond_orders[idx]:.2f}", ha="center", va="center",
-                        fontsize=12, fontfamily="DejaVu Sans",fontweight='bold',color="#0081c1",
-                        bbox=dict(facecolor="white", edgecolor="none"))
-    
-        for i, node in enumerate(self.nodes):
-            x = (node.x - center_x) * scale_x
-            y = (node.y - center_y) * scale_y
-            color = HuckelParameters.ATOM_COLORS.get(node.atom_type, 'black')
-
-            r = 12
-            circ = plt.Circle((x, y), radius=r, color=color, ec="black", zorder=2)
-            ax.add_patch(circ)
-            ax.text(x, y, node.atom_type, color="white", ha="center", va="center",
-                    fontsize=12, fontweight="bold", fontfamily="DejaVu Sans", zorder=3)
-    
-            if i < len(self.charges):
-                charge = self.charges[i]
-                if charge < -0.1:
-                    ch_color = "red"
-                elif charge > 0.1:
-                    ch_color = "blue"
-                else:
-                    ch_color = "black"
-                ax.text(x - r, y + r + 2, f"{charge:+.2f}", color=ch_color,
-                        fontsize=12, fontweight='bold', fontfamily="DejaVu Sans", zorder=3)
-    
-        # Embed in Tkinter
-        canvas_frame = Frame(top)
-        canvas_frame.pack(fill="both", expand=True)
-        fig_canvas = FigureCanvasTkAgg(fig, master=canvas_frame)
-        fig_canvas.draw()
-        fig_canvas.get_tk_widget().pack(fill="both", expand=True)
-    
-        # Buttons frame
-        def save_figure():
-            default_name = f"{self.safe_project_name}_charges_bonds" if hasattr(self, 'safe_project_name') else "charges_bonds"
-            filepath = filedialog.asksaveasfilename(
-                parent=top,
-                initialfile=default_name,
-                defaultextension=".png",
-                filetypes=[("PNG", "*.png"), ("SVG", "*.svg"), ("PDF", "*.pdf"), ("EPS", "*.eps")]
-            )
-            if filepath:
-                ext = filepath.split(".")[-1].lower()
-                print(ext)
-                fig.savefig(filepath, dpi=300, bbox_inches="tight", format=ext)
-    
-        button_frame = Frame(top)
-        button_frame.pack(pady=10)
-        tk.Button(button_frame, text="Save As", command=save_figure).pack(side="left", padx=10)
-        tk.Button(button_frame, text="Close", command=top.destroy).pack(side="left", padx=10)
-
 
     def props(self, eigvals, occupation_dict):
         """
@@ -2583,6 +2604,8 @@ class MoleculeDrawer:
         - The Excel file is saved with the '.xlsx' extension, and the default filename is
           based on `self.safe_project_name`.
         """
+        from tkinter import filedialog, messagebox
+        import openpyxl
     
         if self.df is None or self.df_atoms is None:
             messagebox.showwarning("Warning", "No DataFrame available to save.")
@@ -3001,11 +3024,8 @@ class MoleculeDrawer:
         - Debug information about DataFrame shapes is printed to the console for traceability.
         """
 
-        if not self.nodes:
-            messagebox.showwarning("Empty molecule", "Please draw a molecule before running the Hückel analysis.")
-            return
-        
         self.run_huckel_analysis()
+        from tkinter import simpledialog
 
         # Determine initial value for the project name
         initial_value = self.project_name if self.project_name else self.default_project_name

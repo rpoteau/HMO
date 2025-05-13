@@ -19,6 +19,7 @@ include *.ipynb
 include *.md
 
 # Exclude develomment previous versions and the Biblio folder (copyright articles)
+global-exclude *.py[cod] __pycache__/*
 exclude *dev/*
 exclude Biblio/*
 exclude *dev.py
@@ -26,4 +27,9 @@ exclude *dev.py
 exclude Design_ofMOdiagram/*
 exclude icons/*
 exclude hmo/Examples-dev/*
-prune hmo/__pycache__/*
+# Do not include the pyInstaller-related stuff
+prune hmo/build
+prune hmo/dist
+prune hmo/HMO-Installer-Linux
+prune hmo/Tutorials
+exclude hmo/HMO-Installer.tar.gz

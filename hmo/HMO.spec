@@ -5,7 +5,7 @@ a = Analysis(
     ['HMO.py'],
     pathex=[],
     binaries=[],
-    datas=[('icons', 'icons'), ('Fonts', 'Fonts'), ('DesignOfMOdiagram', 'DesignOfMOdiagram')],
+    datas=[('icons-logos-banner', 'icons-logos-banner'), ('Fonts', 'Fonts'), ('DesignOfMOdiagram', 'DesignOfMOdiagram')],
     hiddenimports=['PIL._tkinter_finder'],
     hookspath=[],
     hooksconfig={},
@@ -35,5 +35,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=['HMOicon.png'],
+    icon=['HMOicon.ico'],
 )
