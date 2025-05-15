@@ -535,9 +535,9 @@ class HMOViewer:
     def refresh_MOs(self):
         """Redessine l'OM actuellement affichée (HOMO & LUMO)."""
         if hasattr(self, 'current_occ_idx'):
-            self.display_om(self.current_occ_idx, occupied=True)
+            self.display_mo(self.current_occ_idx, occupied=True)
         if hasattr(self, 'current_virt_idx'):
-            self.display_om(self.current_virt_idx, occupied=False)
+            self.display_mo(self.current_virt_idx, occupied=False)
     
     def refresh_skeleton(self):
         """Efface et redessine le squelette global."""
@@ -557,7 +557,8 @@ class HMOViewer:
         file = filedialog.asksaveasfilename(
             defaultextension=".png",
             filetypes=[("PNG files", "*.png")],
-            initialfile=f"{self.project_name}_HMO_diagram.png"
+            initialfile=f"{self.project_name}_HMO_diagram.png",
+            parent=self.master
         )
         if file:
             # Sauvegarde du canvas en PostScript (format vectoriel temporaire)
@@ -846,7 +847,7 @@ class HMOViewer:
         # Sauvegarde pour pouvoir effacer ensuite
         self.skeleton_items.extend(items)
 
-    def display_om(self, idx, occupied=True):
+    def display_mo(self, idx, occupied=True):
         """
         Displays a specific molecular orbital (MO) in its corresponding frame (occupied or virtual).
         
@@ -1028,10 +1029,10 @@ class HMOViewer:
     
         if homo_idx is not None:
             self.current_occ_idx = homo_idx
-            self.display_om(homo_idx, occupied=True)
+            self.display_mo(homo_idx, occupied=True)
         if lumo_idx is not None:
             self.current_virt_idx = lumo_idx
-            self.display_om(lumo_idx, occupied=False)
+            self.display_mo(lumo_idx, occupied=False)
 
 
     def on_level_click(self, idx):
@@ -1046,7 +1047,7 @@ class HMOViewer:
         Notes
         -----
         - Determines if the MO is occupied or virtual based on its occupancy.
-        - Updates the corresponding frame to display the clicked orbital using `display_om`.
+        - Updates the corresponding frame to display the clicked orbital using `display_mo`.
         """
         occ = self.occupations[idx]
         occupied = occ > 0
@@ -1055,7 +1056,7 @@ class HMOViewer:
         else:
             self.current_virt_idx = idx
 
-        self.display_om(idx, occupied)
+        self.display_mo(idx, occupied)
 
 # =============================================================================================================================================
 
@@ -1391,9 +1392,17 @@ class MoleculeDrawer:
         author_label.pack(pady=(5, 5))
     
         # === Version ===
-        version_label = tk.Label(about_win, text="Version 0.4.1", font=("DejaVu Sans", 10, "bold"))
+        version_label = tk.Label(about_win, text="Version 0.5.1", font=("DejaVu Sans", 10, "bold"))
         version_label.pack(pady=(5, 10))
         
+        # === Documentation ===
+        def open_doc_link(event=None):
+            import webbrowser
+            webbrowser.open_new("https://hmo.readthedocs.io/en/latest/")  # remplace par ton URL réelle
+        version_label = tk.Label(about_win, text="Documentation", font=("DejaVu Sans", 9, "underline"), fg="#aa0000", cursor="hand2")
+        version_label.pack(pady=(5, 10))
+        version_label.bind("<Button-1>", open_doc_link)
+
         # Add Escape key binding to close the window
         about_win.bind('<Escape>', lambda event: about_win.destroy())
         
@@ -1730,6 +1739,10 @@ class MoleculeDrawer:
                 self.save_state()
                 self.nodes.clear()
                 self.bonds.clear()
+                self.formal_charges.clear()
+                self.molecule_is_new = True
+                self.charge_mol = 0
+
                 mode = None
                 for line in lines:
                     line = line.strip()
@@ -2779,13 +2792,63 @@ class MoleculeDrawer:
         ---------
         - Pressing `Esc` closes the window.
         """        
+        def save_mos():
+            from tkinter import filedialog
+            filepath = filedialog.asksaveasfilename(
+                defaultextension=".dat",
+                filetypes=[("Text files", "*.dat")],
+                title="Save MO Coefficients",
+                parent=win,
+                initialfile=self.safe_project_name
+            )
+            if not filepath:
+                return
+                
+            energies = []
+            occupations = []
+            for col in self.df.columns:
+                match = re.match(r"E\s*=\s*α\s*([+-])\s*([\d.]+)β\\n(\d+)e", col.replace("\n", "\\n"))
+                if match:
+                    sign, val_str, occ_str = match.groups()
+                    val = float(val_str)
+                    occ = int(occ_str)
+                    if abs(val) < 1e-6:
+                        energy_expr = "α".ljust(9)
+                    else:
+                        symbol = "+" if sign == "+" else "−"
+                        energy_expr = f"α {symbol} {val:.2f}β".ljust(9)
+                else:
+                    energy_expr = "α".ljust(9)
+                    occ = 0
+                energies.append(energy_expr)
+                occupations.append(occ)
         
+            block_size = 6
+            try:
+                with open(filepath, "w") as f:
+                    for start in range(0, len(self.df.columns), block_size):
+                        end = min(start + block_size, len(self.df.columns))
+                        mos = range(start + 1, end + 1)
+        
+                        f.write("MO        " + "  ".join(f"{m:^9}" for m in mos) + "\n")
+                        f.write("Energy    " + "  ".join(f"{energies[i]}" for i in range(start, end)) + "\n")
+                        f.write("Occup.    " + "  ".join(f"{occupations[i]:^9d}" for i in range(start, end)) + "\n")
+        
+                        for atom_idx, node in enumerate(self.nodes):
+                            label = f"{node.atom_type}{atom_idx+1}"
+                            coefs = [self.df.iloc[atom_idx, i] for i in range(start, end)]
+                            f.write(f"{label:<10}" + "  ".join(f"{c:+.3f}".rjust(9) for c in coefs) + "\n")
+        
+                        f.write("\n")
+            except Exception as e:
+                print(f"Error while saving MOs: {e}")
+                
         alpha = self.alpha_value
         beta = self.beta_value
 
         win = tk.Toplevel()
         win.title("Hückel Molecular Orbital Coefficients")
-        win.geometry("1000x900")
+        win.geometry("1000x1000")
 
         # === Frame principal (vertical) ===
         frame_main = ttk.Frame(win)
@@ -2890,7 +2953,7 @@ class MoleculeDrawer:
             softnessprt = self.softness
             omegaprt = self.omega
 
-        print(f"[DEBUG]. {self.alpha_part=}   {self.beta_part=}")
+        # print(f"[DEBUG]. {self.alpha_part=}   {self.beta_part=}")
 
         summary_text = (
             f"Total π-electron energy: {self.alpha_part:.0f}α + {self.beta_part:.2f}β\n"
@@ -2904,9 +2967,22 @@ class MoleculeDrawer:
             f"Electrophilicity index ω: {omegaprt}\n"
         )
         self.summary_text = summary_text  # sauvegarde pour le PDF
-        summary_label = tk.Label(frame_main, text=summary_text, font=("DejaVu Sans", 10), justify="left")
-        summary_label.pack(pady=5)    
+        # summary_label = tk.Label(Text, text=summary_text, font=("DejaVu Sans", 10), justify="left")
+        # summary_label.pack(pady=5)    
+        summary_box = tk.Text(frame_main, height=10, font=("DejaVu Sans", 10), wrap='none')
+        summary_box.insert("1.0", summary_text)
+        summary_box.configure(state='disabled')
+        summary_box.pack(fill='x', padx=10, pady=5)
         
+        # tk.Label(frame_main, text="(Select and copy the text above if needed)", font=("DejaVu Sans", 8, "italic")).pack()
+        def copy_to_clipboard():
+            win.clipboard_clear()
+            win.clipboard_append(summary_text)
+            win.update()  # force clipboard to persist after app closes
+        
+        btn_copy = tk.Button(frame_main, text="Copy descriptors to clipboard", command=copy_to_clipboard)
+        btn_copy.pack(pady=(0, 10))
+    
         # === 3️⃣ Table (Index figé + données avec scrollbars) ===
         frame_table = tk.Frame(frame_main)
         frame_table.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
@@ -2916,12 +2992,12 @@ class MoleculeDrawer:
         col_ids_data = [str(i) for i in range(len(columns_data))]
         
         # --- Treeview pour l'Index ---
-        tree_index = ttk.Treeview(frame_table, columns=columns_index, show='headings', height=15)
+        tree_index = ttk.Treeview(frame_table, columns=columns_index, show='headings', height=10)
         tree_index.heading('Index', text='Index')
         tree_index.column('Index', width=50, anchor='center')
         
         # --- Treeview pour les données ---
-        tree_data = ttk.Treeview(frame_table, columns=col_ids_data, show='headings', height=15)
+        tree_data = ttk.Treeview(frame_table, columns=col_ids_data, show='headings', height=10)
         
         # Configurer les colonnes des données
         for i, col in enumerate(columns_data):
@@ -2960,12 +3036,14 @@ class MoleculeDrawer:
     
         # === 4️⃣ Bouton Close ===
         frame_buttons = tk.Frame(win)
-        frame_buttons.pack(pady=10)
+        frame_buttons.pack(side="bottom",pady=10)
         
         def on_escape(event):
             # print("Escape key pressed. Closing the app.")
             win.destroy()
         win.bind('<Escape>', on_escape)
+        btn_save = tk.Button(frame_buttons, text="Save MOs as a text file", command=save_mos)
+        btn_save.pack(side="left", padx=10)
         
         btn_close = tk.Button(frame_buttons, text="Close", command=win.destroy)
         btn_close.pack()

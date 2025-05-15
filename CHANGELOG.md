@@ -4,17 +4,30 @@
 
 # Changelog
 
-All notable changes to this project will be documented in this file.
+## Version 0.5.1 - 2025-05-15
 
-## [0.4.1] - 2025-05-13
+### Changed
+- Summary section now selectable and copyable (Text widget instead of Label).
+
+### Added
+- Added "Save MOs as a text file" feature: export molecular orbital energies, occupations, and coefficients in blocks of 6 MOs as formatted text.
+
+### Fixed
+- Fixed "Close" button visibility on smaller screens by adjusting window layout.
+- `self.formal_charges.clear()`, `self.molecule_is_new = True`, `self.charge_mol = 0` introduced in `load_molecule` for a proper initialization
+- in `HMO Diagram Viewer` the Save PNG window now appears above the HMO Diagram window
+
+---
+
+## [0.5.0] - 2025-05-13
+
+### Added
+- Confirmation prompt when clearing a molecule to prevent accidental deletion.
 
 ### Fixed
 - Prevented Hückel run on an empty molecule: a warning is now shown if no atoms are defined.
 - The "Clear" button now also removes all formal charges, not just the molecular skeleton.
 - Closing behavior improved: all related windows (MO viewer, OM diagram, and charge/bond view) are now properly closed when the molecule is cleared.
-
-### Added
-- Confirmation prompt when clearing a molecule to prevent accidental deletion.
 
 ---
 

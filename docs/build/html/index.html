@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HMO documentation &mdash; HMO 0.4.0 documentation</title>
+  <title>HMO documentation &mdash; HMO 0.5.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
@@ -14,7 +14,7 @@
     <link rel="canonical" href="https://hmo.readthedocs.io/index.html" />
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=6c02275b"></script>
+      <script src="_static/documentation_options.js?v=b9afe91b"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
@@ -366,8 +366,8 @@ It has a visual indicator (colored disk with sign), and affects the total number
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="hmo.HMO.HMOViewer.display_om">
-<span class="sig-name descname"><span class="pre">display_om</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occupied</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.HMOViewer.display_om" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="hmo.HMO.HMOViewer.display_mo">
+<span class="sig-name descname"><span class="pre">display_mo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occupied</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.HMOViewer.display_mo" title="Link to this definition"></a></dt>
 <dd><p>Displays a specific molecular orbital (MO) in its corresponding frame (occupied or virtual).</p>
 <p>This method draws the selected MO, including bonds and orbital lobes, in the appropriate frame (HOMO or LUMO area), scaled and centered within the available space. The visualization responds dynamically to user-controlled scaling factors from the sliders:
 - ‘Molecule Scale’ slider: adjusts the overall size of the molecule,
@@ -481,7 +481,7 @@ and labels each line with its corresponding (α + β) expression.</p></li>
 <p class="rubric">Notes</p>
 <ul class="simple">
 <li><p>Determines if the MO is occupied or virtual based on its occupancy.</p></li>
-<li><p>Updates the corresponding frame to display the clicked orbital using <cite>display_om</cite>.</p></li>
+<li><p>Updates the corresponding frame to display the clicked orbital using <cite>display_mo</cite>.</p></li>
 </ul>
 </dd></dl>
 
