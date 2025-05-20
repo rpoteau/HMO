@@ -4,6 +4,14 @@
 
 # Changelog
 
+## Version 0.6.0 - 2025-05-19
+
+### Added
+New rendering functions, introduced as a foundation for building a unified high-resolution PDF export
+- `render_all_OMs_grid_with_dual_lobes()`: exports a consistent grid of MOs with dual lobe shading and energy labels.
+- `render_energy_diagram_matplotlib()`: exports a scaled π-energy diagram with fixed physical dimensions (13 cm), spin arrows, Hund's rule, and descriptor section.
+- `render_double_panel_charges_bonds()`: generates a double panel (sigma skeleton + bond indices/charges) with auto-scaled coordinates for visual export.
+
 ## Version 0.5.1 - 2025-05-15
 
 ### Changed

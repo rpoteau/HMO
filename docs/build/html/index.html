@@ -852,6 +852,11 @@ Each column corresponds to an orbital; each row to an atom.</p></li>
 <dd></dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.export_all_results_to_pdf">
+<span class="sig-name descname"><span class="pre">export_all_results_to_pdf</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.export_all_results_to_pdf" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.find_bond">
 <span class="sig-name descname"><span class="pre">find_bond</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.find_bond" title="Link to this definition"></a></dt>
 <dd></dd></dl>
@@ -1503,9 +1508,170 @@ look across different platforms and display environments.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="hmo.HMO.compute_mean_bond_length">
+<span class="sig-prename descclassname"><span class="pre">hmo.HMO.</span></span><span class="sig-name descname"><span class="pre">compute_mean_bond_length</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_bonds</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.compute_mean_bond_length" title="Link to this definition"></a></dt>
+<dd><p>Compute the average bond length in grid units based on atom coordinates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df_atoms</strong> (<em>pd.DataFrame</em>) – Must contain ‘Atom’, ‘X (grid units)’, ‘Y (grid units)’ columns.</p></li>
+<li><p><strong>df_bonds</strong> (<em>pd.DataFrame</em>) – Must contain ‘Atom 1’ and ‘Atom 2’ columns.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Average bond length.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="hmo.HMO.draw_mo_on_ax_dual_lobes">
+<span class="sig-prename descclassname"><span class="pre">hmo.HMO.</span></span><span class="sig-name descname"><span class="pre">draw_mo_on_ax_dual_lobes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_MOs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_bonds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_lobe_factor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_coef_global</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occupations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lobe_offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.draw_mo_on_ax_dual_lobes" title="Link to this definition"></a></dt>
+<dd><p>Draw a molecular orbital with back and front lobes on a matplotlib Axes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df_MOs</strong> (<em>pd.DataFrame</em>) – Molecular orbital coefficients (atoms × orbitals).</p></li>
+<li><p><strong>df_atoms</strong> (<em>pd.DataFrame</em>) – Atom coordinates and labels.</p></li>
+<li><p><strong>df_bonds</strong> (<em>pd.DataFrame</em>) – Bond connections between atoms.</p></li>
+<li><p><strong>idx</strong> (<em>int</em>) – Index of the molecular orbital to draw.</p></li>
+<li><p><strong>ax</strong> (<em>matplotlib.axes.Axes</em>) – Axes to draw on.</p></li>
+<li><p><strong>scale_lobe_factor</strong> (<em>float</em>) – Scaling factor applied to each coefficient to compute lobe radius.</p></li>
+<li><p><strong>size</strong> (<em>dimension</em><em> of </em><em>each MO box</em>)</p></li>
+<li><p><strong>energies</strong> (<em>list</em><em> of </em><em>str</em><em>, </em><em>optional</em>) – Formatted energy labels (e.g., ‘α + 1.00β’).</p></li>
+<li><p><strong>occupations</strong> (<em>list</em><em> of </em><em>int</em><em>, </em><em>optional</em>) – Electron counts per MO (e.g., 2e, 0e).</p></li>
+<li><p><strong>lobe_offset</strong> (<em>float</em><em>, </em><em>default=0.5</em>) – Offset for visual 3D effect (in grid units).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="hmo.HMO.extract_energies_and_occupations_from_columns">
+<span class="sig-prename descclassname"><span class="pre">hmo.HMO.</span></span><span class="sig-name descname"><span class="pre">extract_energies_and_occupations_from_columns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">columns</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.extract_energies_and_occupations_from_columns" title="Link to this definition"></a></dt>
+<dd><p>Extracts energy expressions and occupation numbers from MO column headers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>columns</strong> (<em>list</em><em> of </em><em>str</em>) – Column names from the MO coefficient DataFrame.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>energies</strong> (<em>list of str</em>) – Formatted strings like ‘α + 1.20β’.</p></li>
+<li><p><strong>occupations</strong> (<em>list of int</em>) – Electron count (0, 1, or 2) per MO.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="hmo.HMO.extract_energy_groups">
+<span class="sig-prename descclassname"><span class="pre">hmo.HMO.</span></span><span class="sig-name descname"><span class="pre">extract_energy_groups</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_MOs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.extract_energy_groups" title="Link to this definition"></a></dt>
+<dd><p>Extract energy values and group orbital indices by energy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>df_MOs</strong> (<em>pd.DataFrame</em>) – DataFrame with column names like ‘E = α + 1.00βn2e’</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>energy_groups</strong> – Dictionary mapping energy (float) to list of MO indices.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict[float, list[int]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="hmo.HMO.lobes_sizes">
+<span class="sig-prename descclassname"><span class="pre">hmo.HMO.</span></span><span class="sig-name descname"><span class="pre">lobes_sizes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_MOs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean_bond_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.9</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_display_radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.lobes_sizes" title="Link to this definition"></a></dt>
+<dd><p>Compute the global lobe scaling factor based on the maximum MO coefficient.</p>
+<p>This function supports two use cases:
+1. If <cite>max_display_radius</cite> is provided, the largest lobe will have this radius in display units.
+2. Otherwise, the lobe size will be scaled as a fraction (<cite>factor</cite>) of the half bond length</p>
+<blockquote>
+<div><p>(estimated as: factor × mean_bond_length × scale / 2).</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df_MOs</strong> (<em>pd.DataFrame</em>) – DataFrame of molecular orbital coefficients (rows: atoms, columns: MOs).</p></li>
+<li><p><strong>mean_bond_length</strong> (<em>float</em><em>, </em><em>optional</em>) – Average bond length in grid units (required if <cite>max_display_radius</cite> is not provided).</p></li>
+<li><p><strong>scale</strong> (<em>float</em><em>, </em><em>optional</em>) – Current display scale applied to coordinates (required if <cite>max_display_radius</cite> is not provided).</p></li>
+<li><p><strong>factor</strong> (<em>float</em><em>, </em><em>default=0.90</em>) – Maximum lobe radius as a fraction of half a bond length (only used if <cite>max_display_radius</cite> is None).</p></li>
+<li><p><strong>max_display_radius</strong> (<em>float</em><em>, </em><em>optional</em>) – Maximum allowed lobe radius in display units (used to keep lobes within frame limits, e.g., 2.0).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>max_coef_global</strong> (<em>float</em>) – Maximum absolute coefficient found in the MO matrix.</p></li>
+<li><p><strong>scale_lobe_factor</strong> (<em>float</em>) – Multiplicative factor to convert each coefficient into a lobe radius.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="hmo.HMO.render_all_OMs_grid_with_dual_lobes">
+<span class="sig-prename descclassname"><span class="pre">hmo.HMO.</span></span><span class="sig-name descname"><span class="pre">render_all_OMs_grid_with_dual_lobes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_MOs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_bonds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_lobe_factor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_coef_global</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occupations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_size_cm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_per_row</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.render_all_OMs_grid_with_dual_lobes" title="Link to this definition"></a></dt>
+<dd><p>Render a grid of molecular orbitals with consistent lobe scaling.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df_MOs</strong> (<em>pd.DataFrame</em>)</p></li>
+<li><p><strong>df_atoms</strong> (<em>pd.DataFrame</em>)</p></li>
+<li><p><strong>df_bonds</strong> (<em>pd.DataFrame</em>)</p></li>
+<li><p><strong>scale_lobe_factor</strong> (<em>float</em>) – Global scaling factor for lobe radii.</p></li>
+<li><p><strong>energies</strong> (<em>list</em><em> of </em><em>str</em><em>, </em><em>optional</em>) – Energy labels for each MO.</p></li>
+<li><p><strong>occupations</strong> (<em>list</em><em> of </em><em>int</em><em>, </em><em>optional</em>) – Occupation numbers for each MO.</p></li>
+<li><p><strong>cell_size_cm</strong> (<em>float</em>) – Width/height of each subplot in centimeters.</p></li>
+<li><p><strong>max_per_row</strong> (<em>int</em>) – Maximum number of MOs per row.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>fig</strong> – The rendered figure.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>matplotlib.figure.Figure</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="hmo.HMO.render_double_panel_charges_bonds">
+<span class="sig-prename descclassname"><span class="pre">hmo.HMO.</span></span><span class="sig-name descname"><span class="pre">render_double_panel_charges_bonds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bonds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charges</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bond_orders</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">formal_charges</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.render_double_panel_charges_bonds" title="Link to this definition"></a></dt>
+<dd><p>Assemble deux panneaux côte à côte :
+- le squelette sigma (avec atomes indexés),
+- les indices de liaison et charges atomiques.</p>
+<p>Dimensions totales : 16 cm × 8 cm (deux panneaux de 8 cm × 8 cm).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="hmo.HMO.render_energy_diagram_matplotlib">
+<span class="sig-prename descclassname"><span class="pre">hmo.HMO.</span></span><span class="sig-name descname"><span class="pre">render_energy_diagram_matplotlib</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy_groups</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occupations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descriptors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width_cm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height_cm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">16</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.render_energy_diagram_matplotlib" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="hmo.HMO.resource_path">
 <span class="sig-prename descclassname"><span class="pre">hmo.HMO.</span></span><span class="sig-name descname"><span class="pre">resource_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">relative_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.resource_path" title="Link to this definition"></a></dt>
 <dd><p>Get absolute path to resource, works for dev and PyInstaller.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="hmo.HMO.save_figure_as_pdf">
+<span class="sig-prename descclassname"><span class="pre">hmo.HMO.</span></span><span class="sig-name descname"><span class="pre">save_figure_as_pdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.save_figure_as_pdf" title="Link to this definition"></a></dt>
+<dd><p>Save a matplotlib figure as a PDF with exact dimensions and no automatic cropping.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fig</strong> (<em>matplotlib.figure.Figure</em>) – The figure object to save.</p></li>
+<li><p><strong>filename</strong> (<em>str</em>) – Output file path, typically ending in .pdf</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py class">

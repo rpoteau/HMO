@@ -69,9 +69,6 @@ import matplotlib
 matplotlib.use("TkAgg") ### mandatory for building a standalone Linux application
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from matplotlib.backends.backend_pdf import PdfPages
-import matplotlib.patches as mpatches
-
 
 from PIL import Image, ImageTk
 import numpy as np
@@ -81,7 +78,6 @@ import re
 import sys, os
 from pathlib import Path
 
-from collections import defaultdict
 
 import openpyxl
 
@@ -93,160 +89,6 @@ def resource_path(relative_path):
     except AttributeError:
         base_path = os.path.abspath(".")
     return os.path.join(base_path, relative_path)
-
-def extract_energies_and_occupations_from_columns(columns):
-    """
-    Extracts energy expressions and occupation numbers from MO column headers.
-
-    Parameters
-    ----------
-    columns : list of str
-        Column names from the MO coefficient DataFrame.
-
-    Returns
-    -------
-    energies : list of str
-        Formatted strings like 'α + 1.20β'.
-    occupations : list of int
-        Electron count (0, 1, or 2) per MO.
-    """
-    energies = []
-    occupations = []
-    for col in columns:
-        clean_col = col.replace("\n", "\\n")
-        match = re.match(r"E\s*=\s*α\s*([+-])\s*([\d.]+)β\\n(\d+)e", clean_col)
-        print(f"{match=}")
-        if match:
-            sign, val_str, occ_str = match.groups()
-            val = float(val_str)
-            occ = int(occ_str)
-            if abs(val) < 1e-6:
-                energy_expr = "α"
-            else:
-                symbol = "+" if sign == "+" else "−"
-                energy_expr = f"α {symbol} {val:.2f}β"
-        else:
-            # Fallback extraction: try to recover occupation only
-            occ_match = re.search(r"(\\n| )(\d+)e", clean_col)
-            occ = int(occ_match.group(2)) if occ_match else 0
-            energy_expr = "α"
-        energies.append(energy_expr)
-        occupations.append(occ)
-        print(f"{col=},{energy_expr=},{occ=}")
-    print("end of extraction",energies, occupations)
-    return energies, occupations
-
-def compute_mean_bond_length(df_atoms, df_bonds):
-    """
-    Compute the average bond length in grid units based on atom coordinates.
-
-    Parameters
-    ----------
-    df_atoms : pd.DataFrame
-        Must contain 'Atom', 'X (grid units)', 'Y (grid units)' columns.
-    df_bonds : pd.DataFrame
-        Must contain 'Atom 1' and 'Atom 2' columns.
-
-    Returns
-    -------
-    float
-        Average bond length.
-    """
-
-    coords = {row['Atom']: (row['X (grid units)'], row['Y (grid units)']) for _, row in df_atoms.iterrows()}
-
-    bond_lengths = []
-    for _, row in df_bonds.iterrows():
-        a1, a2 = row['Atom 1'], row['Atom 2']
-        x1, y1 = coords[a1]
-        x2, y2 = coords[a2]
-        dist = np.sqrt((x2 - x1)**2 + (y2 - y1)**2)
-        bond_lengths.append(dist)
-    return np.mean(bond_lengths)
-
-def lobes_sizes(df_MOs, mean_bond_length=None, scale=None, factor=0.90, max_display_radius=None):
-    """
-    Compute the global lobe scaling factor based on the maximum MO coefficient.
-
-    This function supports two use cases:
-    1. If `max_display_radius` is provided, the largest lobe will have this radius in display units.
-    2. Otherwise, the lobe size will be scaled as a fraction (`factor`) of the half bond length
-       (estimated as: factor × mean_bond_length × scale / 2).
-
-    Parameters
-    ----------
-    df_MOs : pd.DataFrame
-        DataFrame of molecular orbital coefficients (rows: atoms, columns: MOs).
-    mean_bond_length : float, optional
-        Average bond length in grid units (required if `max_display_radius` is not provided).
-    scale : float, optional
-        Current display scale applied to coordinates (required if `max_display_radius` is not provided).
-    factor : float, default=0.90
-        Maximum lobe radius as a fraction of half a bond length (only used if `max_display_radius` is None).
-    max_display_radius : float, optional
-        Maximum allowed lobe radius in display units (used to keep lobes within frame limits, e.g., 2.0).
-
-    Returns
-    -------
-    max_coef_global : float
-        Maximum absolute coefficient found in the MO matrix.
-    scale_lobe_factor : float
-        Multiplicative factor to convert each coefficient into a lobe radius.
-    """
-    max_coef_global = np.nanmax(np.abs(df_MOs.values))
-    if max_display_radius is not None:
-        scale_lobe_factor = max_display_radius / max_coef_global
-    else:
-        if mean_bond_length is None or scale is None:
-            raise ValueError("mean_bond_length and scale must be provided if max_display_radius is not used.")
-        desired_radius = factor * mean_bond_length * scale / 2
-        scale_lobe_factor = desired_radius / max_coef_global
-    return max_coef_global, scale_lobe_factor
-
-def extract_energy_groups(df_MOs):
-    """
-    Extract energy values and group orbital indices by energy.
-
-    Parameters
-    ----------
-    df_MOs : pd.DataFrame
-        DataFrame with column names like 'E = α + 1.00β\\n2e'
-
-    Returns
-    -------
-    energy_groups : dict[float, list[int]]
-        Dictionary mapping energy (float) to list of MO indices.
-    """
-    energy_groups = defaultdict(list)
-    for i, col in enumerate(df_MOs.columns):
-        match = re.match(r"E\s*=\s*α\s*([+-])\s*([\d.]+)β", col)
-        if match:
-            sign, val_str = match.groups()
-            val = float(val_str)
-            energy = val if sign == "+" else -val
-        else:
-            energy = 0.0  # fallback
-
-        energy_groups[energy].append(i)
-
-    return dict(energy_groups)
-
-def save_figure_as_pdf(fig, filename):
-    """
-    Save a matplotlib figure as a PDF with exact dimensions and no automatic cropping.
-
-    Parameters
-    ----------
-    fig : matplotlib.figure.Figure
-        The figure object to save.
-    filename : str
-        Output file path, typically ending in .pdf
-    """
-    import matplotlib.pyplot as plt
-    # Supprime toute marge automatique
-    plt.subplots_adjust(left=0, right=1, top=1, bottom=0)
-    # Sauvegarde sans rognage automatique
-    fig.savefig(filename, bbox_inches=None, dpi=300, format='pdf')
 
 # ========================================================================================================
 
@@ -659,18 +501,17 @@ class HMOViewer:
         self.occupations = []
     
         self.max_coef_global = np.nanmax(np.abs(self.df_MOs.values))
-        # coords = {row['Atom']: (row['X (grid units)'], row['Y (grid units)']) for _, row in self.df_atoms.iterrows()}
+        coords = {row['Atom']: (row['X (grid units)'], row['Y (grid units)']) for _, row in self.df_atoms.iterrows()}
     
-        # bond_lengths = []
-        # for _, row in self.df_bonds.iterrows():
-        #     a1, a2 = row['Atom 1'], row['Atom 2']
-        #     x1, y1 = coords[a1]
-        #     x2, y2 = coords[a2]
-        #     dist = np.sqrt((x2 - x1)**2 + (y2 - y1)**2)
-        #     bond_lengths.append(dist)
-        # self.mean_bond_length = np.mean(bond_lengths)
-        self.mean_bond_length = compute_mean_bond_length(self.df_atoms, self.df_bonds)
-
+        bond_lengths = []
+        for _, row in self.df_bonds.iterrows():
+            a1, a2 = row['Atom 1'], row['Atom 2']
+            x1, y1 = coords[a1]
+            x2, y2 = coords[a2]
+            dist = np.sqrt((x2 - x1)**2 + (y2 - y1)**2)
+            bond_lengths.append(dist)
+        self.mean_bond_length = np.mean(bond_lengths)
+    
         for col in self.df_MOs.columns:
             energy_expr = col.split('\n')[0].split('=')[-1].replace('α', '').strip()
             energy = extract_beta_coeff(energy_expr)
@@ -1085,7 +926,11 @@ class HMOViewer:
         
         # Taille max des lobes adaptée à la taille réelle après scaling
         # Trouver le coefficient max global pour normaliser
-        max_coef_global, scale_lobe_factor = lobes_sizes(self.df_MOs, self.mean_bond_length, scale, factor=0.90)
+        max_coef_global = np.nanmax(np.abs(self.df_MOs.values))
+        
+        # Fixer la taille max du lobe : quand coef == max_coef_global, le rayon est 90% de longueur liaison/2
+        desired_radius = 0.90 * self.mean_bond_length * scale / 2
+        scale_lobe_factor = desired_radius / max_coef_global
         scale_lobe_factor *= lobe_user  # <<<< ajoute ce facteur d'utilisateur
         # print(f"[DEBUG] max_coef_global = {max_coef_global:.3f}, desired_radius = {desired_radius:.1f}, scale_lobe_factor = {scale_lobe_factor:.1f}")
 
@@ -1461,14 +1306,13 @@ class MoleculeDrawer:
         self.btn_erase = self.create_button(self.icons['eraser'], self.toggle_eraser, "Erase atom or bond")
         self.create_button(self.icons['clear'], self.clear, "Delete molecule")
         tk.Frame(self.toolbar).pack(expand=True, fill=tk.BOTH)
-        self.create_button(self.icons['savepdf'], self.export_all_results_to_pdf, "Export all results to PDF")
         self.create_button(self.icons['savedata'], self.save_data, "Save data in a spreadsheet")
         self.create_button(self.icons['quit'], self.quit_program, "Quit")
         self.create_button(self.icons['about'], self.show_about, "About HMO")
         
     def load_icons(self):
         self.icons = {}
-        for name in ['run',  'charge', 'matrix', 'descriptors','save', 'load', 'undo', 'redo', 'eraser', 'clear', 'savepdf', 'savedata', 'quit', 'about']:
+        for name in ['run',  'charge', 'matrix', 'descriptors','save', 'load', 'undo', 'redo', 'eraser', 'clear', 'savedata', 'quit', 'about']:
             icon = resource_path(f"icons-logos-banner/{name}.png")
             self.icons[name] = ImageTk.PhotoImage(Image.open(icon))
 
@@ -2330,14 +2174,14 @@ class MoleculeDrawer:
         - The bond list `self.bonds` should contain tuples of bonded atom indices.
         """
         n_atoms = len(self.nodes)
-        self.n_MOs = eigvecs.shape[1]
+        n_om = eigvecs.shape[1]
     
         # Charges : initialise à nombre π d'électrons
         charges = []
         for i, node in enumerate(self.nodes):
             n_pi = HuckelParameters.Huckel_atomic_parameters[node.atom_type]["n_pi"]
             total = 0
-            for j in range(self.n_MOs):
+            for j in range(n_om):
                 occ_j = occupation_dict.get(j, 0)
                 coeff = eigvecs[i, j]
                 total += occ_j * (coeff ** 2)
@@ -2348,7 +2192,7 @@ class MoleculeDrawer:
         bond_orders = {}
         for (i, j) in self.bonds:
             total = 0
-            for k in range(self.n_MOs):
+            for k in range(n_om):
                 occ_k = occupation_dict.get(k, 0)
                 ci = eigvecs[i, k]
                 cj = eigvecs[j, k]
@@ -2580,7 +2424,6 @@ class MoleculeDrawer:
         df = pd.DataFrame(data, index=index_labels, columns=columns)
         # df = df.iloc[:, ::-1]
         self.df = df
-        self.occupations_dict = occupation_dict
         del df
         
     def build_dataframes(self):
@@ -2961,7 +2804,24 @@ class MoleculeDrawer:
             if not filepath:
                 return
                 
-            energies, occupations = extract_energies_and_occupations_from_columns(self.df.columns)
+            energies = []
+            occupations = []
+            for col in self.df.columns:
+                match = re.match(r"E\s*=\s*α\s*([+-])\s*([\d.]+)β\\n(\d+)e", col.replace("\n", "\\n"))
+                if match:
+                    sign, val_str, occ_str = match.groups()
+                    val = float(val_str)
+                    occ = int(occ_str)
+                    if abs(val) < 1e-6:
+                        energy_expr = "α".ljust(9)
+                    else:
+                        symbol = "+" if sign == "+" else "−"
+                        energy_expr = f"α {symbol} {val:.2f}β".ljust(9)
+                else:
+                    energy_expr = "α".ljust(9)
+                    occ = 0
+                energies.append(energy_expr)
+                occupations.append(occ)
         
             block_size = 6
             try:
@@ -3258,67 +3118,6 @@ class MoleculeDrawer:
             project_name=self.safe_project_name
         )
 
-    def export_all_results_to_pdf(self):
-    
-        if self.df is None:
-            messagebox.showerror("Error", "You must run Hückel analysis before exporting results.")
-            return
-    
-        path = filedialog.asksaveasfilename(
-            defaultextension=".pdf",
-            filetypes=[("PDF files", "*.pdf")],
-            initialfile=f"{self.safe_project_name}_results.pdf"
-        )
-        if not path:
-            return
-            
-        energies, occupations = extract_energies_and_occupations_from_columns(self.df.columns)
-        size = 8
-        max_coef_global, scale_lobe_factor = lobes_sizes(self.df, max_display_radius=size/4)
-        max_per_row = min([4,self.n_MOs])
-        
-        with PdfPages(path) as pdf:
-            # 🔲 Grille des orbitales
-            fig_grid = render_all_OMs_grid_with_dual_lobes(
-                                self.df, self.df_atoms, self.df_bonds,
-                                scale_lobe_factor,max_coef_global,
-                                energies=energies,
-                                occupations=occupations,
-                                cell_size_cm=5, max_per_row=max_per_row, size=size
-                            )
-            pdf.savefig(fig_grid)
-            plt.close(fig_grid)
-    
-        messagebox.showinfo("Success", f"PDF exported to: {path}")
-        
-        energy_groups = extract_energy_groups(self.df)
-        fig = render_energy_diagram_matplotlib(
-            energy_groups=energy_groups,
-            occupations=occupations,
-            descriptors={
-                'E': self.total_energy,
-                'E_atom/N': self.atomization_energy_per_atom,
-                'gap': self.homo_lumo_gap,
-                'η': self.eta
-                        }
-                    )
-        print(self.atomization_energy_per_atom)
-        print(self.homo_lumo_gap)
-        print(self.eta)
-        save_figure_as_pdf(fig, "energy_diagram.pdf")
-        fig = render_double_panel_charges_bonds(self.nodes, self.bonds, self.charges, self.bond_orders, self.formal_charges)
-        save_figure_as_pdf(fig, "charges.pdf")
-
-        # self.total_energy = total_energy
-        # self.alpha_part = alpha_part
-        # self.beta_part = beta_part
-        # self.atomization_energy = atomization_energy
-        # self.atomization_energy_per_atom = atomization_energy_per_atom
-        # self.homo_lumo_gap = homo_lumo_gap
-        # self.mu = mu
-        # self.eta = eta
-        # self.softness = softness
-        # self.omega = omega
 # =============================================================================================================================================
 
 class ToolTip(object):
@@ -3417,413 +3216,6 @@ class ToolTip(object):
         self.tipwindow = None
         if tw:
             tw.destroy()
-
-# =============================================================================================================================================
-
-def draw_mo_on_ax_dual_lobes(df_MOs, df_atoms, df_bonds, idx, ax,
-                            scale_lobe_factor,max_coef_global,
-                            size,
-                            energies=None, occupations=None,
-                            lobe_offset=0.1):
-    """
-    Draw a molecular orbital with back and front lobes on a matplotlib Axes.
-
-    Parameters
-    ----------
-    df_MOs : pd.DataFrame
-        Molecular orbital coefficients (atoms × orbitals).
-    df_atoms : pd.DataFrame
-        Atom coordinates and labels.
-    df_bonds : pd.DataFrame
-        Bond connections between atoms.
-    idx : int
-        Index of the molecular orbital to draw.
-    ax : matplotlib.axes.Axes
-        Axes to draw on.
-    scale_lobe_factor : float
-        Scaling factor applied to each coefficient to compute lobe radius.
-    size : dimension of each MO box
-    energies : list of str, optional
-        Formatted energy labels (e.g., 'α + 1.00β').
-    occupations : list of int, optional
-        Electron counts per MO (e.g., 2e, 0e).
-    lobe_offset : float, default=0.5
-        Offset for visual 3D effect (in grid units).
-    """
-
-    ax.set_xlim(-size/2, size/2)
-    ax.set_ylim(-size/2, size/2)
-
-    coords = {
-        row['Atom']: (row['X (grid units)'], row['Y (grid units)'])
-        for _, row in df_atoms.iterrows()
-    }
-
-    xs = [pos[0] for pos in coords.values()]
-    ys = [pos[1] for pos in coords.values()]
-    center_x = np.mean(xs)
-    center_y = np.mean(ys)
-    # scale all to a fixed frame (normalize in a [-4, 4] box)
-    mol_width = max(xs) - min(xs)
-    mol_height = max(ys) - min(ys)
-    max_lobe_radius = scale_lobe_factor * max_coef_global
-    usable_size = size - 2 * max_lobe_radius
-    mol_scale = usable_size / max(mol_width, mol_height, 1e-3)
-    # print(f"[DEBUG] {usable_size=},  {usable_size*mol_scale=}")
-    radius_scale = 1
-    
-    # pour débug :
-    # print(f"[DEBUG] MO {idx+1} center_x = {center_x:.2f}, center_y = {center_y:.2f}", f"{mol_scale=} {max_lobe_radius=}, {scale_lobe_factor=}")
-    # print(f"[DEBUG] {mol_width=} {mol_height=} ; {mol_width*mol_scale=} {mol_height*mol_scale=} ")
-
-    coeffs = df_MOs.iloc[:, idx]
-
-    # Draw bonds
-    empirical_scale = 1.2
-    for _, bond in df_bonds.iterrows():
-        a1, a2 = bond['Atom 1'], bond['Atom 2']
-        x1, y1 = coords[a1]
-        x2, y2 = coords[a2]
-        x1s = (x1 - center_x) * mol_scale * empirical_scale
-        y1s = -(y1 - center_y) * mol_scale * empirical_scale
-        x2s = (x2 - center_x) * mol_scale * empirical_scale
-        y2s = -(y2 - center_y) * mol_scale * empirical_scale
-
-        ax.plot([x1s, x2s], [y1s, y2s], color='black', linewidth=1)
-
-
-    # Draw back lobes
-    for atom, (x, y) in coords.items():
-        x_shifted = (x - center_x)*mol_scale * empirical_scale
-        y_shifted = -(y - center_y)*mol_scale * empirical_scale
-        coef = coeffs.get(atom, 0)
-        if np.isnan(coef) or coef == 0:
-            continue
-        mysize = abs(coef) * max_lobe_radius * radius_scale
-        dx = lobe_offset
-        dy = lobe_offset
-        color_back = '#00aaff' if coef > 0 else '#ffa4a4'
-        circ = mpatches.Circle((x_shifted + dx, y_shifted + dy), mysize, color=color_back, alpha=0.8)
-        ax.add_patch(circ)
-
-    # Draw front lobes
-    for atom, (x, y) in coords.items():
-        x_shifted = (x - center_x)*mol_scale * empirical_scale
-        y_shifted = -(y - center_y)*mol_scale * empirical_scale
-        coef = coeffs.get(atom, 0)
-        if np.isnan(coef) or coef == 0:
-            continue
-        mysize = abs(coef) * max_lobe_radius * radius_scale
-        dy = lobe_offset / 2
-        color_front = '#ffa4a4' if coef > 0 else '#00aaff'
-        circ = mpatches.Circle((x_shifted, y_shifted + dy), mysize, color=color_front, alpha=0.8)
-
-        ax.add_patch(circ)
-
-    # Display limits and label
-    ax.set_aspect('equal')
-    ax.set_visible(True)
-    # Show the axes box
-    ax.spines['top'].set_visible(True)
-    ax.spines['right'].set_visible(True)
-    ax.spines['bottom'].set_visible(True)
-    ax.spines['left'].set_visible(True)
-    for spine in ax.spines.values():
-        spine.set_color('#9e9e9e')
-        spine.set_linewidth(0.5)
-        
-    # Remove ticks and tick labels
-    ax.set_xticks([])
-    ax.set_yticks([])
-    ax.tick_params(bottom=False, left=False, labelbottom=False, labelleft=False)
-
-    label = energies[idx] if energies else ""
-    occ_str = f"{occupations[idx]}e" if occupations else ""
-    ax.set_title(f"MO {idx+1}\n{occ_str}", fontsize=6, fontweight='bold', pad=2)
-    ax.text(0, -size/2-0.5, label, fontsize=6, fontweight='bold', ha='center', va='top')
-
-
-
-def render_all_OMs_grid_with_dual_lobes(df_MOs, df_atoms, df_bonds,
-                                        scale_lobe_factor,max_coef_global,
-                                        energies=None, occupations=None,
-                                        cell_size_cm=3, max_per_row=6, size=8):
-    """
-    Render a grid of molecular orbitals with consistent lobe scaling.
-
-    Parameters
-    ----------
-    df_MOs : pd.DataFrame
-    df_atoms : pd.DataFrame
-    df_bonds : pd.DataFrame
-    scale_lobe_factor : float
-        Global scaling factor for lobe radii.
-    energies : list of str, optional
-        Energy labels for each MO.
-    occupations : list of int, optional
-        Occupation numbers for each MO.
-    cell_size_cm : float
-        Width/height of each subplot in centimeters.
-    max_per_row : int
-        Maximum number of MOs per row.
-
-    Returns
-    -------
-    fig : matplotlib.figure.Figure
-        The rendered figure.
-    """
-
-    num_MOs = df_MOs.shape[1]
-    num_rows = int(np.ceil(num_MOs / max_per_row))
-    fig_width = cell_size_cm * max_per_row / 2.54
-    fig_height = cell_size_cm * num_rows / 2.54
-
-    fig, axs = plt.subplots(num_rows, max_per_row, figsize=(fig_width, fig_height))
-    axs = np.array(axs).reshape(num_rows, max_per_row)
-    
-    for j in range(num_MOs, num_rows * max_per_row):
-        row, col = divmod(j, max_per_row)
-        axs[row, col].axis('off')
-
-    for idx in range(num_MOs):
-        row, col = divmod(idx, max_per_row)
-        ax = axs[row, col]
-        draw_mo_on_ax_dual_lobes(df_MOs, df_atoms, df_bonds, idx, ax,
-                                 scale_lobe_factor,max_coef_global,
-                                 size=size,
-                                 energies=energies,
-                                 occupations=occupations)
-
-    # for j in range(num_MOs, num_rows * max_per_row):
-    #     row, col = divmod(j, max_per_row)
-        
-
-    plt.tight_layout()
-    return fig
-
-
-def render_energy_diagram_matplotlib(energy_groups, occupations, descriptors=None,
-                                     width_cm=5, height_cm=16):
-    import matplotlib.pyplot as plt
-
-    def apply_hund_rule(indices, occupations):
-        total_e = sum(occupations[i] for i in indices)
-        n = len(indices)
-        hund_occ = [0] * n
-        for i in range(n):
-            if total_e > 0:
-                hund_occ[i] += 1
-                total_e -= 1
-        for i in range(n):
-            if total_e > 0:
-                hund_occ[i] += 1
-                total_e -= 1
-        return hund_occ
-
-    # Fixed layout: 13 cm for diagram, 3 cm for descriptors
-    fig_w, fig_h = width_cm / 2.54, height_cm / 2.54
-    fig, ax = plt.subplots(figsize=(fig_w, fig_h))
-
-    # Energies to be mapped into 13 cm = 13 / 2.54 inches
-    visual_energies = sorted([-e for e in energy_groups.keys()])
-    energy_map = {-e: e for e in energy_groups}
-    min_e, max_e = min(visual_energies), max(visual_energies)
-    e_range = max_e - min_e + 1e-6
-
-    # Map energies to physical position from 2.6 cm to 15.6 cm (13 cm range)
-    Vmargin = 0.4
-    top_cm = height_cm - Vmargin
-    bottom_cm = 3 - Vmargin #cm
-    diagram_height_cm = top_cm - bottom_cm
-    diagram_height_inch = diagram_height_cm / 2.54
-    energy_to_y = lambda e: bottom_cm / 2.54 + ((e - min_e) / e_range) * diagram_height_inch
-
-    ax.set_xlim(-2.1, 3.5)
-    ax.set_ylim(0, 16 / 2.54)
-    ax.set_aspect('auto')
-    ax.axis('off')
-
-    # === Vertical arrow from 2.8 to 15.8 cm
-    ax.annotate("", xy=(0, (top_cm+Vmargin) / 2.54), xytext=(0, (bottom_cm-2*Vmargin) / 2.54),
-                arrowprops=dict(arrowstyle="->", color='gray', linewidth=1.5), zorder=0)
-
-    # === Horizontal gridlines and labels
-    step = 0.5
-    grid_min = step * round(min_e / step)
-    grid_max = step * round(max_e / step)
-    current = grid_min
-    while current <= grid_max:
-        y = energy_to_y(current)
-        real_e = energy_map.get(current, -current)
-        if np.isclose(real_e, 0.0):
-            label = 'α'
-            linestyle = '-'
-            color = 'black'
-            fontw = 'bold'
-        elif real_e > 0:
-            label = f"α + {abs(real_e):.1f} β"
-            linestyle = '--'
-            color = '#3a75af'
-            fontw = 'normal'
-        else:
-            label = f"α − {abs(real_e):.1f} β"
-            linestyle = '--'
-            color = '#3a75af'
-            fontw = 'normal'
-        ax.hlines(y, -2.0, 2.0, colors='#55aaff', linestyles=linestyle, linewidth=0.5, zorder=-1)
-        ax.text(2.1, y, label, fontsize=6, ha='left', va='center', color=color, fontweight=fontw)
-        current += step
-
-    # === Levels and electrons
-    level_width = 1 / 2.54
-    level_thickness = 1.5
-    arrow_height = 0.25 / 2.54  # fixed physical size
-    arrow_dx = 0.06
-    head_length = 0.025 / 2.54
-
-    for e_vis in visual_energies:
-        y_level = energy_to_y(e_vis)
-        real_e = energy_map[e_vis]
-        indices = energy_groups[real_e]
-        n = len(indices)
-        hund_occ = apply_hund_rule(indices, occupations)
-        spread = 0.65
-        for j, idx in enumerate(indices):
-            x_center = spread * (j - (n - 1) / 2)
-            ax.hlines(y_level, x_center - level_width / 2, x_center + level_width / 2,
-                      color='black', linewidth=level_thickness, zorder=1)
-            occ = hund_occ[j]
-            stem = arrow_height - head_length
-            y_base = y_level - arrow_height / 2
-            if occ == 1:
-                ax.arrow(x_center, y_base, 0, stem,
-                         head_width=arrow_dx / 2, head_length=head_length,
-                         fc='red', ec='red', linewidth=0.8, zorder=2)
-            elif occ == 2:
-                ax.arrow(x_center - arrow_dx, y_base, 0, stem,
-                         head_width=arrow_dx / 2, head_length=head_length,
-                         fc='red', ec='red', linewidth=0.8, zorder=2)
-                ax.arrow(x_center + arrow_dx, y_base + arrow_height, 0, -stem,
-                         head_width=arrow_dx / 2, head_length=head_length,
-                         fc='red', ec='red', linewidth=0.8, zorder=2)
-
-    # === Descriptors
-    if descriptors:
-        n_pi = sum(occupations)
-        E = descriptors.get("E", "N/A")
-        if isinstance(E, (int, float)):
-            E_str = f"E: {n_pi} α + {E:.2f} β"
-        else:
-            E_str = f"E: {E}"
-        desc_labels = {
-            'E': E_str,
-            'E_atom/N': f"E_atom/N: {descriptors.get('E_atom/N', 'N/A'):.2f} |β|",
-            'gap': f"gap: {abs(descriptors.get('gap', 'N/A')):.2f} |β|",
-            'η': f"η: {abs(descriptors.get('η', 'N/A')):.2f} |β|"
-        }
-        for i, key in enumerate(['E', 'E_atom/N', 'gap', 'η']):
-            y_desc = ((bottom_cm-2*Vmargin)/2.54 - 0.1 * i)  # below 2.8 cm, stays visible
-            ax.text(0.0, y_desc, desc_labels[key], fontsize=6, fontweight='bold', color='#006191',
-                    ha='center', va='top', zorder=3)
-
-    return fig
-
-def render_double_panel_charges_bonds(nodes, bonds, charges, bond_orders, formal_charges):
-    """
-    Assemble deux panneaux côte à côte :
-    - le squelette sigma (avec atomes indexés),
-    - les indices de liaison et charges atomiques.
-
-    Dimensions totales : 16 cm × 8 cm (deux panneaux de 8 cm × 8 cm).
-    """
-    def compute_center_and_scale(nodes, bonds, target_cm_per_bond=1.5, box_cm=8):
-        def dist(n1, n2):
-            return ((n1.x - n2.x)**2 + (n1.y - n2.y)**2)**0.5
-    
-        lengths = [dist(nodes[i], nodes[j]) for (i, j) in bonds]
-        avg_length = np.mean(lengths)
-        scale = target_cm_per_bond / avg_length if avg_length > 0 else 1
-    
-        xs = [n.x for n in nodes]
-        ys = [n.y for n in nodes]
-        min_x, max_x = min(xs), max(xs)
-        min_y, max_y = min(ys), max(ys)
-        mol_width = (max_x - min_x) * scale
-        mol_height = (max_y - min_y) * scale
-    
-        limit_factor = min(box_cm / mol_width, box_cm / mol_height, 1)
-        final_scale = scale * limit_factor
-        center_x = (max_x + min_x) / 2
-        center_y = (max_y + min_y) / 2
-    
-        return center_x, center_y, final_scale
-
-    fig, axs = plt.subplots(1, 2, figsize=(16 / 2.54, 8 / 2.54))
-
-    # 1️⃣ Panneau gauche : squelette
-    center_x, center_y, scale = compute_center_and_scale(nodes, bonds)
-    ax = axs[0]
-    for i, j in bonds:
-        x1 = (nodes[i].x - center_x) * scale
-        y1 = (nodes[i].y - center_y) * scale
-        x2 = (nodes[j].x - center_x) * scale
-        y2 = (nodes[j].y - center_y) * scale
-        ax.plot([x1, x2], [y1, y2], color='black', linewidth=2)
-    for idx, n in enumerate(nodes):
-        x = (n.x - center_x) * scale
-        y = (n.y - center_y) * scale
-        color = HuckelParameters.ATOM_COLORS.get(n.atom_type, 'gray')
-        circ = plt.Circle((x, y), radius=0.25, color=color, ec='black', zorder=2)
-        ax.add_patch(circ)
-        ax.text(x, y, f"{n.atom_type}{idx+1}", ha='center', va='center', color='white', fontsize=7, fontweight='bold')
-        if formal_charges and idx < len(formal_charges):
-            q = int(formal_charges[idx].charge)
-            ch_color = "red" if q < -0.1 else ("blue" if q > 0.1 else "black")
-            ax.text(x, y, f"{q:+.0f}", color=ch_color,
-                    fontsize=10, fontweight='bold')
-        
-    ax.set_xlim(-4, 4)
-    ax.set_ylim(-4, 4)
-    ax.set_aspect('equal')
-    ax.axis('off')
-    ax.set_title("Squelette σ", fontsize=10, pad=6)
-
-    # 2️⃣ Panneau droit : indices de liaison + charges
-    ax = axs[1]
-    for i1, i2 in bonds:
-        x1 = (nodes[i1].x - center_x) * scale
-        y1 = (nodes[i1].y - center_y) * scale
-        x2 = (nodes[i2].x - center_x) * scale
-        y2 = (nodes[i2].y - center_y) * scale
-        ax.plot([x1, x2], [y1, y2], color='black', linewidth=2)
-        idx = (i1, i2) if (i1, i2) in bond_orders else (i2, i1)
-        if idx in bond_orders:
-            mx = (x1 + x2) / 2
-            my = (y1 + y2) / 2
-            ax.text(mx, my, f"{bond_orders[idx]:.2f}", ha="center", va="center",
-                    fontsize=6, fontweight='bold', color="#0081c1",
-                    bbox=dict(facecolor="white", edgecolor="none"))
-    for i, node in enumerate(nodes):
-        x = (node.x - center_x) * scale
-        y = (node.y - center_y) * scale
-        color = HuckelParameters.ATOM_COLORS.get(node.atom_type, 'gray')
-        circ = plt.Circle((x, y), radius=0.25, color=color, ec="black", zorder=2)
-        ax.add_patch(circ)
-        ax.text(x, y, node.atom_type, color="white", ha="center", va="center",
-                fontsize=6, fontweight="bold")
-        if i < len(charges):
-            charge = charges[i]
-            ch_color = "red" if charge < -0.1 else ("blue" if charge > 0.1 else "black")
-            ax.text(x - 0.35, y + 0.35, f"{charge:+.2f}", color=ch_color,
-                    fontsize=6, fontweight='bold')
-    ax.set_xlim(-4, 4)
-    ax.set_ylim(-4, 4)
-    ax.set_aspect('equal')
-    ax.axis('off')
-    ax.set_title("Indices de liaison et charges", fontsize=10, pad=6)
-
-    plt.tight_layout()
-    return fig
 
 # =============================================================================================================================================
 
