@@ -51,6 +51,10 @@ The user starts by constructing the molecule, then runs the Hückel analysis. Af
 results can be explored numerically (`ResultsViewer` window) and graphically (`HMOViewer` window),
 and exported. The graphical visualization allows easy exploration of molecular orbitals and their energy levels.
 
+.. image:: _static/HMO_mainWindow.png
+   :alt: HMO Drawer and Commands GUI
+   :width: 900px
+
 Notes:
 ------
 - Most graphical interactions (atom placement, bond drawing) are done with the mouse,
@@ -1548,7 +1552,7 @@ class MoleculeDrawer:
         author_label.pack(pady=(5, 5))
     
         # === Version ===
-        version_label = tk.Label(about_win, text="Version 0.5.1", font=("DejaVu Sans", 10, "bold"))
+        version_label = tk.Label(about_win, text="Version 0.6.1", font=("DejaVu Sans", 10, "bold"))
         version_label.pack(pady=(5, 10))
         
         # === Documentation ===
