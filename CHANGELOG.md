@@ -4,7 +4,12 @@
 
 # Changelog
 
-## Version 0.6.0 - 2025-05-19
+## Version 0.6.1 - 2025-05-21
+
+### Changed
+- New "Université de Toulouse" logo, that replaces both the "UPS/UT3" and the former "Université de Toulouse" logos.
+
+## Version 0.6.0 - 2025-05-20
 
 ### Added
 New rendering functions, introduced as a foundation for building a unified high-resolution PDF export
