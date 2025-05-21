@@ -4,6 +4,11 @@
 
 # Changelog
 
+## Version 0.6.2 - 2025-05-21
+
+### Changed
+- Read the Docs documentation update as graphical documentation support: Created detailed Inkscape-ready annotations for main GUI buttons and canvas.
+
 ## Version 0.6.1 - 2025-05-21
 
 ### Changed
