@@ -1491,8 +1491,10 @@ class MoleculeDrawer:
         self.master.bind('<Control-z>', lambda e: self.undo())
         self.master.bind('<Control-y>', lambda e: self.redo())
         self.master.bind('<Control-d>', lambda e: self.clear())
-        self.master.bind('<Control-s>', lambda e: self.save_data())
+        self.master.bind('<Control-p>', lambda e: self.export_all_results_to_pdf())
+        self.master.bind('<Control-l>', lambda e: self.save_data())
         self.master.bind('<Control-q>', lambda e: self.quit_program())
+        self.master.bind('<Control-h>', lambda e: self.show_about())
         
     def set_mode_add_charge(self):
         """Sets the current interaction mode to adding a new charge."""

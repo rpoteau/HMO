@@ -4,6 +4,14 @@
 
 # Changelog
 
+## Version 0.6.3 - 2025-05-21
+
+### Added
+- new binding keys for Save data in a spreadsheet (`save_data`, Ctrl-l), About HMO (`show_about`, Ctrl-h), Export all results to PDF (`export_all_results_to_pdf`, Ctrl-P)
+
+### Fixed
+- (Ctrl-S) binding key was used both for saving the speadsheet and the tabular MOs.
+
 ## Version 0.6.2 - 2025-05-21
 
 ### Changed
