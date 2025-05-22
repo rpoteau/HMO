@@ -4,6 +4,10 @@
 
 # Changelog
 
+## Version 0.6.4 - 2025-05-22
+### Changed
+- Graphical documentation now also given in `README.md`.
+
 ## Version 0.6.3 - 2025-05-21
 
 ### Added

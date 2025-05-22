@@ -1,7 +1,7 @@
 [project]
 name = "HMO"
-version = "0.6.2"
-description = "A Python package to analyze magnetic molecular orbitals (SOMOs) from Gaussian outputs"
+version = "0.6.4"
+description = "interactive application that allows users to draw the sigma skeleton of conjugated systems, build the corresponding Hückel matrix, calculate π molecular orbitals, and visualize the numerical results as tables and graphics"
 authors = [{name = "Romuald POTEAU, LPCNO", email = "romuald.poteau@univ-tlse3.fr"}]
 readme = "README.md"
 requires-python = ">=3.8"

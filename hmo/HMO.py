@@ -1,5 +1,5 @@
 """
-Hückel Molecule Drawer & Viewer (HMO Tool)
+Hückel Molecule Drawer & Solver (HMO Tool)
 
 This program provides a complete graphical interface for the interactive construction of
 (planar π-conjugated) molecules and the analysis of their molecular orbitals using the Hückel model.

@@ -4,14 +4,14 @@
 
 # Hückel Molecular Orbital (HMO) Viewer & Drawer
 
-**HMO.py** is an interactive application that allows you to draw simple organic molecules, build the corresponding Hückel matrix, calculate π molecular orbitals, and visualize the numerical results as tables and graphics.
+**HMO.py** is an interactive application that allows users to draw the sigma skeleton of conjugated systems, build the corresponding Hückel matrix, calculate π molecular orbitals, and visualize the numerical results as tables and graphics.
 
 ## Main Features
 
-- ✏️ **Interactive drawing** of molecules (adding atoms and bonds),
+- ✏️ **Interactive drawing** of the sigma skeleton molecules (adding atoms, bonds and global charges),
 - ⚙️ **Automatic calculation** of π molecular orbitals using the Hückel method,
-- 📊 **Display of molecular orbital coefficients**, energies, bond indices, and π atomic charges,
-- 🔬 **Calculation of molecular descriptors**:
+- ⚛️ **Display of molecular orbital coefficients**, energies and reactivity descriptors,
+- 🔬 **Calculation of various descriptors**:
   - Total π-electron energy,
   - HOMO-LUMO gap,
   - Electronic potential (μ),
@@ -19,6 +19,7 @@
   - Chemical softness (S),
   - Electrophilicity index (ω),
 - 💾 **Save/load molecules** in `.hmo` format,
+- 🖨️ **Export results to PDF**,
 - 📈 **Export of data** to Excel (.xlsx) files,
 - 🖼️ **Graphical display of the molecule** in the results window.
 
@@ -51,6 +52,11 @@ python HMO.py
 4️⃣ **Saving:**
 - Save the molecule using the menu or the dedicated button (in `.hmo` format),
 - Export Excel results after running the calculation.
+- Generate a PDF full report with sigma skeleton, MOs, and descriptors.
+
+<div style="text-align:center">
+<img src="https://raw.githubusercontent.com/rpoteau/HMO/blob/main/docs/source/_static/HMO_mainWindow.png" alt="HMObanner" width="800"/>
+</div>
 
 ## `.hmo` File Format
 
