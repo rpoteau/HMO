@@ -55,7 +55,7 @@ python HMO.py
 - Generate a PDF full report with sigma skeleton, MOs, and descriptors.
 
 <div style="text-align:center">
-<img src="https://raw.githubusercontent.com/rpoteau/HMO/blob/main/docs/source/_static/HMO_mainWindow.png" alt="HMObanner" width="800"/>
+<img src="https://raw.githubusercontent.com/rpoteau/HMO/main/docs/source/_static/HMO_mainWindow.png" alt="Graphical doc" width="800"/>
 </div>
 
 ## `.hmo` File Format
