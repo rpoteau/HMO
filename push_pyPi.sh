@@ -110,6 +110,14 @@ if [[ "$REPLY" =~ ^[Yy]$ ]]; then
         echo "__version__ = \"$NEW_VERSION\"" >> hmo/__init__.py
     fi
     echo "     - in  hmo/__init__.py  ... Done"
+    # Update __last_update__ field automatically
+    today=$(date +%Y-%m-%d)
+    if grep -q "^__last_update__ *= *" hmo/__init__.py; then
+        sed -i "s/^__last_update__ *= *.*/__last_update__ = \"$today\"/" hmo/__init__.py
+    else
+        echo "__last_update__ = \"$today\"" >> hmo/__init__.py
+    fi
+    echo "last update field in hmo/__init__.py  ... Set to $today"
 
     # --- GIT SECTION ---
     echo -e "$SEPARATOR"

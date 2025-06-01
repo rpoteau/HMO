@@ -1544,9 +1544,31 @@ class MoleculeDrawer:
 
 
     def sanitize_filename(self, name):
+        """
+        Sanitize a string to make it safe for use as a filename.
+    
+        Replaces characters that are invalid in most file systems (such as \ / : * ? " < > |) with underscores.
+    
+        Parameters
+        ----------
+        name : str
+            Original file name or label.
+    
+        Returns
+        -------
+        str
+            Sanitized version of the string with forbidden characters replaced.
+        """
         return re.sub(r'[\\/*?:"<>|]', "_", name)
         
     def create_toolbar(self):
+        """
+        Create the main toolbar with all interactive buttons.
+    
+        This method creates buttons for key actions such as running the Hückel calculation,
+        saving/loading the molecule, undo/redo, charge placement, numerical output, exporting
+        results, and quitting the program. Each button is associated with an icon and a tooltip.
+        """
         self.btn_run = self.create_button(self.icons['run'], self.on_run_huckel, "Run")
         self.create_button(self.icons['charge'], self.set_mode_add_charge, "Add a charge")
         self.create_button(self.icons['matrix'], self.show_numerical_data, "Show numerical results")
@@ -1564,12 +1586,37 @@ class MoleculeDrawer:
         self.create_button(self.icons['about'], self.show_about, "About HMO")
         
     def load_icons(self):
+        """
+        Load toolbar icons from the `icons-logos-banner` folder.
+    
+        This method populates `self.icons` with PhotoImage objects keyed by function names.
+        These icons are later used to create toolbar buttons.
+        """
         self.icons = {}
         for name in ['run',  'charge', 'matrix', 'descriptors','save', 'load', 'undo', 'redo', 'eraser', 'clear', 'savepdf', 'savedata', 'quit', 'about']:
             icon = resource_path(f"icons-logos-banner/{name}.png")
             self.icons[name] = ImageTk.PhotoImage(Image.open(icon))
 
     def create_button(self, icon, command, tooltip):
+        """
+        Create a single button for the toolbar with icon, command, and tooltip.
+    
+        Parameters
+        ----------
+        icon : PhotoImage
+            The icon image to display on the button.
+    
+        command : callable
+            The function to execute when the button is clicked.
+    
+        tooltip : str
+            The tooltip text displayed on hover, and temporarily shown in the window title.
+    
+        Returns
+        -------
+        tk.Button
+            The created Tkinter Button widget.
+        """
         btn = tk.Button(self.toolbar, image=icon, command=command, bg='lightgray')
         btn.pack(pady=2)
         btn.bind("<Enter>", lambda e: self.master.title(tooltip))
@@ -1578,6 +1625,21 @@ class MoleculeDrawer:
         return btn
 
     def bind_shortcuts(self):
+        """
+        Bind keyboard shortcuts (Ctrl + key) to main application actions.
+    
+        Shortcuts include:
+        - Ctrl+R : Run Hückel calculation
+        - Ctrl+S : Save molecule
+        - Ctrl+O : Load molecule
+        - Ctrl+Z : Undo
+        - Ctrl+Y : Redo
+        - Ctrl+D : Clear canvas
+        - Ctrl+P : Export all results to PDF
+        - Ctrl+L : Save data to spreadsheet
+        - Ctrl+Q : Quit program
+        - Ctrl+H : Show 'About' window
+        """
         self.master.bind('<Control-r>', lambda e: self.on_run_huckel())
         self.master.bind('<Control-s>', lambda e: self.save_molecule())
         self.master.bind('<Control-o>', lambda e: self.load_molecule())
@@ -1594,11 +1656,24 @@ class MoleculeDrawer:
         self.mode = 'add_charge'
         
     def toggle_eraser(self):
+        """
+        Toggle eraser mode on or off.
+    
+        When enabled, the application allows the user to delete atoms or bonds by clicking.
+        This method also updates the background color of the eraser button to indicate the active state.
+        """
         self.eraser_mode = not self.eraser_mode
         self.btn_erase.config(bg='#ffb8b9' if self.eraser_mode else 'lightgray')
 
     def quit_program(self):
-        self.master.quit()
+        """
+        Prompt the user to confirm before quitting the application.
+    
+        If the user confirms, the main Tkinter window is closed.
+        """
+        confirm = messagebox.askyesno("Confirm Quit", "Do you really want to quit?")
+        if confirm:
+            self.master.quit()
         
     def show_about(self):
         """
@@ -1654,11 +1729,22 @@ class MoleculeDrawer:
         # === Documentation ===
         def open_doc_link(event=None):
             import webbrowser
-            webbrowser.open_new("https://hmo.readthedocs.io/en/latest/")  # remplace par ton URL réelle
+            webbrowser.open_new("https://hmo.readthedocs.io/en/latest/")  
         version_label = tk.Label(about_win, text="Documentation", font=("DejaVu Sans", 9, "underline"), fg="#aa0000", cursor="hand2")
         version_label.pack(pady=(5, 10))
         version_label.bind("<Button-1>", open_doc_link)
 
+        # === Last update with link ===
+        from hmo import __last_update__
+        def open_changelog(event=None):
+            import webbrowser
+            webbrowser.open_new("https://github.com/rpoteau/HMO/blob/main/CHANGELOG.md")
+        
+        update_label = tk.Label(
+            about_win, text=f"Last update: {__last_update__} (view changelog)", font=("DejaVu Sans", 9, "underline"), fg="blue", cursor="hand2")
+        update_label.pack(pady=(0, 10))
+        update_label.bind("<Button-1>", open_changelog)
+        
         # Add Escape key binding to close the window
         about_win.bind('<Escape>', lambda event: about_win.destroy())
         

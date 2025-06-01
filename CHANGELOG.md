@@ -4,7 +4,17 @@
 
 # Changelog
 
-## Version 0.7.2 - 2025-06-01
+## Version 0.7.3 - 2025-06-01
+### Added
+- added detailed docstrings to the following methods for improved documentation and future Sphinx integration: `sanitize_filename()`, `create_toolbar()`, `load_icons()`, `create_button()`, `bind_shortcuts()`, `toggle_eraser()`, `quit_program()`
+- added confirmation dialog when quitting the application (`quit_program()` now prompts the user with a Yes/No messagebox before exiting)
+- introduced a `__last_update__` variable in `hmo/__init__.py` to store the most recent update date.
+- the `show_about()` window now displays this date along with a clickable link to the online changelog on GitHub.
+- updated the `push_pypi.sh` script to automatically update the `__last_update__` field with the current date whenever a new version is pushed.
+
+---
+
+## Versions 0.7.1 & 0.7.2 - 2025-06-01
 ### Changed
 - refactored `pyproject.toml` to follow [PEP 621](https://peps.python.org/pep-0621/) and modern setuptools structure:
     - switched to declarative package discovery using `[tool.setuptools.packages.find]`.
