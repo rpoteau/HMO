@@ -4,7 +4,17 @@
 
 # Changelog
 
-## Version 0.7.0 - 2025-XX-XX
+## Version 0.7.2 - 2025-06-01
+### Changed
+- refactored `pyproject.toml` to follow [PEP 621](https://peps.python.org/pep-0621/) and modern setuptools structure:
+    - switched to declarative package discovery using `[tool.setuptools.packages.find]`.
+    - ensured that all subpackages like hmo.Fonts.OpenSans are included by adding `__init__.py` files.
+    - defined package-data for fonts, diagrams, and icons.
+- updated build-system section to use setuptools>=61 with build_meta.
+
+---
+
+## Version 0.7.0 - 2025-06-01
 ### Changed
 - multiple matplotlib figures (e.g., MO grid, energy diagram) can now be saved as separate pages in a single PDF file
 - `push_pyPi.sh` script also updates the `__version__` variable in `hmo/__init.py__`
