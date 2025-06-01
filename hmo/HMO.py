@@ -252,6 +252,26 @@ def save_figure_as_pdf(fig, filename):
     # Sauvegarde sans rognage automatique
     fig.savefig(filename, bbox_inches=None, dpi=300, format='pdf')
 
+def lighten_color(color, amount=0.5):
+    import matplotlib.colors as mcolors
+    """
+    Lightens the given color by mixing it with white.
+
+    Parameters
+    ----------
+    color : str or tuple
+        Matplotlib color string, hex string, or RGB tuple.
+    amount : float
+        Amount to lighten (0 = original color, 1 = white).
+    """
+    try:
+        c = np.array(mcolors.to_rgb(color))
+    except ValueError:
+        # fallback: if already RGB tuple
+        c = np.array(color)
+    white = np.array([1, 1, 1])
+    return tuple((1 - amount) * c + amount * white)
+
 # ========================================================================================================
 
 
@@ -500,12 +520,14 @@ class HMOViewer:
     ----------
     master : tk.Toplevel or tk.Tk
         The parent Tkinter window that contains the interface.
-    df_MOs : pd.DataFrame
-        DataFrame containing molecular orbital coefficients for each atom in the system.
     df_atoms : pd.DataFrame
         DataFrame containing atomic positions, indices, and element types.
+    df_global_charges : pd.DataFrame
+        DataFrame containing global charges positions and values
     df_bonds : pd.DataFrame
         DataFrame specifying bonds between atoms (indices and bond order).
+    df_MOs : pd.DataFrame
+        DataFrame containing molecular orbital coefficients for each atom in the system.
     df_descriptors : pd.DataFrame
         DataFrame containing computed molecular descriptors (e.g., number of π electrons, symmetry).
     project_name : str
@@ -547,9 +569,10 @@ class HMOViewer:
     >>> root = tk.Tk()
     >>> viewer = HMOViewer(
     ...     master=root,
-    ...     df_MOs=df_mos,
     ...     df_atoms=df_atoms,
+    ...     df_global_charges=df_global_charges,
     ...     df_bonds=df_bonds,
+    ...     df_MOs=df_mos,
     ...     df_descriptors=df_descriptors,
     ...     project_name="Benzene"
     ... )
@@ -563,14 +586,15 @@ class HMOViewer:
     """
 
 
-    def __init__(self, master, df_MOs, df_atoms, df_bonds, df_descriptors, project_name):
+    def __init__(self, master, df_atoms, df_global_charges, df_bonds, df_MOs, df_descriptors, project_name):
         self.master = master
         self.master.title("HMO Diagram Viewer")
 
         # Stocke les DataFrames directement
-        self.df_MOs = df_MOs
         self.df_atoms = df_atoms
+        self.df_global_charges = df_global_charges
         self.df_bonds = df_bonds
+        self.df_MOs = df_MOs
         self.df_descriptors = df_descriptors
         self.project_name = project_name
 
@@ -632,10 +656,30 @@ class HMOViewer:
         self.display_default_homo_lumo()
         
     def on_escape(self, event):
+        """
+        Callback triggered when the Escape key is pressed.
+    
+        This method gracefully closes the application window by destroying the root Tkinter widget.
+        
+        Parameters
+        ----------
+        event : tkinter.Event
+            The keypress event object (not used directly).
+        """
         # print("Escape key pressed. Closing the app.")
         self.master.destroy()
 
     def load_images(self):
+        """
+        Loads and resizes graphical assets used in the MO diagram.
+    
+        This method retrieves three image resources:
+        - 1e.png : icon for singly occupied MO,
+        - 2e.png : icon for doubly occupied MO,
+        - energy_level.png : horizontal energy level bar.
+    
+        The images are resized to appropriate dimensions and stored as Tkinter-compatible `PhotoImage` objects.
+        """
         e1_png = resource_path(f"DesignOfMOdiagram/1e.png")
         e2_png = resource_path(f"DesignOfMOdiagram/2e.png")
         energy_level_png = resource_path(f"DesignOfMOdiagram/energy_level.png")
@@ -644,8 +688,42 @@ class HMOViewer:
         self.img_energy_level = ImageTk.PhotoImage(Image.open(energy_level_png).resize((40, 5)))
 
     def prepare_data(self):
+        """
+        Extracts MO energies and occupations from column headers and prepares data for rendering.
     
+        - Parses each MO column label in `self.df_MOs` to extract:
+            - The energy coefficient (in units of β),
+            - The number of electrons (occupation).
+        - Computes the global max coefficient for scaling orbital display.
+        - Calculates the mean bond length for graphical positioning.
+        - Groups MOs by energy (rounded to 5 decimal places) into `self.energy_groups`.
+    
+        Notes
+        -----
+        - Assumes that column headers follow the format: "MO = -1.25β\\n2e" or similar.
+        - Uses helper function `compute_mean_bond_length()` for estimating bond scaling.
+    
+        The resulting attributes are:
+        - `self.energies` : list of float (one per MO),
+        - `self.occupations` : list of int (0, 1, 2),
+        - `self.max_coef_global` : float, used for visual scaling,
+        - `self.mean_bond_length` : float, used to normalize drawing,
+        - `self.energy_groups` : dict mapping rounded energy → list of MO indices.
+        """    
         def extract_beta_coeff(energy_str):
+            """
+            Extracts the numeric coefficient in front of β from a string.
+
+            Parameters
+            ----------
+            energy_str : str
+                A string containing a symbolic expression like "-1.25β".
+    
+            Returns
+            -------
+            float
+                The extracted numeric multiplier of β.
+            """
             pattern = r'(.*?)β'
             match = re.search(pattern, energy_str)
             if match:
@@ -663,16 +741,6 @@ class HMOViewer:
         self.occupations = []
     
         self.max_coef_global = np.nanmax(np.abs(self.df_MOs.values))
-        # coords = {row['Atom']: (row['X (grid units)'], row['Y (grid units)']) for _, row in self.df_atoms.iterrows()}
-    
-        # bond_lengths = []
-        # for _, row in self.df_bonds.iterrows():
-        #     a1, a2 = row['Atom 1'], row['Atom 2']
-        #     x1, y1 = coords[a1]
-        #     x2, y2 = coords[a2]
-        #     dist = np.sqrt((x2 - x1)**2 + (y2 - y1)**2)
-        #     bond_lengths.append(dist)
-        # self.mean_bond_length = np.mean(bond_lengths)
         self.mean_bond_length = compute_mean_bond_length(self.df_atoms, self.df_bonds)
 
         for col in self.df_MOs.columns:
@@ -689,34 +757,34 @@ class HMOViewer:
             self.energy_groups.setdefault(rounded_e, []).append(idx)
 
     def toggle_skeleton(self):
-        """Active/désactive le mode skeleton only."""
+        """Toggle the skeleton-only mode (with or without atom labels)."""
         self.show_atom_labels = not self.show_atom_labels
         # print(f"[DEBUG] Skeleton only mode: {self.show_atom_labels}")
         self.refresh_skeleton()
         self.refresh_MOs()
-
+    
     def refresh_MOs(self):
-        """Redessine l'OM actuellement affichée (HOMO & LUMO)."""
+        """Redraws the currently displayed molecular orbitals (HOMO & LUMO by default)."""
         if hasattr(self, 'current_occ_idx'):
             self.display_mo(self.current_occ_idx, occupied=True)
         if hasattr(self, 'current_virt_idx'):
             self.display_mo(self.current_virt_idx, occupied=False)
     
     def refresh_skeleton(self):
-        """Efface et redessine le squelette global."""
-        # Effacer l'ancien squelette
+        """Clears and redraws the full molecular skeleton."""
+        # Remove previously drawn skeleton items
         for item in self.skeleton_items:
             self.canvas.delete(item)
         self.skeleton_items = []
     
-        # Redessiner à la position sauvegardée
+        # Redraw at saved position
         self.draw_skeleton_overview(
             self.skeleton_x0, self.skeleton_y0,
             self.skeleton_width, self.skeleton_height
         )
-
+    
     def save_canvas_as_png(self):
-        """Sauvegarde le canvas entier en PNG haute qualité."""
+        """Save the full canvas as a high-resolution PNG image."""
         file = filedialog.asksaveasfilename(
             defaultextension=".png",
             filetypes=[("PNG files", "*.png")],
@@ -724,24 +792,22 @@ class HMOViewer:
             parent=self.master
         )
         if file:
-            # Sauvegarde du canvas en PostScript (format vectoriel temporaire)
             file_path = Path(file)
             tmp_eps = file_path.with_suffix('.tmp.eps')
+            # Save canvas as temporary EPS (vector format)
             self.canvas.postscript(file=tmp_eps, colormode='color')
             try:
                 from PIL import Image
                 img = Image.open(tmp_eps)
     
-                # 🔥 Améliorer la qualité : ouvrir à haute résolution (~300 DPI)
-                # (default is ~72 dpi -> flou, 300 dpi = beaucoup mieux)
-                img.load(scale=12)  # facteur qui augmente la résolution
+                # 🔍 Improve resolution: scale factor ~12 gives ~300 DPI quality
+                img.load(scale=12)  # Increase resolution for better rendering
     
                 img.save(file, 'png')
-                print(f"Canvas saved as {file}")
-                # Nettoyer
-                tmp_eps.unlink()
+                print(f"Canvas successfully saved as {file}")
+                tmp_eps.unlink()  # Clean up temporary file
             except Exception as e:
-                print(f"Erreur de sauvegarde PNG: {e}")
+                print(f"PNG export error: {e}")
 
     def draw_layout(self):
         """
@@ -991,8 +1057,8 @@ class HMOViewer:
             )
             items.append(line)
     
+        radius_oval = 15
         if self.show_atom_labels:
-            radius_oval = 15
             for atom, (x, y) in coords.items():
                 color = colors.get(atom, 'gray')
                 oval = self.canvas.create_oval(
@@ -1010,6 +1076,33 @@ class HMOViewer:
         # Sauvegarde pour pouvoir effacer ensuite
         self.skeleton_items.extend(items)
 
+        # Draw global formal charges (always shown, with colored circle + centered text)
+        if hasattr(self, 'df_global_charges') and not self.df_global_charges.empty:
+            charge_radius = radius_oval*0.9  # pixels, can be scaled if needed
+            for _, row in self.df_global_charges.iterrows():
+                x = offset_x + row["X (grid units)"] * scale
+                y = offset_y + row["Y (grid units)"] * scale
+                q = int(row["Charge"])
+                ch_color = "red" if q < 0 else ("blue" if q > 0 else "white")
+
+                # Colored circle with black edge
+                circle = self.canvas.create_oval(
+                    x - charge_radius, y - charge_radius,
+                    x + charge_radius, y + charge_radius,
+                    fill=ch_color, outline="black", width=1
+                )
+
+                # Centered white charge text (e.g. +1 or −1)
+                text = self.canvas.create_text(
+                    x, y,
+                    text=f"{q:+.0f}",
+                    font=('DejaVu Sans', 9, 'bold'),
+                    fill='white'
+                )
+
+                items.append(circle)
+                items.append(text)
+                
     def display_mo(self, idx, occupied=True):
         """
         Displays a specific molecular orbital (MO) in its corresponding frame (occupied or virtual).
@@ -1518,7 +1611,8 @@ class MoleculeDrawer:
         - A 'Close' button to dismiss the window.
     
         The window is non-resizable and can also be closed using the Escape key.
-        """    
+        """
+        from hmo import __version__
         # Create a new Toplevel window
         about_win = tk.Toplevel()
         about_win.title("About HMO")
@@ -1554,7 +1648,7 @@ class MoleculeDrawer:
         author_label.pack(pady=(5, 5))
     
         # === Version ===
-        version_label = tk.Label(about_win, text="Version 0.6.1", font=("DejaVu Sans", 10, "bold"))
+        version_label = tk.Label(about_win, text=f"Version {__version__}", font=("DejaVu Sans", 10, "bold"))
         version_label.pack(pady=(5, 10))
         
         # === Documentation ===
@@ -2588,7 +2682,7 @@ class MoleculeDrawer:
         self.df = df
         self.occupations_dict = occupation_dict
         del df
-        
+    
     def build_dataframes(self):
         """
         Builds and updates key DataFrames summarizing the molecule's structural and electronic properties.
@@ -2598,13 +2692,14 @@ class MoleculeDrawer:
         2. `df_atoms`: A table containing atom indices, types, positions (grid units), π charges, and colors.
         3. `df_bonds`: A table listing all bonds between atoms with atom labels.
         4. `df_summary`: A summary table of molecular descriptors, such as total π-electron energy, HOMO-LUMO gap, chemical potential, hardness, softness, and electrophilicity.
+        5. `df_global_charges`: A table of manually placed formal charges, including position and value; or empty if none.
 
         The resulting DataFrames are stored as attributes for export or display in other parts of the application.
     
         Returns
         -------
         None
-        (The method updates internal attributes: `df_bond_orders_matrix`, `df_atoms`, `df_bonds`, and `df_summary`)
+        (The method updates internal attributes: `df_bond_orders_matrix`, `df_atoms`, `df_bonds`, `df_summary` and `df_global_charges`)
     
         Notes
         -----
@@ -2613,6 +2708,7 @@ class MoleculeDrawer:
         - π charges are computed from Hückel analysis results and rounded to 3 decimal places.
         - The summary DataFrame expresses all energy-related descriptors in units of β (or multiples/fractions thereof).
         - The method assumes that the Hückel analysis (and charge/bond order computation) has already been performed.
+        - `df_global_charges` will contain user-defined formal charges if any have been placed in the GUI.
     
         Example
         -------
@@ -2624,6 +2720,7 @@ class MoleculeDrawer:
         - mol.df_atoms
         - mol.df_bonds
         - mol.df_summary
+        - mol.df_global_charges
         """
 
         # DataFrame pour les indices de liaison (π-bond orders)
@@ -2719,6 +2816,22 @@ class MoleculeDrawer:
         }
         self.df_summary = pd.DataFrame(summary_data).set_index("Descriptor")
 
+        # Formal charges placed by the user (if any), or an empty table
+        if hasattr(self, 'formal_charges') and self.formal_charges:
+            charges_data = []
+            for idx, c in enumerate(self.formal_charges):
+                charges_data.append({
+                    "Index": f"{idx + 1}",
+                    "X (grid units)": c.x,
+                    "Y (grid units)": c.y,
+                    "Charge": c.charge,
+                })
+            self.df_global_charges = pd.DataFrame(charges_data)
+        else:
+            self.df_global_charges = pd.DataFrame(columns=[
+                "Index", "X (grid units)", "Y (grid units)", "Charge"
+            ])
+
     def save_data(self):
         if self.df is None:
             messagebox.showerror("Error", "You must run Huckel before saving the data.")
@@ -2734,10 +2847,11 @@ class MoleculeDrawer:
         Export multiple pandas DataFrames to an Excel workbook with styled headers.
     
         This method saves the following DataFrames to separate sheets in a single Excel file:
+        - `self.df_atoms`: Atom-level data (sheet 'Atoms')
+        - `self.df_global_charges`: A table of manually placed formal charges, including position and value; or empty if none.
+        - `self.df_bonds`: Bond list (sheet 'Bond List')
         - `self.df`: Molecular orbital coefficients (sheet 'MO Coefficients')
         - `self.df_bond_orders_matrix`: π-bond order matrix (sheet 'π-bond orders')
-        - `self.df_atoms`: Atom-level data (sheet 'Atoms')
-        - `self.df_bonds`: Bond list (sheet 'Bond List')
         - `self.df_summary`: Molecular descriptors (sheet 'Descriptors')
     
         The user is prompted to select a save location via a file dialog. After saving,
@@ -2774,10 +2888,11 @@ class MoleculeDrawer:
             return False
     
         with pd.ExcelWriter(path, engine='openpyxl') as writer:
+            self.df_atoms.to_excel(writer, sheet_name='Atoms', index=False)
+            self.df_global_charges.to_excel(writer, sheet_name='Global charges', index=False)
+            self.df_bonds.to_excel(writer, sheet_name='Bond List', index=False)
             self.df.to_excel(writer, sheet_name='MO Coefficients')
             self.df_bond_orders_matrix.to_excel(writer, sheet_name='π-bond orders')
-            self.df_atoms.to_excel(writer, sheet_name='Atoms', index=False)
-            self.df_bonds.to_excel(writer, sheet_name='Bond List', index=False)
             self.df_summary.to_excel(writer, sheet_name='Descriptors', index=True)
     
         # Ouvre le fichier avec openpyxl pour modifier les styles
@@ -2996,6 +3111,8 @@ class MoleculeDrawer:
         win.title("Hückel Molecular Orbital Coefficients")
         win.geometry("1000x1000")
 
+        radius_atoms = 15
+
         # === Frame principal (vertical) ===
         frame_main = ttk.Frame(win)
         frame_main.pack(fill=tk.BOTH, expand=True)
@@ -3072,8 +3189,35 @@ class MoleculeDrawer:
             y = (node.y - center_y) * final_scale + offset_y
             atom_label = f"{node.atom_type}{idx+1}"
             color = HuckelParameters.ATOM_COLORS.get(node.atom_type, 'gray')
-            canvas.create_oval(x-15, y-15, x+15, y+15, fill=color)
+            canvas.create_oval(x-radius_atoms, y-radius_atoms, x+radius_atoms, y+radius_atoms, fill=color)
             canvas.create_text(x, y, text=atom_label, fill='white')
+
+        # === Ajouter la (ou les) charges ===
+        if hasattr(self, 'df_global_charges') and not self.df_global_charges.empty:
+            charge_radius = radius_atoms*0.9  # pixels, can be scaled if needed
+            for _, row in self.df_global_charges.iterrows():
+                xq = row["X (grid units)"]
+                yq = row["Y (grid units)"]
+                x = (xq - center_x) * final_scale + offset_x
+                y = (yq - center_y) * final_scale + offset_y
+
+                q = int(row["Charge"])
+                ch_color = "red" if q < 0 else ("blue" if q > 0 else "white")
+
+                # Colored circle with black edge
+                circle = canvas.create_oval(
+                    x - charge_radius, y - charge_radius,
+                    x + charge_radius, y + charge_radius,
+                    fill=ch_color, outline="black", width=1
+                )
+
+                # Centered white charge text (e.g. +1 or −1)
+                text = canvas.create_text(
+                    x, y,
+                    text=f"{q:+.0f}",
+                    font=('DejaVu Sans', 9, 'bold'),
+                    fill='white'
+                )
 
         # === Résumé des propriétés ===
 
@@ -3257,9 +3401,10 @@ class MoleculeDrawer:
         self.mo_viewer_window = viewer_win
         viewer = HMOViewer(
             viewer_win,
-            df_MOs=self.df,
             df_atoms=self.df_atoms,
+            df_global_charges=self.df_global_charges,
             df_bonds=self.df_bonds,
+            df_MOs=self.df,
             df_descriptors=self.df_summary,
             project_name=self.safe_project_name
         )
@@ -3270,12 +3415,12 @@ class MoleculeDrawer:
             messagebox.showerror("Error", "You must run Hückel analysis before exporting results.")
             return
     
-        path = filedialog.asksaveasfilename(
+        path2results = filedialog.asksaveasfilename(
             defaultextension=".pdf",
             filetypes=[("PDF files", "*.pdf")],
-            initialfile=f"{self.safe_project_name}_results.pdf"
+            initialfile=f"{self.safe_project_name}.pdf"
         )
-        if not path:
+        if not path2results:
             return
             
         energies, occupations = extract_energies_and_occupations_from_columns(self.df.columns)
@@ -3283,7 +3428,7 @@ class MoleculeDrawer:
         max_coef_global, scale_lobe_factor = lobes_sizes(self.df, max_display_radius=size/4)
         max_per_row = min([4,self.n_MOs])
         
-        with PdfPages(path) as pdf:
+        with PdfPages(path2results) as pdf:
             # 🔲 Grille des orbitales
             fig_grid = render_all_OMs_grid_with_dual_lobes(
                                 self.df, self.df_atoms, self.df_bonds,
@@ -3294,26 +3439,28 @@ class MoleculeDrawer:
                             )
             pdf.savefig(fig_grid)
             plt.close(fig_grid)
+            
+            energy_groups = extract_energy_groups(self.df)
+            fig = render_energy_diagram_matplotlib(
+                energy_groups=energy_groups,
+                occupations=occupations,
+                descriptors={
+                    'E': self.total_energy,
+                    'E_atom/N': self.atomization_energy_per_atom,
+                    'gap': self.homo_lumo_gap,
+                    'η': self.eta
+                            }
+                        )
+            pdf.savefig(fig)
+            plt.close(fig)
+            fig = render_double_panel_charges_bonds(self.nodes, self.bonds, self.charges, self.bond_orders, self.formal_charges)
+            pdf.savefig(fig)
+            plt.close(fig)
     
-        messagebox.showinfo("Success", f"PDF exported to: {path}")
+        messagebox.showinfo("Success", f"PDF with all results exported to: {path2results}")
         
-        energy_groups = extract_energy_groups(self.df)
-        fig = render_energy_diagram_matplotlib(
-            energy_groups=energy_groups,
-            occupations=occupations,
-            descriptors={
-                'E': self.total_energy,
-                'E_atom/N': self.atomization_energy_per_atom,
-                'gap': self.homo_lumo_gap,
-                'η': self.eta
-                        }
-                    )
-        print(self.atomization_energy_per_atom)
-        print(self.homo_lumo_gap)
-        print(self.eta)
-        save_figure_as_pdf(fig, "energy_diagram.pdf")
-        fig = render_double_panel_charges_bonds(self.nodes, self.bonds, self.charges, self.bond_orders, self.formal_charges)
-        save_figure_as_pdf(fig, "charges.pdf")
+        # save_figure_as_pdf(fig, "energy_diagram.pdf")
+        # save_figure_as_pdf(fig, "charges.pdf")
 
         # self.total_energy = total_energy
         # self.alpha_part = alpha_part
@@ -3559,19 +3706,19 @@ def render_all_OMs_grid_with_dual_lobes(df_MOs, df_atoms, df_bonds,
 
     Parameters
     ----------
-    df_MOs : pd.DataFrame
-    df_atoms : pd.DataFrame
-    df_bonds : pd.DataFrame
-    scale_lobe_factor : float
-        Global scaling factor for lobe radii.
-    energies : list of str, optional
-        Energy labels for each MO.
-    occupations : list of int, optional
-        Occupation numbers for each MO.
-    cell_size_cm : float
-        Width/height of each subplot in centimeters.
-    max_per_row : int
-        Maximum number of MOs per row.
+    - df_MOs : pd.DataFrame
+    - df_atoms : pd.DataFrame
+    - df_bonds : pd.DataFrame
+    - scale_lobe_factor : float
+         Global scaling factor for lobe radii.
+    - energies : list of str, optional
+         Energy labels for each MO.
+    - occupations : list of int, optional
+         Occupation numbers for each MO.
+    - cell_size_cm : float
+         Width/height of each subplot in centimeters.
+    - max_per_row : int
+         Maximum number of MOs per row.
 
     Returns
     -------
@@ -3681,7 +3828,7 @@ def render_energy_diagram_matplotlib(energy_groups, occupations, descriptors=Non
         current += step
 
     # === Levels and electrons
-    level_width = 1 / 2.54
+    level_width = 1.5 / 2.54
     level_thickness = 1.5
     arrow_height = 0.25 / 2.54  # fixed physical size
     arrow_dx = 0.06
@@ -3714,6 +3861,12 @@ def render_energy_diagram_matplotlib(energy_groups, occupations, descriptors=Non
                          fc='red', ec='red', linewidth=0.8, zorder=2)
 
     # === Descriptors
+    def format_beta_value(label, val):
+        if isinstance(val, (int, float)):
+            return f"{label}: {abs(val):.2f} |β|"
+        else:
+            return f"{label}: N/A"
+    
     if descriptors:
         n_pi = sum(occupations)
         E = descriptors.get("E", "N/A")
@@ -3723,9 +3876,9 @@ def render_energy_diagram_matplotlib(energy_groups, occupations, descriptors=Non
             E_str = f"E: {E}"
         desc_labels = {
             'E': E_str,
-            'E_atom/N': f"E_atom/N: {descriptors.get('E_atom/N', 'N/A'):.2f} |β|",
-            'gap': f"gap: {abs(descriptors.get('gap', 'N/A')):.2f} |β|",
-            'η': f"η: {abs(descriptors.get('η', 'N/A')):.2f} |β|"
+            'E_atom/N': format_beta_value("E_atom/N", descriptors.get("E_atom/N")),
+            'gap': format_beta_value("gap", descriptors.get("gap")),
+            'η': format_beta_value("η", descriptors.get("η"))
         }
         for i, key in enumerate(['E', 'E_atom/N', 'gap', 'η']):
             y_desc = ((bottom_cm-2*Vmargin)/2.54 - 0.1 * i)  # below 2.8 cm, stays visible
@@ -3736,19 +3889,80 @@ def render_energy_diagram_matplotlib(energy_groups, occupations, descriptors=Non
 
 def render_double_panel_charges_bonds(nodes, bonds, charges, bond_orders, formal_charges):
     """
-    Assemble deux panneaux côte à côte :
-    - le squelette sigma (avec atomes indexés),
-    - les indices de liaison et charges atomiques.
+    Render two side-by-side panels representing molecular structure and bonding and charge descriptors.
 
-    Dimensions totales : 16 cm × 8 cm (deux panneaux de 8 cm × 8 cm).
+    The function generates a matplotlib figure of total size 26 cm (widthPlot_cm) × 13 cm (heightPlot_cm), composed of two panels:
+    - Left panel: the sigma skeleton (σ) of the molecule, with indexed atoms and the number of pi electrons they bring to the pi system.
+    - Right panel: bond orders and atomic charges, displayed on the same structure.
+
+    This visualization is suitable for publication or detailed analysis, with precise control over bond lengths and graphical scaling.
+
+    Parameters
+    ----------
+    nodes : list
+        List of atomic nodes, each with `.x` and `.y` attributes and an `atom_type` (chemical element).
+    bonds : list of tuple
+        List of (i, j) pairs indicating bonded atom indices.
+    charges : list of float
+        List of computed atomic charges.
+    bond_orders : dict
+        Dictionary mapping (i, j) pairs to bond order values (float).
+    formal_charges : list
+        list of ChargeNode instances 
+
+    Returns
+    -------
+    fig : matplotlib.figure.Figure
+        The matplotlib figure object containing the two rendered panels.
     """
-    def compute_center_and_scale(nodes, bonds, target_cm_per_bond=1.5, box_cm=8):
+    widthA4 = 29.7 #cm
+    heightA4 = 21.0 #cm
+    widthPlot_cm = 26
+    heightPlot_cm = 13
+    widthPlot = widthPlot_cm/2.54
+    heightPlot = heightPlot_cm/2.54
+    radius_atom_cm = 0.5
+    radius_atom = radius_atom_cm / 2.54
+    bond_length_cm = 2
+    bond_length = bond_length_cm / 2.54
+    labelSize = 8
+    
+    def compute_center_and_scale(nodes, bonds, box, target_length_per_bond):
+        """
+        Compute the optimal center and scaling factor for drawing a molecular structure.
+    
+        The function returns the geometric center of the molecule and a scaling factor such that:
+        - If possible, the average bond length is equal to `target_length_per_bond`.
+        - If the molecule would exceed the available box, the scale is reduced so the entire structure fits within the plotting area.
+    
+        Parameters
+        ----------
+        nodes : list
+            List of atomic nodes, each with `.x` and `.y` attributes (coordinates).
+        bonds : list of tuple
+            List of (i, j) pairs defining the bonds between atoms.
+        box : float
+            The size of the square plotting area (in inches).
+        target_length_per_bond : float
+            The desired average bond length in the plotting units (inches).
+    
+        Returns
+        -------
+        center_x : float
+            X coordinate of the geometric center (for centering the plot).
+        center_y : float
+            Y coordinate of the geometric center (for centering the plot).
+        final_scale : float
+            Scaling factor to apply to all coordinates.
+        """
+        margin = 1.5/2.54 #inches
+    
         def dist(n1, n2):
             return ((n1.x - n2.x)**2 + (n1.y - n2.y)**2)**0.5
     
         lengths = [dist(nodes[i], nodes[j]) for (i, j) in bonds]
         avg_length = np.mean(lengths)
-        scale = target_cm_per_bond / avg_length if avg_length > 0 else 1
+        scale = target_length_per_bond / avg_length if avg_length > 0 else 1
     
         xs = [n.x for n in nodes]
         ys = [n.y for n in nodes]
@@ -3757,50 +3971,62 @@ def render_double_panel_charges_bonds(nodes, bonds, charges, bond_orders, formal
         mol_width = (max_x - min_x) * scale
         mol_height = (max_y - min_y) * scale
     
-        limit_factor = min(box_cm / mol_width, box_cm / mol_height, 1)
-        final_scale = scale * limit_factor
+        # Compute the scale that would *exactly* fit the molecule in the box
+        max_allowed_scale = min((box - margin) / (max_x - min_x), (box - margin) / (max_y - min_y))
+        # Final scale: use target_length_per_bond if possible, else shrink to fit
+        final_scale = min(scale, max_allowed_scale)
+    
         center_x = (max_x + min_x) / 2
         center_y = (max_y + min_y) / 2
     
+        # print(f"DEBUG: {final_scale=}")
+    
         return center_x, center_y, final_scale
 
-    fig, axs = plt.subplots(1, 2, figsize=(16 / 2.54, 8 / 2.54))
+    fig, axs = plt.subplots(1, 2, figsize=(26 / 2.54, 13 / 2.54))
 
     # 1️⃣ Panneau gauche : squelette
-    center_x, center_y, scale = compute_center_and_scale(nodes, bonds)
+    center_x, center_y, scale = compute_center_and_scale(nodes, bonds, heightPlot, bond_length)
     ax = axs[0]
     for i, j in bonds:
         x1 = (nodes[i].x - center_x) * scale
-        y1 = (nodes[i].y - center_y) * scale
+        y1 = -(nodes[i].y - center_y) * scale
         x2 = (nodes[j].x - center_x) * scale
-        y2 = (nodes[j].y - center_y) * scale
+        y2 = -(nodes[j].y - center_y) * scale
         ax.plot([x1, x2], [y1, y2], color='black', linewidth=2)
+        
     for idx, n in enumerate(nodes):
         x = (n.x - center_x) * scale
-        y = (n.y - center_y) * scale
+        y = -(n.y - center_y) * scale
         color = HuckelParameters.ATOM_COLORS.get(n.atom_type, 'gray')
-        circ = plt.Circle((x, y), radius=0.25, color=color, ec='black', zorder=2)
+        circ = plt.Circle((x, y), radius=radius_atom, color=color, ec='black', zorder=2)
         ax.add_patch(circ)
-        ax.text(x, y, f"{n.atom_type}{idx+1}", ha='center', va='center', color='white', fontsize=7, fontweight='bold')
-        if formal_charges and idx < len(formal_charges):
-            q = int(formal_charges[idx].charge)
-            ch_color = "red" if q < -0.1 else ("blue" if q > 0.1 else "black")
-            ax.text(x, y, f"{q:+.0f}", color=ch_color,
-                    fontsize=10, fontweight='bold')
-        
-    ax.set_xlim(-4, 4)
-    ax.set_ylim(-4, 4)
+        ax.text(x, y, f"{n.atom_type}{idx+1}", ha='center', va='center', color='white', fontsize=labelSize, fontweight='bold')
+
+    for c in formal_charges:
+        charge_radius = radius_atom * 0.8
+        q = int(c.charge)
+        x = (c.x - center_x) * scale
+        y = -(c.y - center_y) * scale
+        ch_color = "red" if q < 0 else ("blue" if q > 0 else "white")
+        charge_circ = plt.Circle((x, y), radius=charge_radius, color=ch_color, ec='black', zorder=2)
+        ax.add_patch(charge_circ)
+        ax.text(x, y, f"{q:+.0f}", color="white", ha='center', va='center',
+                fontsize=labelSize, fontweight='bold')
+
+    ax.set_xlim(-heightPlot/2, heightPlot/2)
+    ax.set_ylim(-heightPlot/2, heightPlot/2)
     ax.set_aspect('equal')
     ax.axis('off')
-    ax.set_title("Squelette σ", fontsize=10, pad=6)
+    ax.set_title("σ skeleton", fontsize=10, pad=6)
 
     # 2️⃣ Panneau droit : indices de liaison + charges
     ax = axs[1]
     for i1, i2 in bonds:
         x1 = (nodes[i1].x - center_x) * scale
-        y1 = (nodes[i1].y - center_y) * scale
+        y1 = -(nodes[i1].y - center_y) * scale
         x2 = (nodes[i2].x - center_x) * scale
-        y2 = (nodes[i2].y - center_y) * scale
+        y2 = -(nodes[i2].y - center_y) * scale
         ax.plot([x1, x2], [y1, y2], color='black', linewidth=2)
         idx = (i1, i2) if (i1, i2) in bond_orders else (i2, i1)
         if idx in bond_orders:
@@ -3811,22 +4037,22 @@ def render_double_panel_charges_bonds(nodes, bonds, charges, bond_orders, formal
                     bbox=dict(facecolor="white", edgecolor="none"))
     for i, node in enumerate(nodes):
         x = (node.x - center_x) * scale
-        y = (node.y - center_y) * scale
+        y = -(node.y - center_y) * scale
         color = HuckelParameters.ATOM_COLORS.get(node.atom_type, 'gray')
-        circ = plt.Circle((x, y), radius=0.25, color=color, ec="black", zorder=2)
+        circ = plt.Circle((x, y), radius=radius_atom, color=lighten_color(color), ec="black", zorder=2)
         ax.add_patch(circ)
-        ax.text(x, y, node.atom_type, color="white", ha="center", va="center",
-                fontsize=6, fontweight="bold")
+        # ax.text(x, y, node.atom_type, color="white", ha="center", va="center",
+        #         fontsize=labelSize, fontweight="bold")
         if i < len(charges):
             charge = charges[i]
             ch_color = "red" if charge < -0.1 else ("blue" if charge > 0.1 else "black")
-            ax.text(x - 0.35, y + 0.35, f"{charge:+.2f}", color=ch_color,
+            ax.text(x, y, f"{charge:+.2f}", color=ch_color,ha='center', va='center',
                     fontsize=6, fontweight='bold')
-    ax.set_xlim(-4, 4)
-    ax.set_ylim(-4, 4)
+    ax.set_xlim(-heightPlot/2, heightPlot/2)
+    ax.set_ylim(-heightPlot/2, heightPlot/2)
     ax.set_aspect('equal')
     ax.axis('off')
-    ax.set_title("Indices de liaison et charges", fontsize=10, pad=6)
+    ax.set_title("Bond orders and atomic charges", fontsize=10, pad=6)
 
     plt.tight_layout()
     return fig

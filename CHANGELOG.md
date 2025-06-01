@@ -4,7 +4,32 @@
 
 # Changelog
 
-## Version 0.6.4 - 2025-05-22
+## Version 0.7.0 - 2025-XX-XX
+### Changed
+- multiple matplotlib figures (e.g., MO grid, energy diagram) can now be saved as separate pages in a single PDF file
+- `push_pyPi.sh` script also updates the `__version__` variable in `hmo/__init.py__`
+- atom and bond coloring in `render_double_panel_charges_bonds()` are now set to lighter tints using the new `lighten_color()` blending utility
+- the dimension of the figure returned by `render_double_panel_charges_bonds()` as a two side-by-side panels representing molecular structure and bonding and charge descriptors has been set up to 26 cm x 13 cm
+- readability of the code of `render_double_panel_charges_bonds()` improved by defining explicit variables (`widthPlot_cm`, `heightPlot_cm`, `widthPlot`,...)
+
+### Added
+- added automatic git commit and tagging in `push_pyPi.sh` when bumping the version in this release script. The code version and the git repository are now synchronized at each release.
+- added a utility function `lighten_color()` to adjust color intensity by blending any base color with white, enabling the creation of lighter, fully opaque color variants for graphical elements.
+- global charge(s) rendering in `render_double_panel_charges_bonds`: they are now displayed in the sigma skeleton plot with colored circles (red for negative, blue for positive)
+- added `df_global_charges` to store user-defined formal charges placed on the molecular canvas. Each entry includes charge value and (x, y) position in grid units.
+- integrated `df_global_charges` into `save_dataframe_as_xlsx()` for export to Excel along with other molecular data.
+- passed `df_global_charges` as an argument to HMOViewer for further integration and visualization support.
+- systematically rendered global formal charges in `draw_skeleton_overview()`, with each charge displayed as a colored circle (red if negative, blue if positive) with a black outline.
+- global formal charges are now also drawn in `show_dataframe_in_window()`, overlaying the molecular sketch in the top-left canvas. Same visual rules apply (color-coded circles with centered text).
+
+### Fixed
+- fixed a scaling issue in `render_double_panel_charges_bonds()` where the molecule could be incorrectly stretched to fill the panel. Bond lengths are now accurately rendered at the desired scale, unless the molecule is too large, in which case it is proportionally reduced to fit
+- prevented a `TypeError` in `render_energy_diagram_matplotlib()` when rendering the energy diagram for molecules with undefined descriptors (e.g., no HOMO-LUMO gap). Descriptors like gap, η, and E_atom/N are now checked for numerical type before formatting. Non-numeric values are safely displayed as N/A.
+- Ensured that `df_global_charge` is always created (even empty), avoiding missing attribute errors in export or drawing routines
+
+---
+
+## Versions 0.6.4 & 0.6.5 - 2025-05-22
 ### Changed
 - Graphical documentation now also given in `README.md`.
 
@@ -16,15 +41,21 @@
 ### Fixed
 - (Ctrl-S) binding key was used both for saving the speadsheet and the tabular MOs.
 
+---
+
 ## Version 0.6.2 - 2025-05-21
 
 ### Changed
 - Read the Docs documentation update as graphical documentation support: Created detailed Inkscape-ready annotations for main GUI buttons and canvas.
 
+---
+
 ## Version 0.6.1 - 2025-05-21
 
 ### Changed
 - New "Université de Toulouse" logo, that replaces both the "UPS/UT3" and the former "Université de Toulouse" logos.
+
+---
 
 ## Version 0.6.0 - 2025-05-20
 
@@ -33,6 +64,8 @@ New rendering functions, introduced as a foundation for building a unified high-
 - `render_all_OMs_grid_with_dual_lobes()`: exports a consistent grid of MOs with dual lobe shading and energy labels.
 - `render_energy_diagram_matplotlib()`: exports a scaled π-energy diagram with fixed physical dimensions (13 cm), spin arrows, Hund's rule, and descriptor section.
 - `render_double_panel_charges_bonds()`: generates a double panel (sigma skeleton + bond indices/charges) with auto-scaled coordinates for visual export.
+
+---
 
 ## Version 0.5.1 - 2025-05-15
 

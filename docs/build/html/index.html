@@ -194,16 +194,17 @@ It has a visual indicator (colored disk with sign), and affects the total number
 
 <dl class="py class">
 <dt class="sig sig-object py" id="hmo.HMO.HMOViewer">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">hmo.HMO.</span></span><span class="sig-name descname"><span class="pre">HMOViewer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_MOs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_bonds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_descriptors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.HMOViewer" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">hmo.HMO.</span></span><span class="sig-name descname"><span class="pre">HMOViewer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_global_charges</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_bonds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_MOs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_descriptors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.HMOViewer" title="Link to this definition"></a></dt>
 <dd><p>GUI application for visualizing Hückel Molecular Orbitals (MOs) and their energy diagrams.</p>
 <p>This class provides a graphical interface to render the molecular structure and the associated energy levels of the molecular orbitals (occupied and virtual). It allows the user to explore the molecule’s π-system, display orbital diagrams, adjust visualization parameters in real time, and save high-quality images.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>master</strong> (<em>tk.Toplevel</em><em> or </em><em>tk.Tk</em>) – The parent Tkinter window that contains the interface.</p></li>
-<li><p><strong>df_MOs</strong> (<em>pd.DataFrame</em>) – DataFrame containing molecular orbital coefficients for each atom in the system.</p></li>
 <li><p><strong>df_atoms</strong> (<em>pd.DataFrame</em>) – DataFrame containing atomic positions, indices, and element types.</p></li>
+<li><p><strong>df_global_charges</strong> (<em>pd.DataFrame</em>) – DataFrame containing global charges positions and values</p></li>
 <li><p><strong>df_bonds</strong> (<em>pd.DataFrame</em>) – DataFrame specifying bonds between atoms (indices and bond order).</p></li>
+<li><p><strong>df_MOs</strong> (<em>pd.DataFrame</em>) – DataFrame containing molecular orbital coefficients for each atom in the system.</p></li>
 <li><p><strong>df_descriptors</strong> (<em>pd.DataFrame</em>) – DataFrame containing computed molecular descriptors (e.g., number of π electrons, symmetry).</p></li>
 <li><p><strong>project_name</strong> (<em>str</em>) – Name of the current project, used in window titles and when saving files.</p></li>
 </ul>
@@ -340,9 +341,10 @@ It has a visual indicator (colored disk with sign), and affects the total number
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">root</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Tk</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">viewer</span> <span class="o">=</span> <span class="n">HMOViewer</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="n">master</span><span class="o">=</span><span class="n">root</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="n">df_MOs</span><span class="o">=</span><span class="n">df_mos</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="n">df_atoms</span><span class="o">=</span><span class="n">df_atoms</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">df_global_charges</span><span class="o">=</span><span class="n">df_global_charges</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="n">df_bonds</span><span class="o">=</span><span class="n">df_bonds</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">df_MOs</span><span class="o">=</span><span class="n">df_mos</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="n">df_descriptors</span><span class="o">=</span><span class="n">df_descriptors</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="n">project_name</span><span class="o">=</span><span class="s2">&quot;Benzene&quot;</span>
 <span class="gp">... </span><span class="p">)</span>
@@ -464,12 +466,25 @@ and labels each line with its corresponding (α + β) expression.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="hmo.HMO.HMOViewer.load_images">
 <span class="sig-name descname"><span class="pre">load_images</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.HMOViewer.load_images" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Loads and resizes graphical assets used in the MO diagram.</p>
+<p>This method retrieves three image resources:
+- 1e.png : icon for singly occupied MO,
+- 2e.png : icon for doubly occupied MO,
+- energy_level.png : horizontal energy level bar.</p>
+<p>The images are resized to appropriate dimensions and stored as Tkinter-compatible <cite>PhotoImage</cite> objects.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="hmo.HMO.HMOViewer.on_escape">
 <span class="sig-name descname"><span class="pre">on_escape</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.HMOViewer.on_escape" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Callback triggered when the Escape key is pressed.</p>
+<p>This method gracefully closes the application window by destroying the root Tkinter widget.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>event</strong> (<em>tkinter.Event</em>) – The keypress event object (not used directly).</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="hmo.HMO.HMOViewer.on_level_click">
@@ -490,30 +505,55 @@ and labels each line with its corresponding (α + β) expression.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="hmo.HMO.HMOViewer.prepare_data">
 <span class="sig-name descname"><span class="pre">prepare_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.HMOViewer.prepare_data" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Extracts MO energies and occupations from column headers and prepares data for rendering.</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>Parses each MO column label in <cite>self.df_MOs</cite> to extract:</dt><dd><ul>
+<li><p>The energy coefficient (in units of β),</p></li>
+<li><p>The number of electrons (occupation).</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>Computes the global max coefficient for scaling orbital display.</p></li>
+<li><p>Calculates the mean bond length for graphical positioning.</p></li>
+<li><p>Groups MOs by energy (rounded to 5 decimal places) into <cite>self.energy_groups</cite>.</p></li>
+</ul>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>Assumes that column headers follow the format: “MO = -1.25βn2e” or similar.</p></li>
+<li><p>Uses helper function <cite>compute_mean_bond_length()</cite> for estimating bond scaling.</p></li>
+</ul>
+<p>The resulting attributes are:
+- <cite>self.energies</cite> : list of float (one per MO),
+- <cite>self.occupations</cite> : list of int (0, 1, 2),
+- <cite>self.max_coef_global</cite> : float, used for visual scaling,
+- <cite>self.mean_bond_length</cite> : float, used to normalize drawing,
+- <cite>self.energy_groups</cite> : dict mapping rounded energy → list of MO indices.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="hmo.HMO.HMOViewer.refresh_MOs">
 <span class="sig-name descname"><span class="pre">refresh_MOs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.HMOViewer.refresh_MOs" title="Link to this definition"></a></dt>
-<dd><p>Redessine l’OM actuellement affichée (HOMO &amp; LUMO).</p>
+<dd><p>Redraws the currently displayed molecular orbitals (HOMO &amp; LUMO by default).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="hmo.HMO.HMOViewer.refresh_skeleton">
 <span class="sig-name descname"><span class="pre">refresh_skeleton</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.HMOViewer.refresh_skeleton" title="Link to this definition"></a></dt>
-<dd><p>Efface et redessine le squelette global.</p>
+<dd><p>Clears and redraws the full molecular skeleton.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="hmo.HMO.HMOViewer.save_canvas_as_png">
 <span class="sig-name descname"><span class="pre">save_canvas_as_png</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.HMOViewer.save_canvas_as_png" title="Link to this definition"></a></dt>
-<dd><p>Sauvegarde le canvas entier en PNG haute qualité.</p>
+<dd><p>Save the full canvas as a high-resolution PNG image.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="hmo.HMO.HMOViewer.toggle_skeleton">
 <span class="sig-name descname"><span class="pre">toggle_skeleton</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.HMOViewer.toggle_skeleton" title="Link to this definition"></a></dt>
-<dd><p>Active/désactive le mode skeleton only.</p>
+<dd><p>Toggle the skeleton-only mode (with or without atom labels).</p>
 </dd></dl>
 
 </dd></dl>
@@ -699,13 +739,14 @@ representations as <cite>.png</cite> or <cite>.pdf</cite>.</p></li>
 1. <cite>df_bond_orders_matrix</cite>: A symmetric matrix showing π-bond orders between all atom pairs.
 2. <cite>df_atoms</cite>: A table containing atom indices, types, positions (grid units), π charges, and colors.
 3. <cite>df_bonds</cite>: A table listing all bonds between atoms with atom labels.
-4. <cite>df_summary</cite>: A summary table of molecular descriptors, such as total π-electron energy, HOMO-LUMO gap, chemical potential, hardness, softness, and electrophilicity.</p>
+4. <cite>df_summary</cite>: A summary table of molecular descriptors, such as total π-electron energy, HOMO-LUMO gap, chemical potential, hardness, softness, and electrophilicity.
+5. <cite>df_global_charges</cite>: A table of manually placed formal charges, including position and value; or empty if none.</p>
 <p>The resulting DataFrames are stored as attributes for export or display in other parts of the application.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p><ul class="simple">
 <li><p><em>None</em></p></li>
-<li><p><strong>(The method updates internal attributes</strong> (<cite>df_bond_orders_matrix</cite>, <cite>df_atoms</cite>, <cite>df_bonds</cite>, and <cite>df_summary</cite>))</p></li>
+<li><p><strong>(The method updates internal attributes</strong> (<cite>df_bond_orders_matrix</cite>, <cite>df_atoms</cite>, <cite>df_bonds</cite>, <cite>df_summary</cite> and <cite>df_global_charges</cite>))</p></li>
 </ul>
 </p>
 </dd>
@@ -717,6 +758,7 @@ representations as <cite>.png</cite> or <cite>.pdf</cite>.</p></li>
 <li><p>π charges are computed from Hückel analysis results and rounded to 3 decimal places.</p></li>
 <li><p>The summary DataFrame expresses all energy-related descriptors in units of β (or multiples/fractions thereof).</p></li>
 <li><p>The method assumes that the Hückel analysis (and charge/bond order computation) has already been performed.</p></li>
+<li><p><cite>df_global_charges</cite> will contain user-defined formal charges if any have been placed in the GUI.</p></li>
 </ul>
 <p class="rubric">Example</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">mol</span> <span class="o">=</span> <span class="n">MoleculeDrawer</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
@@ -727,7 +769,8 @@ representations as <cite>.png</cite> or <cite>.pdf</cite>.</p></li>
 - mol.df_bond_orders_matrix
 - mol.df_atoms
 - mol.df_bonds
-- mol.df_summary</p>
+- mol.df_summary
+- mol.df_global_charges</p>
 </dd></dl>
 
 <dl class="py method">
@@ -1107,10 +1150,11 @@ otherwise when building the matrix.</p>
 <span class="sig-name descname"><span class="pre">save_dataframe_as_xlsx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">win</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.save_dataframe_as_xlsx" title="Link to this definition"></a></dt>
 <dd><p>Export multiple pandas DataFrames to an Excel workbook with styled headers.</p>
 <p>This method saves the following DataFrames to separate sheets in a single Excel file:
+- <cite>self.df_atoms</cite>: Atom-level data (sheet ‘Atoms’)
+- <cite>self.df_global_charges</cite>: A table of manually placed formal charges, including position and value; or empty if none.
+- <cite>self.df_bonds</cite>: Bond list (sheet ‘Bond List’)
 - <cite>self.df</cite>: Molecular orbital coefficients (sheet ‘MO Coefficients’)
 - <cite>self.df_bond_orders_matrix</cite>: π-bond order matrix (sheet ‘π-bond orders’)
-- <cite>self.df_atoms</cite>: Atom-level data (sheet ‘Atoms’)
-- <cite>self.df_bonds</cite>: Bond list (sheet ‘Bond List’)
 - <cite>self.df_summary</cite>: Molecular descriptors (sheet ‘Descriptors’)</p>
 <p>The user is prompted to select a save location via a file dialog. After saving,
 the header row of the ‘MO Coefficients’ sheet is styled with text wrapping.</p>
@@ -1587,6 +1631,11 @@ look across different platforms and display environments.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="hmo.HMO.lighten_color">
+<span class="sig-prename descclassname"><span class="pre">hmo.HMO.</span></span><span class="sig-name descname"><span class="pre">lighten_color</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">amount</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.lighten_color" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="hmo.HMO.lobes_sizes">
 <span class="sig-prename descclassname"><span class="pre">hmo.HMO.</span></span><span class="sig-name descname"><span class="pre">lobes_sizes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_MOs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean_bond_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.9</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_display_radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.lobes_sizes" title="Link to this definition"></a></dt>
 <dd><p>Compute the global lobe scaling factor based on the maximum MO coefficient.</p>
@@ -1623,14 +1672,14 @@ look across different platforms and display environments.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>df_MOs</strong> (<em>pd.DataFrame</em>)</p></li>
-<li><p><strong>df_atoms</strong> (<em>pd.DataFrame</em>)</p></li>
-<li><p><strong>df_bonds</strong> (<em>pd.DataFrame</em>)</p></li>
-<li><p><strong>scale_lobe_factor</strong> (<em>float</em>) – Global scaling factor for lobe radii.</p></li>
-<li><p><strong>energies</strong> (<em>list</em><em> of </em><em>str</em><em>, </em><em>optional</em>) – Energy labels for each MO.</p></li>
-<li><p><strong>occupations</strong> (<em>list</em><em> of </em><em>int</em><em>, </em><em>optional</em>) – Occupation numbers for each MO.</p></li>
-<li><p><strong>cell_size_cm</strong> (<em>float</em>) – Width/height of each subplot in centimeters.</p></li>
-<li><p><strong>max_per_row</strong> (<em>int</em>) – Maximum number of MOs per row.</p></li>
+<li><p><strong>df_MOs</strong> (<em>-</em>)</p></li>
+<li><p><strong>df_atoms</strong> (<em>-</em>)</p></li>
+<li><p><strong>df_bonds</strong> (<em>-</em>)</p></li>
+<li><p><strong>scale_lobe_factor</strong> (<em>-</em>) – Global scaling factor for lobe radii.</p></li>
+<li><p><strong>energies</strong> (<em>-</em>) – Energy labels for each MO.</p></li>
+<li><p><strong>occupations</strong> (<em>-</em>) – Occupation numbers for each MO.</p></li>
+<li><p><strong>cell_size_cm</strong> (<em>-</em>) – Width/height of each subplot in centimeters.</p></li>
+<li><p><strong>max_per_row</strong> (<em>-</em>) – Maximum number of MOs per row.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1645,10 +1694,28 @@ look across different platforms and display environments.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="hmo.HMO.render_double_panel_charges_bonds">
 <span class="sig-prename descclassname"><span class="pre">hmo.HMO.</span></span><span class="sig-name descname"><span class="pre">render_double_panel_charges_bonds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bonds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charges</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bond_orders</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">formal_charges</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.render_double_panel_charges_bonds" title="Link to this definition"></a></dt>
-<dd><p>Assemble deux panneaux côte à côte :
-- le squelette sigma (avec atomes indexés),
-- les indices de liaison et charges atomiques.</p>
-<p>Dimensions totales : 16 cm × 8 cm (deux panneaux de 8 cm × 8 cm).</p>
+<dd><p>Render two side-by-side panels representing molecular structure and bonding and charge descriptors.</p>
+<p>The function generates a matplotlib figure of total size 26 cm (widthPlot_cm) × 13 cm (heightPlot_cm), composed of two panels:
+- Left panel: the sigma skeleton (σ) of the molecule, with indexed atoms and the number of pi electrons they bring to the pi system.
+- Right panel: bond orders and atomic charges, displayed on the same structure.</p>
+<p>This visualization is suitable for publication or detailed analysis, with precise control over bond lengths and graphical scaling.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>nodes</strong> (<em>list</em>) – List of atomic nodes, each with <cite>.x</cite> and <cite>.y</cite> attributes and an <cite>atom_type</cite> (chemical element).</p></li>
+<li><p><strong>bonds</strong> (<em>list</em><em> of </em><em>tuple</em>) – List of (i, j) pairs indicating bonded atom indices.</p></li>
+<li><p><strong>charges</strong> (<em>list</em><em> of </em><em>float</em>) – List of computed atomic charges.</p></li>
+<li><p><strong>bond_orders</strong> (<em>dict</em>) – Dictionary mapping (i, j) pairs to bond order values (float).</p></li>
+<li><p><strong>formal_charges</strong> (<em>list</em>) – list of ChargeNode instances</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>fig</strong> – The matplotlib figure object containing the two rendered panels.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>matplotlib.figure.Figure</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
