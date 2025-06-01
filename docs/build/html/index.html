@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HMO documentation &mdash; HMO 0.7.5 documentation</title>
+  <title>HMO documentation &mdash; HMO 0.7.4 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
@@ -14,7 +14,7 @@
     <link rel="canonical" href="https://hmo.readthedocs.io/index.html" />
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=a674670e"></script>
+      <script src="_static/documentation_options.js?v=020ce317"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
@@ -75,7 +75,2118 @@
 <h1>HMO documentation<a class="headerlink" href="#hmo-documentation" title="Link to this heading"></a></h1>
 <a class="reference internal image-reference" href="_images/HMO_Banner.svg"><img alt="HMO banner" class="align-center" src="_images/HMO_Banner.svg" style="width: 1000px;" />
 </a>
-<br><div class="toctree-wrapper compound">
+<br><p id="module-hmo.HMO">Hückel Molecule Drawer &amp; Solver (HMO Tool)</p>
+<p>This program provides a complete graphical interface for the interactive construction of
+(planar π-conjugated) molecules and the analysis of their molecular orbitals using the Hückel model.
+It allows the user to draw the molecular skeleton on a grid, select atom types (C·, N:, O·, etc.),
+add bonds, and perform a full Hückel analysis that includes:</p>
+<ul class="simple">
+<li><p>generation of the Hückel matrix,</p></li>
+<li><p>solving for orbital energies (eigenvalues),</p></li>
+<li><p>calculating the molecular orbital coefficients (eigenvectors),</p></li>
+<li><p>determining π-charges on atoms and π-bond orders,</p></li>
+<li><p>computing global descriptors: total energy, HOMO-LUMO gap, hardness, chemical potential, etc.</p></li>
+</ul>
+<section id="main-features">
+<h2>Main features:<a class="headerlink" href="#main-features" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Manual construction of the molecular skeleton (adding/removing atoms and bonds),</p></li>
+<li><p>Saving and loading the sigma skeleton of molecules (.hmo format),</p></li>
+<li><p>Running Hückel analysis and directly visualizing results,</p></li>
+<li><p>Exporting complete results (MO coefficients, π-charges, bond orders, descriptors) to Excel or PDF,</p></li>
+<li><p>Graphical visualization of molecular orbitals (shapes and energies) in a dedicated window.</p></li>
+</ul>
+</section>
+<section id="display-organization-tkinter-based">
+<h2>Display organization (Tkinter-based):<a class="headerlink" href="#display-organization-tkinter-based" title="Link to this heading"></a></h2>
+<p>The program is built with the Tkinter library, which manages all graphical interfaces:</p>
+<ol class="arabic simple">
+<li><dl class="simple">
+<dt><strong>Molecule Drawer (main window)</strong>:</dt><dd><ul class="simple">
+<li><p>Handled by the <cite>MoleculeDrawer</cite> class, this main window (based on <cite>Tk()</cite>) contains:</p></li>
+<li><p>Left section: a <cite>Canvas</cite> where the user builds the molecule (grid, atoms, bonds),</p></li>
+<li><dl class="simple">
+<dt>Right section: a toolbar with buttons for main actions (run analysis, save/load molecule,</dt><dd><p>access visualizations, export data).</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>HMO Viewer (dedicated MO visualization window)</strong>:</dt><dd><ul class="simple">
+<li><p>Instantiated by the <cite>HMOViewer</cite> class when the user clicks the visualization button.</p></li>
+<li><p>This secondary window uses <cite>Toplevel</cite> to open independently.</p></li>
+<li><dl class="simple">
+<dt>It displays:</dt><dd><ul>
+<li><p>an energy diagram (MO energy levels),</p></li>
+<li><p>graphical representations of occupied and virtual orbitals,</p></li>
+<li><p>a miniature view of the molecule to show its overall topology.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>Numerical Results Window</strong>:</dt><dd><ul class="simple">
+<li><p>Managed by the <cite>ResultsViewer</cite> class and also opened via <cite>Toplevel</cite>.</p></li>
+<li><dl class="simple">
+<dt>Displays:</dt><dd><ul>
+<li><p>molecular orbital coefficients in a table format,</p></li>
+<li><p>π-charges, π-bond orders,</p></li>
+<li><p>global descriptors (total energy, HOMO-LUMO gap, etc.).</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ol>
+</section>
+<section id="usage">
+<h2>Usage:<a class="headerlink" href="#usage" title="Link to this heading"></a></h2>
+<p>The user starts by constructing the molecule, then runs the Hückel analysis. After computation,
+results can be explored numerically (<cite>ResultsViewer</cite> window) and graphically (<cite>HMOViewer</cite> window),
+and exported. The graphical visualization allows easy exploration of molecular orbitals and their energy levels.</p>
+<a class="reference internal image-reference" href="_images/HMO_mainWindow.png"><img alt="HMO Drawer and Commands GUI" src="_images/HMO_mainWindow.png" style="width: 900px;" />
+</a>
+</section>
+<section id="using-the-molecule-builder">
+<h2>Using the Molecule Builder:<a class="headerlink" href="#using-the-molecule-builder" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><dl class="simple">
+<dt><strong>Basic Drawing Rules</strong></dt><dd><ul class="simple">
+<li><p>By default, all atoms are carbon (C·) unless modified.</p></li>
+<li><dl class="simple">
+<dt>A bond can be created between two atoms by:</dt><dd><ul>
+<li><p>Clicking and dragging from one atom to a new position &gt;&gt; this adds a new carbon atom connected by a bond.</p></li>
+<li><p>Clicking and dragging from one atom to another existing atom &gt;&gt; this creates a bond between the two.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>Atom Customization</strong></dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>Right-click on an atom to open a context menu.</dt><dd><ul>
+<li><p>You can change the atom type to one of the predefined atoms with parameterized Hückel integrals.</p></li>
+<li><p>(!) Warning: not all combinations are fully defined - if a bond between two atom types lacks a known kXY parameter, the Hückel matrix may be incomplete or raise a warning.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>Charges</strong></dt><dd><ul class="simple">
+<li><p>You can add a formal charge using the “Add a charge” tool in the toolbar.</p></li>
+<li><p>Right-clicking on a charge opens a dialog box to edit its value (e.g. change from -1 to +1).</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ol>
+</section>
+<section id="notes">
+<h2>Notes:<a class="headerlink" href="#notes" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Most graphical interactions (atom placement, bond drawing) are done with the mouse, with keyboard shortcuts for efficiency.</p></li>
+<li><p>The program is structured around the main classes: <cite>MoleculeDrawer</cite> (main interface),
+<cite>HMOViewer</cite> (MO visualization), <cite>ResultsViewer</cite> (numerical results), <cite>Node</cite> (management of individual atoms), <cite>ChargeNode</cite> (management of the global charge, which is 0 y default), and <cite>ToolTip</cite> (management of tooltips for the icons of the main window).</p></li>
+<li><p>Hückel parameters and some visualization settings are defined in the <cite>HuckelParameters</cite> class</p></li>
+<li><p>Visualization and layout parameters for the HMOViewer interface are provided by the <cite>HMOViewerParameters</cite> class</p></li>
+</ul>
+</section>
+<dl class="py class">
+<dt class="sig sig-object py" id="hmo.HMO.ChargeNode">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">hmo.HMO.</span></span><span class="sig-name descname"><span class="pre">ChargeNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charge</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'-1'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.ChargeNode" title="Link to this definition"></a></dt>
+<dd><p>Represents a charge element on the canvas that cannot form bonds.
+It has a visual indicator (colored disk with sign), and affects the total number of π electrons.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hmo.HMO.ChargeNode.charge_radius">
+<span class="sig-name descname"><span class="pre">charge_radius</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">15</span></em><a class="headerlink" href="#hmo.HMO.ChargeNode.charge_radius" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.ChargeNode.contains">
+<span class="sig-name descname"><span class="pre">contains</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.ChargeNode.contains" title="Link to this definition"></a></dt>
+<dd><p>Checks if a point (x, y) lies within the charge disk (used for click detection).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.ChargeNode.draw">
+<span class="sig-name descname"><span class="pre">draw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">canvas</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.ChargeNode.draw" title="Link to this definition"></a></dt>
+<dd><p>Draws the charge on the canvas. Uses scaled x/y if provided.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="hmo.HMO.HMOViewer">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">hmo.HMO.</span></span><span class="sig-name descname"><span class="pre">HMOViewer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_global_charges</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_bonds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_MOs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_descriptors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.HMOViewer" title="Link to this definition"></a></dt>
+<dd><p>GUI application for visualizing Hückel Molecular Orbitals (MOs) and their energy diagrams.</p>
+<p>This class provides a graphical interface to render the molecular structure and the associated energy levels of the molecular orbitals (occupied and virtual). It allows the user to explore the molecule’s π-system, display orbital diagrams, adjust visualization parameters in real time, and save high-quality images.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>master</strong> (<em>tk.Toplevel</em><em> or </em><em>tk.Tk</em>) – The parent Tkinter window that contains the interface.</p></li>
+<li><p><strong>df_atoms</strong> (<em>pd.DataFrame</em>) – DataFrame containing atomic positions, indices, and element types.</p></li>
+<li><p><strong>df_global_charges</strong> (<em>pd.DataFrame</em>) – DataFrame containing global charges positions and values</p></li>
+<li><p><strong>df_bonds</strong> (<em>pd.DataFrame</em>) – DataFrame specifying bonds between atoms (indices and bond order).</p></li>
+<li><p><strong>df_MOs</strong> (<em>pd.DataFrame</em>) – DataFrame containing molecular orbital coefficients for each atom in the system.</p></li>
+<li><p><strong>df_descriptors</strong> (<em>pd.DataFrame</em>) – DataFrame containing computed molecular descriptors (e.g., number of π electrons, symmetry).</p></li>
+<li><p><strong>project_name</strong> (<em>str</em>) – Name of the current project, used in window titles and when saving files.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hmo.HMO.HMOViewer.canvas">
+<span class="sig-name descname"><span class="pre">canvas</span></span><a class="headerlink" href="#hmo.HMO.HMOViewer.canvas" title="Link to this definition"></a></dt>
+<dd><p>The canvas widget where the molecule and energy levels are drawn.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tk.Canvas</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hmo.HMO.HMOViewer.scale_slider">
+<span class="sig-name descname"><span class="pre">scale_slider</span></span><a class="headerlink" href="#hmo.HMO.HMOViewer.scale_slider" title="Link to this definition"></a></dt>
+<dd><p>Slider widget that allows dynamic adjustment of the overall molecular diagram scale (×0.5 to ×3.0).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tk.Scale</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hmo.HMO.HMOViewer.lobe_slider">
+<span class="sig-name descname"><span class="pre">lobe_slider</span></span><a class="headerlink" href="#hmo.HMO.HMOViewer.lobe_slider" title="Link to this definition"></a></dt>
+<dd><p>Slider widget that allows dynamic adjustment of orbital lobe sizes (×0.7 to ×1.3).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tk.Scale</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hmo.HMO.HMOViewer.homo_lumo_button">
+<span class="sig-name descname"><span class="pre">homo_lumo_button</span></span><a class="headerlink" href="#hmo.HMO.HMOViewer.homo_lumo_button" title="Link to this definition"></a></dt>
+<dd><p>Button that resets the view to the default HOMO and LUMO orbitals.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tk.Button</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hmo.HMO.HMOViewer.skeleton_button">
+<span class="sig-name descname"><span class="pre">skeleton_button</span></span><a class="headerlink" href="#hmo.HMO.HMOViewer.skeleton_button" title="Link to this definition"></a></dt>
+<dd><p>Button to toggle skeleton-only mode (hide or show atom labels).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tk.Button</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hmo.HMO.HMOViewer.save_button">
+<span class="sig-name descname"><span class="pre">save_button</span></span><a class="headerlink" href="#hmo.HMO.HMOViewer.save_button" title="Link to this definition"></a></dt>
+<dd><p>Button to save the full diagram as a high-quality PNG image.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tk.Button</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hmo.HMO.HMOViewer.close_button">
+<span class="sig-name descname"><span class="pre">close_button</span></span><a class="headerlink" href="#hmo.HMO.HMOViewer.close_button" title="Link to this definition"></a></dt>
+<dd><p>Button to close the viewer window.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tk.Button</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hmo.HMO.HMOViewer.show_atom_labels">
+<span class="sig-name descname"><span class="pre">show_atom_labels</span></span><a class="headerlink" href="#hmo.HMO.HMOViewer.show_atom_labels" title="Link to this definition"></a></dt>
+<dd><p>Tracks whether atom labels are displayed in the skeleton overview.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hmo.HMO.HMOViewer.skeleton_items">
+<span class="sig-name descname"><span class="pre">skeleton_items</span></span><a class="headerlink" href="#hmo.HMO.HMOViewer.skeleton_items" title="Link to this definition"></a></dt>
+<dd><p>List of graphical items representing the skeleton; used for easy refresh.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hmo.HMO.HMOViewer.user_scale_multiplier">
+<span class="sig-name descname"><span class="pre">user_scale_multiplier</span></span><a class="headerlink" href="#hmo.HMO.HMOViewer.user_scale_multiplier" title="Link to this definition"></a></dt>
+<dd><p>Multiplier applied to the default molecule scaling (set by the scale_slider).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hmo.HMO.HMOViewer.user_lobe_multiplier">
+<span class="sig-name descname"><span class="pre">user_lobe_multiplier</span></span><a class="headerlink" href="#hmo.HMO.HMOViewer.user_lobe_multiplier" title="Link to this definition"></a></dt>
+<dd><p>Multiplier applied to the orbital lobe scaling (set by the lobe_slider).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>Energy levels can be clicked to view individual MOs.</p></li>
+<li><p>The visualization is interactive: adjusting sliders immediately refreshes the displayed orbitals.</p></li>
+<li><p>Pressing the Escape key closes the viewer.</p></li>
+</ul>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">root</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Tk</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">viewer</span> <span class="o">=</span> <span class="n">HMOViewer</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">master</span><span class="o">=</span><span class="n">root</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">df_atoms</span><span class="o">=</span><span class="n">df_atoms</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">df_global_charges</span><span class="o">=</span><span class="n">df_global_charges</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">df_bonds</span><span class="o">=</span><span class="n">df_bonds</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">df_MOs</span><span class="o">=</span><span class="n">df_mos</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">df_descriptors</span><span class="o">=</span><span class="n">df_descriptors</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">project_name</span><span class="o">=</span><span class="s2">&quot;Benzene&quot;</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">root</span><span class="o">.</span><span class="n">mainloop</span><span class="p">()</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>The window opens showing the molecular diagram and energy levels.</p></li>
+<li><p>Click the “HOMO/LUMO” button to quickly reset the view.</p></li>
+<li><p>Adjust the “Molecule Scale” and “Lobe Scale” sliders to change the diagram in real-time.</p></li>
+<li><p>Save the diagram using the “Save as PNG” button.</p></li>
+<li><p>Close the window by pressing Escape or clicking “Close”.</p></li>
+</ul>
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.HMOViewer.display_default_homo_lumo">
+<span class="sig-name descname"><span class="pre">display_default_homo_lumo</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.HMOViewer.display_default_homo_lumo" title="Link to this definition"></a></dt>
+<dd><p>Automatically displays the HOMO and LUMO orbitals by detecting their indices.</p>
+<p>This method:
+- Identifies the highest occupied molecular orbital (HOMO) and the lowest unoccupied molecular orbital (LUMO).
+- Displays the HOMO in the occupied frame and the LUMO in the virtual frame.</p>
+<p class="rubric">Notes</p>
+<p>If no HOMO or LUMO is found, nothing is displayed for that type.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.HMOViewer.display_mo">
+<span class="sig-name descname"><span class="pre">display_mo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occupied</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.HMOViewer.display_mo" title="Link to this definition"></a></dt>
+<dd><p>Displays a specific molecular orbital (MO) in its corresponding frame (occupied or virtual).</p>
+<p>This method draws the selected MO, including bonds and orbital lobes, in the appropriate frame (HOMO or LUMO area), scaled and centered within the available space. The visualization responds dynamically to user-controlled scaling factors from the sliders:
+- ‘Molecule Scale’ slider: adjusts the overall size of the molecule,
+- ‘Lobe Scale’ slider: adjusts the relative size of the orbital lobes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>idx</strong> (<em>int</em>) – The index of the MO to display.</p></li>
+<li><p><strong>occupied</strong> (<em>bool</em><em>, </em><em>default=True</em>) – Whether the MO is an occupied orbital (True) or a virtual one (False).</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>Centers and scales the molecule to fit inside its frame.</p></li>
+<li><p>Draws bonds and orbital lobes, with size and color depending on MO coefficients.</p></li>
+<li><p>Adds atom labels if ‘Skeleton Only’ mode is off.</p></li>
+<li><p>The user-defined scaling factors (sliders) affect both molecule size and lobe size in real time.</p></li>
+<li><p>Handles rendering of both positive (red) and negative (blue) lobes with layered drawing.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.HMOViewer.draw_energy_levels">
+<span class="sig-name descname"><span class="pre">draw_energy_levels</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.HMOViewer.draw_energy_levels" title="Link to this definition"></a></dt>
+<dd><p>Draws all energy levels (molecular orbitals) in the diagram.</p>
+<p>Each energy level:
+- Is represented as an image (usually a line or bar).
+- Is grouped if degenerate (multiple orbitals with same energy).
+- Shows electron occupancy via additional graphical indicators (2e or 1e overlays).</p>
+<p class="rubric">Notes</p>
+<p>Binds a click event to each energy level image so that clicking an MO
+updates the orbital display (via <cite>on_level_click</cite>).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.HMOViewer.draw_energy_scale_and_descriptors">
+<span class="sig-name descname"><span class="pre">draw_energy_scale_and_descriptors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">min_e</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_e</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies_sorted</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.HMOViewer.draw_energy_scale_and_descriptors" title="Link to this definition"></a></dt>
+<dd><p>Draws the energy scale, horizontal dotted guide lines, and key descriptors under the MO diagram.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>min_e</strong> (<em>float</em>) – The minimum energy value in the set of molecular orbitals.</p></li>
+<li><p><strong>max_e</strong> (<em>float</em>) – The maximum energy value.</p></li>
+<li><p><strong>scale</strong> (<em>float</em>) – The vertical scaling factor to convert energy values to pixel positions.</p></li>
+<li><p><strong>energies_sorted</strong> (<em>list</em>) – Sorted list of energy values (from high to low).</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>Adds a vertical energy scale with an arrow, horizontal guide lines at regular energy steps,
+and labels each line with its corresponding (α + β) expression.</p></li>
+<li><p>Displays summary descriptors like total energy, atomization energy, HOMO-LUMO gap, and hardness.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.HMOViewer.draw_layout">
+<span class="sig-name descname"><span class="pre">draw_layout</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.HMOViewer.draw_layout" title="Link to this definition"></a></dt>
+<dd><p>Draws the main layout of the viewer interface.</p>
+<p>This includes:
+- The project name at the top.
+- Two frames: one for virtual MOs (LUMO and above) and one for occupied MOs (HOMO and below).
+- Labels for each section.
+- An overview area to display a miniaturized version of the molecular skeleton under the MO diagram.</p>
+<p class="rubric">Notes</p>
+<p>The overview area is scaled to fit the available space and is drawn using <cite>draw_skeleton_overview</cite>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.HMOViewer.draw_skeleton_overview">
+<span class="sig-name descname"><span class="pre">draw_skeleton_overview</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.HMOViewer.draw_skeleton_overview" title="Link to this definition"></a></dt>
+<dd><p>Draws a miniaturized version of the full molecule in a dedicated area under the MO diagram.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x0</strong> (<em>int</em>) – The x-coordinate of the top-left corner of the drawing area.</p></li>
+<li><p><strong>y0</strong> (<em>int</em>) – The y-coordinate of the top-left corner.</p></li>
+<li><p><strong>width</strong> (<em>int</em>) – The width of the available area.</p></li>
+<li><p><strong>height</strong> (<em>int</em>) – The height of the available area.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>Automatically scales the molecule to fit the provided area.</p></li>
+<li><p>Displays bonds and atoms; optional atom labels are shown if <cite>self.show_atom_labels</cite> is True.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.HMOViewer.load_images">
+<span class="sig-name descname"><span class="pre">load_images</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.HMOViewer.load_images" title="Link to this definition"></a></dt>
+<dd><p>Loads and resizes graphical assets used in the MO diagram.</p>
+<p>This method retrieves three image resources:
+- 1e.png : icon for singly occupied MO,
+- 2e.png : icon for doubly occupied MO,
+- energy_level.png : horizontal energy level bar.</p>
+<p>The images are resized to appropriate dimensions and stored as Tkinter-compatible <cite>PhotoImage</cite> objects.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.HMOViewer.on_escape">
+<span class="sig-name descname"><span class="pre">on_escape</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.HMOViewer.on_escape" title="Link to this definition"></a></dt>
+<dd><p>Callback triggered when the Escape key is pressed.</p>
+<p>This method gracefully closes the application window by destroying the root Tkinter widget.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>event</strong> (<em>tkinter.Event</em>) – The keypress event object (not used directly).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.HMOViewer.on_level_click">
+<span class="sig-name descname"><span class="pre">on_level_click</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.HMOViewer.on_level_click" title="Link to this definition"></a></dt>
+<dd><p>Callback when a molecular orbital energy level is clicked in the diagram.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>idx</strong> (<em>int</em>) – The index of the clicked MO.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>Determines if the MO is occupied or virtual based on its occupancy.</p></li>
+<li><p>Updates the corresponding frame to display the clicked orbital using <cite>display_mo</cite>.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.HMOViewer.prepare_data">
+<span class="sig-name descname"><span class="pre">prepare_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.HMOViewer.prepare_data" title="Link to this definition"></a></dt>
+<dd><p>Extracts MO energies and occupations from column headers and prepares data for rendering.</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>Parses each MO column label in <cite>self.df_MOs</cite> to extract:</dt><dd><ul>
+<li><p>The energy coefficient (in units of β),</p></li>
+<li><p>The number of electrons (occupation).</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>Computes the global max coefficient for scaling orbital display.</p></li>
+<li><p>Calculates the mean bond length for graphical positioning.</p></li>
+<li><p>Groups MOs by energy (rounded to 5 decimal places) into <cite>self.energy_groups</cite>.</p></li>
+</ul>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>Assumes that column headers follow the format: “MO = -1.25βn2e” or similar.</p></li>
+<li><p>Uses helper function <cite>compute_mean_bond_length()</cite> for estimating bond scaling.</p></li>
+</ul>
+<p>The resulting attributes are:
+- <cite>self.energies</cite> : list of float (one per MO),
+- <cite>self.occupations</cite> : list of int (0, 1, 2),
+- <cite>self.max_coef_global</cite> : float, used for visual scaling,
+- <cite>self.mean_bond_length</cite> : float, used to normalize drawing,
+- <cite>self.energy_groups</cite> : dict mapping rounded energy &gt;&gt; list of MO indices.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.HMOViewer.refresh_MOs">
+<span class="sig-name descname"><span class="pre">refresh_MOs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.HMOViewer.refresh_MOs" title="Link to this definition"></a></dt>
+<dd><p>Redraws the currently displayed molecular orbitals (HOMO &amp; LUMO by default).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.HMOViewer.refresh_skeleton">
+<span class="sig-name descname"><span class="pre">refresh_skeleton</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.HMOViewer.refresh_skeleton" title="Link to this definition"></a></dt>
+<dd><p>Clears and redraws the full molecular skeleton.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.HMOViewer.save_canvas_as_png">
+<span class="sig-name descname"><span class="pre">save_canvas_as_png</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.HMOViewer.save_canvas_as_png" title="Link to this definition"></a></dt>
+<dd><p>Save the full canvas as a high-resolution PNG image.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.HMOViewer.toggle_skeleton">
+<span class="sig-name descname"><span class="pre">toggle_skeleton</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.HMOViewer.toggle_skeleton" title="Link to this definition"></a></dt>
+<dd><p>Toggle the skeleton-only mode (with or without atom labels).</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">hmo.HMO.</span></span><span class="sig-name descname"><span class="pre">MoleculeDrawer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer" title="Link to this definition"></a></dt>
+<dd><p>GUI application for drawing molecules and performing Hückel Molecular Orbital (HMO) calculations and analysis.</p>
+<p>The MoleculeDrawer class provides an interactive graphical interface that allows the user
+to build a molecular structure by placing atoms and bonds on a grid. It supports the
+customization of atom types, and includes functionalities to save/load molecules, undo/redo
+actions, and erase atoms or bonds.</p>
+<p>Once a molecule is built, the tool can run a Hückel analysis to compute molecular orbital
+energies, coefficients, π-charges, and π-bond orders. Results are displayed numerically and
+graphically, with options to save data as Excel files or images.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>master</strong> (<em>tk.Tk</em><em> or </em><em>tk.Toplevel</em>) – The root window or parent window that holds the GUI.</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.nodes">
+<span class="sig-name descname"><span class="pre">nodes</span></span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.nodes" title="Link to this definition"></a></dt>
+<dd><p>The list of atoms (nodes) in the current molecule.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of <a class="reference internal" href="#hmo.HMO.Node" title="hmo.HMO.Node">Node</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.bonds">
+<span class="sig-name descname"><span class="pre">bonds</span></span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.bonds" title="Link to this definition"></a></dt>
+<dd><p>The list of bonds, each defined by a tuple of two node indices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.undo_stack">
+<span class="sig-name descname"><span class="pre">undo_stack</span></span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.undo_stack" title="Link to this definition"></a></dt>
+<dd><p>A stack to store the history of molecule states for undo functionality.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.redo_stack">
+<span class="sig-name descname"><span class="pre">redo_stack</span></span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.redo_stack" title="Link to this definition"></a></dt>
+<dd><p>A stack to store undone actions for redo functionality.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.df">
+<span class="sig-name descname"><span class="pre">df</span></span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.df" title="Link to this definition"></a></dt>
+<dd><p>The main DataFrame containing molecular orbital coefficients.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.df_atoms">
+<span class="sig-name descname"><span class="pre">df_atoms</span></span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.df_atoms" title="Link to this definition"></a></dt>
+<dd><p>DataFrame containing atom types, coordinates, and π charges.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.df_bonds">
+<span class="sig-name descname"><span class="pre">df_bonds</span></span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.df_bonds" title="Link to this definition"></a></dt>
+<dd><p>DataFrame listing bonds between atoms.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.df_summary">
+<span class="sig-name descname"><span class="pre">df_summary</span></span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.df_summary" title="Link to this definition"></a></dt>
+<dd><p>DataFrame summarizing molecular descriptors (energy, hardness, gap, etc.).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.project_name">
+<span class="sig-name descname"><span class="pre">project_name</span></span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.project_name" title="Link to this definition"></a></dt>
+<dd><p>The user-defined name of the current project.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.safe_project_name">
+<span class="sig-name descname"><span class="pre">safe_project_name</span></span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.safe_project_name" title="Link to this definition"></a></dt>
+<dd><p>A sanitized version of the project name (safe for filenames).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.mo_viewer_window">
+<span class="sig-name descname"><span class="pre">mo_viewer_window</span></span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.mo_viewer_window" title="Link to this definition"></a></dt>
+<dd><p>The window displaying molecular orbital visualizations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tk.Toplevel or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.om_window">
+<span class="sig-name descname"><span class="pre">om_window</span></span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.om_window" title="Link to this definition"></a></dt>
+<dd><p>The window showing numerical molecular orbital data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tk.Toplevel or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>The interface includes a toolbar with buttons for running the Hückel analysis, saving/loading
+molecules, exporting results, and accessing help/about information.</p></li>
+<li><p>Huckel parameters (α and β) are set by default to -11.0 and -2.7 but can be modified in the code.</p></li>
+<li><p>The program supports exporting results as <cite>.xlsx</cite> files (multi-sheet Excel) and visual
+representations as <cite>.png</cite> or <cite>.pdf</cite>.</p></li>
+<li><p>The tool can gracefully handle molecule resizing and grid alignment, making drawing easy.</p></li>
+</ul>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">root</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Tk</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span> <span class="o">=</span> <span class="n">MoleculeDrawer</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">root</span><span class="o">.</span><span class="n">mainloop</span><span class="p">()</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.apply_scale">
+<span class="sig-name descname"><span class="pre">apply_scale</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.apply_scale" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.bind_shortcuts">
+<span class="sig-name descname"><span class="pre">bind_shortcuts</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.bind_shortcuts" title="Link to this definition"></a></dt>
+<dd><p>Bind keyboard shortcuts (Ctrl + key) to main application actions.</p>
+<p>Shortcuts include:
+- Ctrl+R : Run Hückel calculation
+- Ctrl+S : Save molecule
+- Ctrl+O : Load molecule
+- Ctrl+Z : Undo
+- Ctrl+Y : Redo
+- Ctrl+D : Clear canvas
+- Ctrl+P : Export all results to PDF
+- Ctrl+L : Save data to spreadsheet
+- Ctrl+Q : Quit program
+- Ctrl+H : Show ‘About’ window</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.build_dataframes">
+<span class="sig-name descname"><span class="pre">build_dataframes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.build_dataframes" title="Link to this definition"></a></dt>
+<dd><p>Builds and updates key DataFrames summarizing the molecule’s structural and electronic properties.</p>
+<p>This method generates and assigns four main DataFrames:
+1. <cite>df_bond_orders_matrix</cite>: A symmetric matrix showing π-bond orders between all atom pairs.
+2. <cite>df_atoms</cite>: A table containing atom indices, types, positions (grid units), π charges, and colors.
+3. <cite>df_bonds</cite>: A table listing all bonds between atoms with atom labels.
+4. <cite>df_summary</cite>: A summary table of molecular descriptors, such as total π-electron energy, HOMO-LUMO gap, chemical potential, hardness, softness, and electrophilicity.
+5. <cite>df_global_charges</cite>: A table of manually placed formal charges, including position and value; or empty if none.</p>
+<p>The resulting DataFrames are stored as attributes for export or display in other parts of the application.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><em>None</em></p></li>
+<li><p><strong>(The method updates internal attributes</strong> (<cite>df_bond_orders_matrix</cite>, <cite>df_atoms</cite>, <cite>df_bonds</cite>, <cite>df_summary</cite> and <cite>df_global_charges</cite>))</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>Atom labels are formatted as ‘&lt;AtomType&gt;&lt;Index&gt;’ (e.g., ‘C·1’, ‘O:2’).</p></li>
+<li><p>Bond orders are rounded to 3 decimal places.</p></li>
+<li><p>π charges are computed from Hückel analysis results and rounded to 3 decimal places.</p></li>
+<li><p>The summary DataFrame expresses all energy-related descriptors in units of β (or multiples/fractions thereof).</p></li>
+<li><p>The method assumes that the Hückel analysis (and charge/bond order computation) has already been performed.</p></li>
+<li><p><cite>df_global_charges</cite> will contain user-defined formal charges if any have been placed in the GUI.</p></li>
+</ul>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">mol</span> <span class="o">=</span> <span class="n">MoleculeDrawer</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mol</span><span class="o">.</span><span class="n">build_dataframes</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The following attributes are now available:
+- mol.df_bond_orders_matrix
+- mol.df_atoms
+- mol.df_bonds
+- mol.df_summary
+- mol.df_global_charges</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.build_huckel_matrix">
+<span class="sig-name descname"><span class="pre">build_huckel_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.build_huckel_matrix" title="Link to this definition"></a></dt>
+<dd><p>Constructs the Hückel matrix (Hamiltonian) for the current molecular graph.</p>
+<p>This method builds the square matrix H of size n×n, where n is the number of atoms (nodes)
+in the molecule. The diagonal elements (alpha) represent Coulomb integrals, while the
+off-diagonal elements (beta) represent resonance integrals between bonded atoms.</p>
+<p>Atomic parameters are retrieved from the <cite>Huckel_atomic_parameters</cite> dictionary using the
+atom’s type (e.g., ‘C’, ‘N’, etc.), and bond parameters are retrieved from the
+<cite>Huckel_kXY_parameters</cite> dictionary to handle heteroatomic systems with scaling factors.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>alpha</strong> (<em>- alpha_part = n_pi_total *</em>) – The Coulomb integral (diagonal value), default is 0.</p></li>
+<li><p><strong>beta</strong> (<em>The entire matrix is divided by</em>) – The resonance integral (off-diagonal value), default is -1.</p></li>
+<li><p><strong>Note</strong></p></li>
+<li><p><strong>-----</strong></p></li>
+<li><p><strong>change</strong> (<em>The Hückel matrix H is transformed using the standard variable</em>) – x = (alpha - epsilon) / beta</p></li>
+<li><p><strong>origin.</strong> (<em>where x = 0 is chosen as the energy</em>)</p></li>
+<li><p><strong>beta</strong></p></li>
+<li><p><strong>beta.</strong> (<em>so all energies</em><em> (</em><em>eigenvalues</em><em>) </em><em>are expressed in units of</em>)</p></li>
+<li><p><strong>transformation.</strong> (<em>Alpha is conceptually shifted to zero during this</em>)</p></li>
+<li><p><strong>into</strong> (<em>The total π-electron energy is separated</em>)</p></li>
+<li><p><strong>alpha</strong></p></li>
+<li><p><strong>units</strong><strong>)</strong> (<em>- beta_part  = sum</em><em> of </em><em>occupied eigenvalues</em><em> (</em><em>in beta</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>np.ndarray</em> – The n×n Hückel matrix, where n is the number of atoms in the molecule.</p></li>
+<li><p><em>Error Handling</em></p></li>
+<li><p><em>————–</em></p></li>
+<li><p><em>- If an atom type is not recognized or has no defined alpha parameter, an error message</em> – is shown and the program exits.</p></li>
+<li><p><em>- If a bond type is not recognized or has no defined beta parameter, an error message</em> – is shown and the program exits.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>The <cite>Huckel_atomic_parameters</cite> dictionary must provide a valid <cite>alpha_expr</cite> for each
+atom type involved in the molecule.</p></li>
+<li><p>The <cite>Huckel_kXY_parameters</cite> dictionary must provide scaling factors for bonds between
+different atom types (e.g., C-N, C-O).</p></li>
+<li><p>The method evaluates alpha expressions using the <cite>self.evaluate()</cite> method, which
+substitutes the global alpha and beta values.</p></li>
+</ul>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">H</span> <span class="o">=</span> <span class="n">drawer</span><span class="o">.</span><span class="n">build_huckel_matrix</span><span class="p">(</span><span class="n">alpha</span><span class="o">=-</span><span class="mf">11.0</span><span class="p">,</span> <span class="n">beta</span><span class="o">=-</span><span class="mf">2.7</span><span class="p">)</span> <span class="ow">or</span> <span class="n">H</span> <span class="o">=</span> <span class="n">drawer</span><span class="o">.</span><span class="n">build_huckel_matrix</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">beta</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> <span class="ow">in</span> <span class="n">reduced</span> <span class="n">units</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.change_atom_type">
+<span class="sig-name descname"><span class="pre">change_atom_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_type</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.change_atom_type" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.clear">
+<span class="sig-name descname"><span class="pre">clear</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.clear" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.compute_charges_and_bond_orders">
+<span class="sig-name descname"><span class="pre">compute_charges_and_bond_orders</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eigvecs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occupation_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.compute_charges_and_bond_orders" title="Link to this definition"></a></dt>
+<dd><p>Compute atomic π-charges and π-bond orders from Hückel eigenvectors.</p>
+<p>This method evaluates:
+- The π-charge on each atom, as the difference between its formal π-electrons and the Mulliken-like population derived from the eigenvector coefficients.
+- The π-bond order between each pair of bonded atoms, as a weighted sum of the products of their orbital coefficients across all occupied molecular orbitals.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>eigvecs</strong> (<em>ndarray</em><em> (</em><em>n_atoms</em><em>, </em><em>n_orbitals</em><em>)</em>) – Matrix of eigenvectors (molecular orbital coefficients) from the Hückel diagonalization.
+Each column corresponds to an orbital; each row to an atom.</p></li>
+<li><p><strong>occupation_dict</strong> (<em>dict</em>) – Dictionary mapping orbital indices to their occupation numbers (e.g., 2 or 0).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>charges</strong> (<em>list of float</em>) – The computed π-charge for each atom, in the same order as <cite>self.nodes</cite>.</p></li>
+<li><p><strong>bond_orders</strong> (<em>dict</em>) – A dictionary with keys as (i, j) tuples (atom indices of bonded pairs) and values as the computed π-bond order between those atoms.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>The method assumes that each atom’s expected number of π-electrons (<cite>n_pi</cite>) is defined in <cite>HuckelParameters.Huckel_atomic_parameters</cite>.</p></li>
+<li><p>The bond list <cite>self.bonds</cite> should contain tuples of bonded atom indices.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.count_bonds">
+<span class="sig-name descname"><span class="pre">count_bonds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.count_bonds" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.create_button">
+<span class="sig-name descname"><span class="pre">create_button</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">icon</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">command</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tooltip</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.create_button" title="Link to this definition"></a></dt>
+<dd><p>Create a single button for the toolbar with icon, command, and tooltip.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>icon</strong> (<em>PhotoImage</em>) – The icon image to display on the button.</p></li>
+<li><p><strong>command</strong> (<em>callable</em>) – The function to execute when the button is clicked.</p></li>
+<li><p><strong>tooltip</strong> (<em>str</em>) – The tooltip text displayed on hover, and temporarily shown in the window title.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The created Tkinter Button widget.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tk.Button</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.create_toolbar">
+<span class="sig-name descname"><span class="pre">create_toolbar</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.create_toolbar" title="Link to this definition"></a></dt>
+<dd><p>Create the main toolbar with all interactive buttons.</p>
+<p>This method creates buttons for key actions such as running the Hückel calculation,
+saving/loading the molecule, undo/redo, charge placement, numerical output, exporting
+results, and quitting the program. Each button is associated with an icon and a tooltip.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.delete_node">
+<span class="sig-name descname"><span class="pre">delete_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.delete_node" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.draw_grid">
+<span class="sig-name descname"><span class="pre">draw_grid</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.draw_grid" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.evaluate">
+<span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">expr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.evaluate" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.export_all_results_to_pdf">
+<span class="sig-name descname"><span class="pre">export_all_results_to_pdf</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.export_all_results_to_pdf" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.find_bond">
+<span class="sig-name descname"><span class="pre">find_bond</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.find_bond" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.find_node">
+<span class="sig-name descname"><span class="pre">find_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.find_node" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.find_node_by_coords">
+<span class="sig-name descname"><span class="pre">find_node_by_coords</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_grid</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.find_node_by_coords" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.left_click">
+<span class="sig-name descname"><span class="pre">left_click</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.left_click" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.load_icons">
+<span class="sig-name descname"><span class="pre">load_icons</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.load_icons" title="Link to this definition"></a></dt>
+<dd><p>Load toolbar icons from the <cite>icons-logos-banner</cite> folder.</p>
+<p>This method populates <cite>self.icons</cite> with PhotoImage objects keyed by function names.
+These icons are later used to create toolbar buttons.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.load_molecule">
+<span class="sig-name descname"><span class="pre">load_molecule</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.load_molecule" title="Link to this definition"></a></dt>
+<dd><p>Load a molecular structure from a .hmo file.</p>
+<p>This method opens a file dialog prompting the user to select a .hmo file.
+It reads the file content and reconstructs the molecule by:
+- Parsing the “Nodes:” section to recreate the list of atoms (<cite>self.nodes</cite>).
+- Parsing the “Bonds:” section to recreate the list of bonds (<cite>self.bonds</cite>).</p>
+<p>The current state is first saved (for undo purposes), and the canvas is redrawn
+after loading. If an error occurs (e.g., corrupted file), an error message is shown.</p>
+<p class="rubric">Notes</p>
+<p>The expected format of the file is:
+Nodes:
+AtomType x y
+…
+Bonds:
+i j
+…</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.mouse_drag">
+<span class="sig-name descname"><span class="pre">mouse_drag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.mouse_drag" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.mouse_motion">
+<span class="sig-name descname"><span class="pre">mouse_motion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.mouse_motion" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.mouse_release">
+<span class="sig-name descname"><span class="pre">mouse_release</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.mouse_release" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.node_exists_at">
+<span class="sig-name descname"><span class="pre">node_exists_at</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.node_exists_at" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.on_run_huckel">
+<span class="sig-name descname"><span class="pre">on_run_huckel</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.on_run_huckel" title="Link to this definition"></a></dt>
+<dd><p>Executes the full Hückel analysis workflow.</p>
+<p>This method performs the following steps:</p>
+<p>1️⃣ Runs the Hückel analysis on the current molecular structure.</p>
+<p>2️⃣ Prompts the user for a project name (default: “my_molecule”) to label results and files.</p>
+<p>3️⃣ Sanitizes the project name for safe file usage.</p>
+<dl class="simple">
+<dt>4️⃣ Builds internal DataFrames:</dt><dd><ul class="simple">
+<li><p>Molecular orbital coefficients,</p></li>
+<li><p>Atom-level data,</p></li>
+<li><p>Bond list and bond orders,</p></li>
+<li><p>Summary descriptors (energies, HOMO-LUMO gap, etc.).</p></li>
+</ul>
+</dd>
+</dl>
+<p>5️⃣ (Optional) Displays debug printouts for DataFrame shapes.</p>
+<p>6️⃣ Opens a new Tkinter window (<cite>HMOViewer</cite>) to visualize the molecular orbitals, atoms, bonds, and descriptors graphically.</p>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>The visualizer window (<cite>HMOViewer</cite>) is initialized with all computed data for interactive exploration.</p></li>
+<li><p>The project name is reused as a base name for saving exports (Excel, PDF, etc.).</p></li>
+<li><p>Debug information about DataFrame shapes is printed to the console for traceability.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.props">
+<span class="sig-name descname"><span class="pre">props</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eigvals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occupation_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.props" title="Link to this definition"></a></dt>
+<dd><p>Compute global energetic and chemical descriptors from Hückel eigenvalues.</p>
+<p>This method calculates the total π-electron energy of the molecule, decomposed into
+its alpha (on-site) and beta (interaction) parts, as well as the atomization energy
+(difference between the total π-energy and the isolated atom contributions).</p>
+<p>It also computes key global descriptors:
+- HOMO-LUMO gap
+- chemical potential (mu)
+- chemical hardness (eta)
+- softness (1/eta)
+- electrophilicity index (omega)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>eigvals</strong> (<em>array-like</em>) – The eigenvalues (orbital energies) from the Hückel matrix diagonalization.</p></li>
+<li><p><strong>occupation_dict</strong> (<em>dict</em>) – A dictionary mapping orbital indices to their occupation numbers (typically 2 for
+occupied, 0 for virtual).</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>This method updates instance attributes:
+<cite>total_energy</cite>, <cite>alpha_part</cite>, <cite>beta_part</cite>, <cite>atomization_energy</cite>,
+<cite>atomization_energy_per_atom</cite>, <cite>homo_lumo_gap</cite>, <cite>mu</cite>, <cite>eta</cite>, <cite>softness</cite>, <cite>omega</cite>.</p></li>
+<li><p>Includes debug print statements for tracing the calculation steps.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.quit_program">
+<span class="sig-name descname"><span class="pre">quit_program</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.quit_program" title="Link to this definition"></a></dt>
+<dd><p>Prompt the user to confirm before quitting the application.</p>
+<p>If the user confirms, the main Tkinter window is closed.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.redo">
+<span class="sig-name descname"><span class="pre">redo</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.redo" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.redraw">
+<span class="sig-name descname"><span class="pre">redraw</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.redraw" title="Link to this definition"></a></dt>
+<dd><p>Redraws the full molecular canvas, including grid, atoms, and bonds.</p>
+<p>This method is responsible for updating the Tkinter canvas whenever the molecule’s structure changes or when the user interacts (e.g., dragging, erasing).</p>
+<p>It handles:</p>
+<p>1️⃣ Redrawing the base grid (for alignment).</p>
+<dl class="simple">
+<dt>2️⃣ If dragging:</dt><dd><ul class="simple">
+<li><p>Displays a highlighted grid cell (orange) under the current mouse position.</p></li>
+<li><p>Draws a temporary dashed bond between the selected node and the cursor.</p></li>
+</ul>
+</dd>
+<dt>3️⃣ Highlights:</dt><dd><ul class="simple">
+<li><p>If in eraser mode, highlights the node or bond under the mouse cursor in red.</p></li>
+</ul>
+</dd>
+<dt>4️⃣ Bonds:</dt><dd><ul class="simple">
+<li><p>Draws all bonds as lines between atoms, with special highlighting for bonds targeted by the eraser.</p></li>
+</ul>
+</dd>
+<dt>5️⃣ Atoms:</dt><dd><ul class="simple">
+<li><p>Draws each atom as a colored circle, using the atom type’s color code.</p></li>
+<li><p>Highlights atoms under the eraser with a red border.</p></li>
+<li><p>Displays the atom label (type) centered in each circle.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>This method fully clears the canvas before redrawing.</p></li>
+<li><p>Visual cues (colors, highlights) guide user interaction for precision editing.</p></li>
+<li><p>Grid snapping ensures precise atom placement during drawing.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.resize_canvas">
+<span class="sig-name descname"><span class="pre">resize_canvas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.resize_canvas" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.right_click">
+<span class="sig-name descname"><span class="pre">right_click</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.right_click" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.run_huckel_analysis">
+<span class="sig-name descname"><span class="pre">run_huckel_analysis</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.run_huckel_analysis" title="Link to this definition"></a></dt>
+<dd><p>Executes the full Hückel Molecular Orbital (HMO) analysis for the current molecule.</p>
+<p>This method performs the following steps:
+1. Builds the Hückel matrix using <cite>build_huckel_matrix</cite>.
+2. Solves for molecular orbital energies and coefficients (eigenvalues and eigenvectors).
+3. Counts the total number of π-electrons based on atomic types.
+4. Computes the occupation numbers for each molecular orbital, handling degeneracies.
+5. Calculates π-electron charges and π-bond orders using the eigenvectors and occupations.
+6. Updates molecular properties and builds a DataFrame of orbital coefficients for display.</p>
+<p>The analysis assumes default Hückel parameters (alpha = -11.0, beta = -2.7) unless specified
+otherwise when building the matrix.</p>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>Atoms and bonds are validated to ensure parameters exist in the Huckel parameter dictionaries.</p></li>
+<li><p>If any atom or bond type is unknown, an error message is displayed and the program exits.</p></li>
+<li><p>Degenerate orbitals are handled by grouping them within a numerical tolerance (1e-5 by default).</p></li>
+</ul>
+<section id="attributes-updated">
+<h2>Attributes Updated<a class="headerlink" href="#attributes-updated" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt>df<span class="classifier">pd.DataFrame</span></dt><dd><p>A DataFrame showing molecular orbital coefficients, sorted by energy levels.</p>
+</dd>
+<dt>charges<span class="classifier">list of float</span></dt><dd><p>List of π-electron charges on each atom.</p>
+</dd>
+<dt>bond_orders<span class="classifier">dict</span></dt><dd><p>Dictionary with keys as (i, j) tuples (atom indices) and values as bond orders.</p>
+</dd>
+<dt>total_pi_electrons<span class="classifier">int</span></dt><dd><p>The total number of π-electrons in the molecule.</p>
+</dd>
+<dt>alpha_value<span class="classifier">float</span></dt><dd><p>The alpha value used for the current Hückel analysis.</p>
+</dd>
+<dt>beta_value<span class="classifier">float</span></dt><dd><p>The beta value used for the current Hückel analysis.</p>
+</dd>
+</dl>
+</section>
+<section id="error-handling">
+<h2>Error Handling<a class="headerlink" href="#error-handling" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Unknown atom types or missing parameters in Huckel_atomic_parameters trigger an error.</p></li>
+<li><p>Unknown bond types or missing parameters in Huckel_kXY_parameters also trigger an error.</p></li>
+<li><p>In both cases, a messagebox error is shown, and the program exits gracefully.</p></li>
+</ul>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">MoleculeDrawer</span><span class="o">.</span><span class="n">run_huckel_analysis</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.sanitize_filename">
+<span class="sig-name descname"><span class="pre">sanitize_filename</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.sanitize_filename" title="Link to this definition"></a></dt>
+<dd><p>Sanitize a string to make it safe for use as a filename.</p>
+<p>Replaces characters that are invalid in most file systems (such as <cite>/ : * ? “ &lt; &gt; |</cite>) with underscores.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em>) – Original file name or label.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Sanitized version of the string with forbidden characters replaced.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.save_data">
+<span class="sig-name descname"><span class="pre">save_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.save_data" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.save_dataframe_as_pdf">
+<span class="sig-name descname"><span class="pre">save_dataframe_as_pdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">win</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.save_dataframe_as_pdf" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.save_dataframe_as_xlsx">
+<span class="sig-name descname"><span class="pre">save_dataframe_as_xlsx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">win</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.save_dataframe_as_xlsx" title="Link to this definition"></a></dt>
+<dd><p>Export multiple pandas DataFrames to an Excel workbook with styled headers.</p>
+<p>This method saves the following DataFrames to separate sheets in a single Excel file:
+- <cite>self.df_atoms</cite>: Atom-level data (sheet ‘Atoms’)
+- <cite>self.df_global_charges</cite>: A table of manually placed formal charges, including position and value; or empty if none.
+- <cite>self.df_bonds</cite>: Bond list (sheet ‘Bond List’)
+- <cite>self.df</cite>: Molecular orbital coefficients (sheet ‘MO Coefficients’)
+- <cite>self.df_bond_orders_matrix</cite>: π-bond order matrix (sheet ‘π-bond orders’)
+- <cite>self.df_summary</cite>: Molecular descriptors (sheet ‘Descriptors’)</p>
+<p>The user is prompted to select a save location via a file dialog. After saving,
+the header row of the ‘MO Coefficients’ sheet is styled with text wrapping.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>win</strong> (<em>tkinter.Tk</em><em> or </em><em>tkinter.Toplevel</em>) – The parent window for the file dialog.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if the file was successfully saved, False otherwise (e.g., if the user cancels).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>If no data is available (DataFrames are None), a warning dialog is shown.</p></li>
+<li><p>The Excel file is saved with the ‘.xlsx’ extension, and the default filename is
+based on <cite>self.safe_project_name</cite>.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.save_molecule">
+<span class="sig-name descname"><span class="pre">save_molecule</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.save_molecule" title="Link to this definition"></a></dt>
+<dd><p>Save the current molecular structure to a .hmo file.</p>
+<p>This method opens a file dialog prompting the user to select the save location.
+The molecule is saved in a simple text format:
+- A “Nodes:” section listing each atom with its type and (x, y) grid coordinates.
+- A “Bonds:” section listing each bond as pairs of atom indices.</p>
+<p>If a project name is available (<cite>self.safe_project_name</cite>), it is used as the default filename.</p>
+<p class="rubric">Notes</p>
+<p>The saved file allows reloading the same molecular structure later using <cite>load_molecule</cite>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.save_state">
+<span class="sig-name descname"><span class="pre">save_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.save_state" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.set_mode_add_charge">
+<span class="sig-name descname"><span class="pre">set_mode_add_charge</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.set_mode_add_charge" title="Link to this definition"></a></dt>
+<dd><p>Sets the current interaction mode to adding a new charge.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.show_about">
+<span class="sig-name descname"><span class="pre">show_about</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.show_about" title="Link to this definition"></a></dt>
+<dd><p>Display the ‘About’ window for the HMO application.</p>
+<p>This window shows:
+- A banner/logo loaded from ‘icons-logos-banner/HMO_Banner.png’,
+- The author’s address and credits,
+- The current version of the application,
+- A ‘Close’ button to dismiss the window.</p>
+<p>The window is non-resizable and can also be closed using the Escape key.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.show_charge_bond_view">
+<span class="sig-name descname"><span class="pre">show_charge_bond_view</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.show_charge_bond_view" title="Link to this definition"></a></dt>
+<dd><p>Displays the molecule using matplotlib in a Tkinter window with atom colors, formal charges,
+and π bond indices. Includes buttons to save (PNG, SVG, PDF, EPS) and close.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.show_dataframe_in_window">
+<span class="sig-name descname"><span class="pre">show_dataframe_in_window</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.show_dataframe_in_window" title="Link to this definition"></a></dt>
+<dd><p>Display molecular orbital coefficients, a molecular diagram, and key descriptors in a new window.</p>
+<p>This method creates a Tkinter <cite>Toplevel</cite> window that presents:</p>
+<p>[1] A scaled 2D visualization of the molecule (atoms and bonds), centered in a canvas.</p>
+<dl class="simple">
+<dt>[2] A summary section with computed descriptors:</dt><dd><ul class="simple">
+<li><p>Total π-electron energy,</p></li>
+<li><p>Number of π electrons,</p></li>
+<li><p>Atomization energy (absolute and per atom),</p></li>
+<li><p>HOMO-LUMO gap,</p></li>
+<li><p>Chemical potential (μ),</p></li>
+<li><p>Hardness (η),</p></li>
+<li><p>Softness (S),</p></li>
+<li><p>Electrophilicity index (ω).</p></li>
+</ul>
+</dd>
+<dt>[3] A scrollable table that displays the molecular orbital (MO) coefficients.</dt><dd><ul class="simple">
+<li><p>The table is split into two Treeviews: one for the index column, one for the data.</p></li>
+<li><p>Scrollbars (vertical and horizontal) are shared between the two views for smooth scrolling.</p></li>
+</ul>
+</dd>
+</dl>
+<p>The visualization includes:
+- Atoms drawn as colored circles (color based on <cite>ATOM_COLORS</cite>),
+- Atom labels with their type and index,
+- Bonds drawn as black lines.</p>
+<section id="features">
+<h2>Features:<a class="headerlink" href="#features" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>The molecular diagram is auto-scaled to fit the canvas, with debug prints for scaling details.</p></li>
+<li><p>The summary text is stored in <cite>self.summary_text</cite> for potential later use (e.g., export).</p></li>
+<li><p>If a previous window (<cite>self.om_window</cite>) is still open, it is closed before opening the new one.</p></li>
+<li><p>An Escape key binding allows closing the window quickly.</p></li>
+</ul>
+</section>
+<section id="id1">
+<h2>Notes:<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>The descriptors use <cite>self.alpha_value</cite> and <cite>self.beta_value</cite> for normalization.</p></li>
+<li><p>Treeviews are laid out side-by-side: the index column remains fixed, while data columns can expand.</p></li>
+<li><p>This window is meant as an interactive, visual companion to numerical data (e.g., after Hückel analysis).</p></li>
+</ul>
+</section>
+<section id="shortcut">
+<h2>Shortcut:<a class="headerlink" href="#shortcut" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Pressing <cite>Esc</cite> closes the window.</p></li>
+</ul>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.show_numerical_data">
+<span class="sig-name descname"><span class="pre">show_numerical_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.show_numerical_data" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.snap_to_grid">
+<span class="sig-name descname"><span class="pre">snap_to_grid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.snap_to_grid" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.toggle_eraser">
+<span class="sig-name descname"><span class="pre">toggle_eraser</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.toggle_eraser" title="Link to this definition"></a></dt>
+<dd><p>Toggle eraser mode on or off.</p>
+<p>When enabled, the application allows the user to delete atoms or bonds by clicking.
+This method also updates the background color of the eraser button to indicate the active state.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.MoleculeDrawer.undo">
+<span class="sig-name descname"><span class="pre">undo</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.MoleculeDrawer.undo" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="hmo.HMO.Node">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">hmo.HMO.</span></span><span class="sig-name descname"><span class="pre">Node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atom_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'C·'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.Node" title="Link to this definition"></a></dt>
+<dd><p>A class representing an atom (node) in the molecular graph.</p>
+<p>Each Node object stores information about its position in the molecular diagram,
+its chemical element type (e.g., C, N, O), and its π-charge (from Hückel analysis).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>canvas</strong> (<em>tk.Canvas</em>) – The canvas on which the node (atom) will be drawn.</p></li>
+<li><p><strong>x</strong> (<em>int</em>) – The x-coordinate of the node in the canvas (in pixels).</p></li>
+<li><p><strong>y</strong> (<em>int</em>) – The y-coordinate of the node in the canvas (in pixels).</p></li>
+<li><p><strong>radius</strong> (<em>int</em><em>, </em><em>optional</em>) – Radius of the circle representing the atom (default is 20 pixels).</p></li>
+<li><p><strong>atom_type</strong> (<em>str</em><em>, </em><em>optional</em>) – Chemical element symbol for the node (default is ‘C’).</p></li>
+<li><p><strong>color</strong> (<em>str</em><em>, </em><em>optional</em>) – Fill color for the node (default is ‘white’).</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hmo.HMO.Node.x">
+<span class="sig-name descname"><span class="pre">x</span></span><a class="headerlink" href="#hmo.HMO.Node.x" title="Link to this definition"></a></dt>
+<dd><p>X-coordinate of the node center.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hmo.HMO.Node.y">
+<span class="sig-name descname"><span class="pre">y</span></span><a class="headerlink" href="#hmo.HMO.Node.y" title="Link to this definition"></a></dt>
+<dd><p>Y-coordinate of the node center.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hmo.HMO.Node.radius">
+<span class="sig-name descname"><span class="pre">radius</span></span><a class="headerlink" href="#hmo.HMO.Node.radius" title="Link to this definition"></a></dt>
+<dd><p>Radius of the circle representing the atom.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hmo.HMO.Node.atom_type">
+<span class="sig-name descname"><span class="pre">atom_type</span></span><a class="headerlink" href="#hmo.HMO.Node.atom_type" title="Link to this definition"></a></dt>
+<dd><p>Chemical element symbol (e.g., ‘C’, ‘N’, ‘O’).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hmo.HMO.Node.color">
+<span class="sig-name descname"><span class="pre">color</span></span><a class="headerlink" href="#hmo.HMO.Node.color" title="Link to this definition"></a></dt>
+<dd><p>Fill color of the atom.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hmo.HMO.Node.circle">
+<span class="sig-name descname"><span class="pre">circle</span></span><a class="headerlink" href="#hmo.HMO.Node.circle" title="Link to this definition"></a></dt>
+<dd><p>ID of the oval shape on the canvas (for drawing reference).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hmo.HMO.Node.label">
+<span class="sig-name descname"><span class="pre">label</span></span><a class="headerlink" href="#hmo.HMO.Node.label" title="Link to this definition"></a></dt>
+<dd><p>ID of the text label on the canvas (for element symbol).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hmo.HMO.Node.pi_charge">
+<span class="sig-name descname"><span class="pre">pi_charge</span></span><a class="headerlink" href="#hmo.HMO.Node.pi_charge" title="Link to this definition"></a></dt>
+<dd><p>The π-electron charge on the atom, computed after Hückel analysis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.Node.draw">
+<span class="sig-name descname"><span class="pre">draw</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.Node.draw" title="Link to this definition"></a></dt>
+<dd><p>Draws the node (circle + label) on the canvas.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.Node.update_label">
+<span class="sig-name descname"><span class="pre">update_label</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.Node.update_label" title="Link to this definition"></a></dt>
+<dd><p>Updates the displayed label based on the atom type and charge.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.Node.is_within">
+<span class="sig-name descname"><span class="pre">is_within</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.Node.is_within" title="Link to this definition"></a></dt>
+<dd><p>Checks if a given (x, y) coordinate is within the node’s radius.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.Node.move_to">
+<span class="sig-name descname"><span class="pre">move_to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.Node.move_to" title="Link to this definition"></a></dt>
+<dd><p>Moves the node to a new position on the canvas.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.Node.set_pi_charge">
+<span class="sig-name descname"><span class="pre">set_pi_charge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">charge</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.Node.set_pi_charge" title="Link to this definition"></a></dt>
+<dd><p>Sets the π-charge for the atom and updates the label accordingly.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="hmo.HMO.ToolTip">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">hmo.HMO.</span></span><span class="sig-name descname"><span class="pre">ToolTip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">widget</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'widget</span> <span class="pre">info'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.ToolTip" title="Link to this definition"></a></dt>
+<dd><p>This class attaches a tooltip (a small pop-up window displaying text) to any Tkinter widget.
+The tooltip appears when the mouse hovers over the widget and disappears when the mouse leaves.</p>
+<p>The tooltip text is rendered using a custom Open Sans Regular font loaded from a TrueType Font (TTF)
+file located at ‘Fonts/OpenSans/static/OpenSans-Regular.ttf’. This ensures a consistent and modern
+look across different platforms and display environments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>widget</strong> (<em>tk.Widget</em>) – The Tkinter widget to which the tooltip will be attached.</p></li>
+<li><p><strong>text</strong> (<em>str</em>) – The text content to display in the tooltip.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hmo.HMO.ToolTip.widget">
+<span class="sig-name descname"><span class="pre">widget</span></span><a class="headerlink" href="#hmo.HMO.ToolTip.widget" title="Link to this definition"></a></dt>
+<dd><p>The widget associated with the tooltip.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tk.Widget</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hmo.HMO.ToolTip.text">
+<span class="sig-name descname"><span class="pre">text</span></span><a class="headerlink" href="#hmo.HMO.ToolTip.text" title="Link to this definition"></a></dt>
+<dd><p>The message displayed when hovering over the widget.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hmo.HMO.ToolTip.tooltip_window">
+<span class="sig-name descname"><span class="pre">tooltip_window</span></span><a class="headerlink" href="#hmo.HMO.ToolTip.tooltip_window" title="Link to this definition"></a></dt>
+<dd><p>The pop-up window that displays the tooltip text (created when the mouse enters the widget).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tk.Toplevel or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hmo.HMO.ToolTip.OpenSansReg_font">
+<span class="sig-name descname"><span class="pre">OpenSansReg_font</span></span><a class="headerlink" href="#hmo.HMO.ToolTip.OpenSansReg_font" title="Link to this definition"></a></dt>
+<dd><p>The custom font object used to render the tooltip text, loaded from OpenSans-Regular.ttf.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tkFont.Font</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">Main</span> <span class="pre">Methods</span></span></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">-------</span></span></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hmo.HMO.ToolTip.show_tooltip">
+<span class="sig-name descname"><span class="pre">show_tooltip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.ToolTip.show_tooltip" title="Link to this definition"></a></dt>
+<dd><p>Creates and displays the tooltip near the mouse cursor using the Open Sans font.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="hmo.HMO.ToolTip.hide_tooltip">
+<span class="sig-name descname"><span class="pre">hide_tooltip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.ToolTip.hide_tooltip" title="Link to this definition"></a></dt>
+<dd><p>Destroys the tooltip window when the mouse leaves the widget.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.ToolTip.enter">
+<span class="sig-name descname"><span class="pre">enter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.ToolTip.enter" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.ToolTip.hidetip">
+<span class="sig-name descname"><span class="pre">hidetip</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.ToolTip.hidetip" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.ToolTip.leave">
+<span class="sig-name descname"><span class="pre">leave</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.ToolTip.leave" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.ToolTip.motion">
+<span class="sig-name descname"><span class="pre">motion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.ToolTip.motion" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.ToolTip.schedule">
+<span class="sig-name descname"><span class="pre">schedule</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.ToolTip.schedule" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.ToolTip.showtip">
+<span class="sig-name descname"><span class="pre">showtip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.ToolTip.showtip" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hmo.HMO.ToolTip.unschedule">
+<span class="sig-name descname"><span class="pre">unschedule</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.ToolTip.unschedule" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="hmo.HMO.compute_mean_bond_length">
+<span class="sig-prename descclassname"><span class="pre">hmo.HMO.</span></span><span class="sig-name descname"><span class="pre">compute_mean_bond_length</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_bonds</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.compute_mean_bond_length" title="Link to this definition"></a></dt>
+<dd><p>Compute the average bond length in grid units based on atom coordinates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df_atoms</strong> (<em>pd.DataFrame</em>) – Must contain ‘Atom’, ‘X (grid units)’, ‘Y (grid units)’ columns.</p></li>
+<li><p><strong>df_bonds</strong> (<em>pd.DataFrame</em>) – Must contain ‘Atom 1’ and ‘Atom 2’ columns.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Average bond length.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="hmo.HMO.draw_mo_on_ax_dual_lobes">
+<span class="sig-prename descclassname"><span class="pre">hmo.HMO.</span></span><span class="sig-name descname"><span class="pre">draw_mo_on_ax_dual_lobes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_MOs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_bonds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_lobe_factor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_coef_global</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occupations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lobe_offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.draw_mo_on_ax_dual_lobes" title="Link to this definition"></a></dt>
+<dd><p>Draw a molecular orbital with back and front lobes on a matplotlib Axes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df_MOs</strong> (<em>pd.DataFrame</em>) – Molecular orbital coefficients (atoms × orbitals).</p></li>
+<li><p><strong>df_atoms</strong> (<em>pd.DataFrame</em>) – Atom coordinates and labels.</p></li>
+<li><p><strong>df_bonds</strong> (<em>pd.DataFrame</em>) – Bond connections between atoms.</p></li>
+<li><p><strong>idx</strong> (<em>int</em>) – Index of the molecular orbital to draw.</p></li>
+<li><p><strong>ax</strong> (<em>matplotlib.axes.Axes</em>) – Axes to draw on.</p></li>
+<li><p><strong>scale_lobe_factor</strong> (<em>float</em>) – Scaling factor applied to each coefficient to compute lobe radius.</p></li>
+<li><p><strong>size</strong> (<em>dimension</em><em> of </em><em>each MO box</em>)</p></li>
+<li><p><strong>energies</strong> (<em>list</em><em> of </em><em>str</em><em>, </em><em>optional</em>) – Formatted energy labels (e.g., ‘α + 1.00β’).</p></li>
+<li><p><strong>occupations</strong> (<em>list</em><em> of </em><em>int</em><em>, </em><em>optional</em>) – Electron counts per MO (e.g., 2e, 0e).</p></li>
+<li><p><strong>lobe_offset</strong> (<em>float</em><em>, </em><em>default=0.5</em>) – Offset for visual 3D effect (in grid units).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="hmo.HMO.extract_energies_and_occupations_from_columns">
+<span class="sig-prename descclassname"><span class="pre">hmo.HMO.</span></span><span class="sig-name descname"><span class="pre">extract_energies_and_occupations_from_columns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">columns</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.extract_energies_and_occupations_from_columns" title="Link to this definition"></a></dt>
+<dd><p>Extracts energy expressions and occupation numbers from MO column headers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>columns</strong> (<em>list</em><em> of </em><em>str</em>) – Column names from the MO coefficient DataFrame.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>energies</strong> (<em>list of str</em>) – Formatted strings like ‘α + 1.20β’.</p></li>
+<li><p><strong>occupations</strong> (<em>list of int</em>) – Electron count (0, 1, or 2) per MO.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="hmo.HMO.extract_energy_groups">
+<span class="sig-prename descclassname"><span class="pre">hmo.HMO.</span></span><span class="sig-name descname"><span class="pre">extract_energy_groups</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_MOs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.extract_energy_groups" title="Link to this definition"></a></dt>
+<dd><p>Extract energy values and group orbital indices by energy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>df_MOs</strong> (<em>pd.DataFrame</em>) – DataFrame with column names like ‘E = α + 1.00βn2e’</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>energy_groups</strong> – Dictionary mapping energy (float) to list of MO indices.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict[float, list[int]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="hmo.HMO.lighten_color">
+<span class="sig-prename descclassname"><span class="pre">hmo.HMO.</span></span><span class="sig-name descname"><span class="pre">lighten_color</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">amount</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.lighten_color" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="hmo.HMO.lobes_sizes">
+<span class="sig-prename descclassname"><span class="pre">hmo.HMO.</span></span><span class="sig-name descname"><span class="pre">lobes_sizes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_MOs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean_bond_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.9</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_display_radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.lobes_sizes" title="Link to this definition"></a></dt>
+<dd><p>Compute the global lobe scaling factor based on the maximum MO coefficient.</p>
+<p>This function supports two use cases:
+1. If <cite>max_display_radius</cite> is provided, the largest lobe will have this radius in display units.
+2. Otherwise, the lobe size will be scaled as a fraction (<cite>factor</cite>) of the half bond length (estimated as: factor × mean_bond_length × scale / 2).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df_MOs</strong> (<em>pd.DataFrame</em>) – DataFrame of molecular orbital coefficients (rows: atoms, columns: MOs).</p></li>
+<li><p><strong>mean_bond_length</strong> (<em>float</em><em>, </em><em>optional</em>) – Average bond length in grid units (required if <cite>max_display_radius</cite> is not provided).</p></li>
+<li><p><strong>scale</strong> (<em>float</em><em>, </em><em>optional</em>) – Current display scale applied to coordinates (required if <cite>max_display_radius</cite> is not provided).</p></li>
+<li><p><strong>factor</strong> (<em>float</em><em>, </em><em>default=0.90</em>) – Maximum lobe radius as a fraction of half a bond length (only used if <cite>max_display_radius</cite> is None).</p></li>
+<li><p><strong>max_display_radius</strong> (<em>float</em><em>, </em><em>optional</em>) – Maximum allowed lobe radius in display units (used to keep lobes within frame limits, e.g., 2.0).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>max_coef_global</strong> (<em>float</em>) – Maximum absolute coefficient found in the MO matrix.</p></li>
+<li><p><strong>scale_lobe_factor</strong> (<em>float</em>) – Multiplicative factor to convert each coefficient into a lobe radius.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="hmo.HMO.render_all_OMs_grid_with_dual_lobes">
+<span class="sig-prename descclassname"><span class="pre">hmo.HMO.</span></span><span class="sig-name descname"><span class="pre">render_all_OMs_grid_with_dual_lobes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_MOs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_bonds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_lobe_factor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_coef_global</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occupations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_size_cm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_per_row</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.render_all_OMs_grid_with_dual_lobes" title="Link to this definition"></a></dt>
+<dd><p>Render a grid of molecular orbitals with consistent lobe scaling.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df_MOs</strong> (<em>-</em>)</p></li>
+<li><p><strong>df_atoms</strong> (<em>-</em>)</p></li>
+<li><p><strong>df_bonds</strong> (<em>-</em>)</p></li>
+<li><p><strong>scale_lobe_factor</strong> (<em>-</em>) – Global scaling factor for lobe radii.</p></li>
+<li><p><strong>energies</strong> (<em>-</em>) – Energy labels for each MO.</p></li>
+<li><p><strong>occupations</strong> (<em>-</em>) – Occupation numbers for each MO.</p></li>
+<li><p><strong>cell_size_cm</strong> (<em>-</em>) – Width/height of each subplot in centimeters.</p></li>
+<li><p><strong>max_per_row</strong> (<em>-</em>) – Maximum number of MOs per row.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>fig</strong> – The rendered figure.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>matplotlib.figure.Figure</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="hmo.HMO.render_double_panel_charges_bonds">
+<span class="sig-prename descclassname"><span class="pre">hmo.HMO.</span></span><span class="sig-name descname"><span class="pre">render_double_panel_charges_bonds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bonds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charges</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bond_orders</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">formal_charges</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.render_double_panel_charges_bonds" title="Link to this definition"></a></dt>
+<dd><p>Render two side-by-side panels representing molecular structure and bonding and charge descriptors.</p>
+<p>The function generates a matplotlib figure of total size 26 cm (widthPlot_cm) × 13 cm (heightPlot_cm), composed of two panels:
+- Left panel: the sigma skeleton (σ) of the molecule, with indexed atoms and the number of pi electrons they bring to the pi system.
+- Right panel: bond orders and atomic charges, displayed on the same structure.</p>
+<p>This visualization is suitable for publication or detailed analysis, with precise control over bond lengths and graphical scaling.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>nodes</strong> (<em>list</em>) – List of atomic nodes, each with <cite>.x</cite> and <cite>.y</cite> attributes and an <cite>atom_type</cite> (chemical element).</p></li>
+<li><p><strong>bonds</strong> (<em>list</em><em> of </em><em>tuple</em>) – List of (i, j) pairs indicating bonded atom indices.</p></li>
+<li><p><strong>charges</strong> (<em>list</em><em> of </em><em>float</em>) – List of computed atomic charges.</p></li>
+<li><p><strong>bond_orders</strong> (<em>dict</em>) – Dictionary mapping (i, j) pairs to bond order values (float).</p></li>
+<li><p><strong>formal_charges</strong> (<em>list</em>) – list of ChargeNode instances</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>fig</strong> – The matplotlib figure object containing the two rendered panels.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>matplotlib.figure.Figure</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="hmo.HMO.render_energy_diagram_matplotlib">
+<span class="sig-prename descclassname"><span class="pre">hmo.HMO.</span></span><span class="sig-name descname"><span class="pre">render_energy_diagram_matplotlib</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy_groups</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occupations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descriptors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width_cm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height_cm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">16</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.render_energy_diagram_matplotlib" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="hmo.HMO.resource_path">
+<span class="sig-prename descclassname"><span class="pre">hmo.HMO.</span></span><span class="sig-name descname"><span class="pre">resource_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">relative_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.resource_path" title="Link to this definition"></a></dt>
+<dd><p>Get absolute path to resource, works for dev and PyInstaller.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="hmo.HMO.save_figure_as_pdf">
+<span class="sig-prename descclassname"><span class="pre">hmo.HMO.</span></span><span class="sig-name descname"><span class="pre">save_figure_as_pdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hmo.HMO.save_figure_as_pdf" title="Link to this definition"></a></dt>
+<dd><p>Save a matplotlib figure as a PDF with exact dimensions and no automatic cropping.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fig</strong> (<em>matplotlib.figure.Figure</em>) – The figure object to save.</p></li>
+<li><p><strong>filename</strong> (<em>str</em>) – Output file path, typically ending in .pdf</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">hmo.HMO.</span></span><span class="sig-name descname"><span class="pre">HMOViewerParameters</span></span></dt>
+<dd><p>Visualization and layout parameters for the HMOViewer interface.</p>
+<p>This class centralizes all GUI layout settings, dimensions, and rendering
+parameters used in the molecular orbital (MO) diagram viewer. It includes
+frame sizes and positions for HOMO/LUMO, diagram coordinates, canvas size,
+and parameters for drawing molecular orbitals (lobes, bonds).</p>
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">FRAME_WIDTH</span></span></dt>
+<dd><p>Width (in pixels) of each MO visualization frame (for HOMO/LUMO).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">FRAME_HEIGHT</span></span></dt>
+<dd><p>Height (in pixels) of each MO visualization frame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">FRAME_LUMO_X</span></span></dt>
+<dd><p>X-coordinate (in pixels) of the LUMO frame’s top-left corner.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">FRAME_LUMO_Y</span></span></dt>
+<dd><p>Y-coordinate (in pixels) of the LUMO frame’s top-left corner.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">FRAME_HOMO_X</span></span></dt>
+<dd><p>X-coordinate of the HOMO frame’s top-left corner (aligned with LUMO frame).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">FRAME_HOMO_Y</span></span></dt>
+<dd><p>Y-coordinate of the HOMO frame’s top-left corner (placed below LUMO with spacing).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">BOTTOM_OF_HOMO</span></span></dt>
+<dd><p>Y-coordinate of the bottom of the HOMO frame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">MARGIN_BOTTOM</span></span></dt>
+<dd><p>Margin (in pixels) below the HOMO frame in the canvas.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">CANVAS_HEIGHT</span></span></dt>
+<dd><p>Total height (in pixels) of the drawing canvas, computed dynamically.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">CANVAS_WIDTH</span></span></dt>
+<dd><p>Total width (in pixels) of the drawing canvas.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">DIAG_X</span></span></dt>
+<dd><p>X-position (in pixels) for the center of the MO energy diagram (left side).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">DIAG_Y_TOP</span></span></dt>
+<dd><p>Top Y-coordinate of the MO energy diagram.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">DIAG_Y_BOTTOM</span></span></dt>
+<dd><p>Bottom Y-coordinate of the MO energy diagram.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">DIAG_WIDTH_UNIT</span></span></dt>
+<dd><p>Width of a unit interval in the diagram (used for scaling purposes).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">SHRINK_FACTOR</span></span></dt>
+<dd><p>Scaling factor applied to lobe sizes to prevent overlap.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">LOBE_OFFSET</span></span></dt>
+<dd><p>Pixel offset for lobe positioning when rendering orbitals.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">TARGET_BOND_PX</span></span></dt>
+<dd><p>Target length (in pixels) for bond drawings between atoms.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>The canvas is designed to hold both HOMO and LUMO visualizations side by side with appropriate margins.</p></li>
+<li><p>The MO energy diagram is drawn to the left of the MO frames for visual reference.</p></li>
+<li><p>The <cite>SHRINK_FACTOR</cite> and <cite>LOBE_OFFSET</cite> parameters allow fine control of orbital lobe rendering for clarity.</p></li>
+<li><p>The <cite>Path2Imgs</cite> attribute should point to a valid directory containing any additional images used in the visualization (e.g., backgrounds, decorations).</p></li>
+</ul>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">HMOViewerParameters</span><span class="o">.</span><span class="n">FRAME_WIDTH</span>
+<span class="go">700</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">HMOViewerParameters</span><span class="o">.</span><span class="n">Path2Imgs</span>
+<span class="go">PosixPath(&#39;DesignMOdiagram&#39;)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">hmo.HMO.</span></span><span class="sig-name descname"><span class="pre">HuckelParameters</span></span></dt>
+<dd><p>Container for Huckel model parameters and visualization settings.</p>
+<p>This class centralizes all constants and mappings used for building and analyzing molecules
+within the Hückel framework. It includes atomic and bond parameters, grid and drawing settings,
+and atom display options for the GUI.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">GRID_SIZE</span></span></dt>
+<dd><p>The size of one grid unit (in pixels) for positioning atoms in the molecular canvas.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">ATOM_RADIUS</span></span></dt>
+<dd><p>The radius (in pixels) of the circle used to draw an atom on the canvas.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">HIGHLIGHT_RADIUS</span></span></dt>
+<dd><p>The radius (in pixels) of the highlight circle used when selecting atoms or bonds.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">ATOM_COLORS</span></span></dt>
+<dd><p>A dictionary mapping atom type strings (e.g., ‘C·’, ‘O:’, ‘N+·’) to their display color
+in hex code or standard color names.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">ATOM_OPTIONS</span></span></dt>
+<dd><p>The list of atom types available for selection and drawing in the molecule builder.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">Huckel_atomic_parameters</span></span></dt>
+<dd><dl class="simple">
+<dt>A dictionary mapping atom types to their Hückel parameters, each of which is a dictionary with:</dt><dd><ul class="simple">
+<li><p>‘alpha_expr’: a string expression for the Coulomb integral α (often depends on β),</p></li>
+<li><p>‘Fx’: the index of free valence (reactivity index) representing the reactivity
+of the center,</p></li>
+<li><p>‘n_pi’: the number of π-electrons contributed by the atom.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">Huckel_kXY_parameters</span></span></dt>
+<dd><p>A nested dictionary mapping pairs of atom types to their interaction energies (float),
+representing the interaction between two 2p atomic orbitals (used for the β term in the
+Hückel matrix).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>The atom types include common π-conjugated atoms and heteroatoms (e.g., C·, N·, N:, O·, etc.).</p></li>
+<li><p>The ▯ symbol (e.g., ‘B▯’) indicates that the atom holds a π-vacancy (e.g., boron with an empty
+p-orbital).</p></li>
+<li><p>A colon (:) after the atom type (e.g., ‘O:’, ‘N:’) denotes that the atom provides a lone pair
+into the π system (typically 2 π-electrons).</p></li>
+<li><p>A dot (·) after the atom type (e.g., ‘C·’, ‘O·’, ‘N·’) indicates the atom provides a single
+π-electron to the system.</p></li>
+<li><p>The ‘Fx’ parameter (index of free valence) represents the theoretical reactivity of the atom
+in the π system and can be used as a qualitative indicator of chemical reactivity.</p></li>
+<li><p>The <cite>Huckel_kXY_parameters</cite> dictionary does not hold mere bond scaling factors, but rather
+contains <strong>interaction energies between two 2p atomic orbitals</strong>, which define the off-diagonal
+β terms in the Hückel Hamiltonian.</p></li>
+<li><p>The <cite>alpha_expr</cite> parameter (Coulomb integral) gives the <strong>energy of an electron in a 2p atomic orbital</strong>
+of a given atom.</p></li>
+<li><dl class="simple">
+<dt>Typically, α and β are <strong>negative values</strong>. For carbon atoms, it is common to use:</dt><dd><ul>
+<li><p>α_C ≈ -11.0 eV (Coulomb integral / 2p orbital energy),</p></li>
+<li><p>β_CC ≈ -2.7 eV (interaction between two carbon 2p orbitals).</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>For heteroatoms (atoms other than carbon), the parameters α_X and β_XY are expressed as <strong>functions
+of α_C and β_C</strong>, enabling a transferability of parameters while keeping carbon as the reference.</p></li>
+</ul>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Access a color for carbon</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">HuckelParameters</span><span class="o">.</span><span class="n">ATOM_COLORS</span><span class="p">[</span><span class="s1">&#39;C·&#39;</span><span class="p">]</span>
+<span class="go">&#39;#909090&#39;</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Access π-electron count for nitrogen (lone pair donor)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">HuckelParameters</span><span class="o">.</span><span class="n">Huckel_atomic_parameters</span><span class="p">[</span><span class="s1">&#39;N:&#39;</span><span class="p">][</span><span class="s1">&#39;n_pi&#39;</span><span class="p">]</span>
+<span class="go">2</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Access 2p–2p interaction energy between C and O</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">HuckelParameters</span><span class="o">.</span><span class="n">Huckel_kXY_parameters</span><span class="p">[</span><span class="s1">&#39;C·&#39;</span><span class="p">][</span><span class="s1">&#39;O·&#39;</span><span class="p">]</span>
+<span class="go">1.06</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="HMO_exercises.html">📄 Hand-on exercises</a></li>

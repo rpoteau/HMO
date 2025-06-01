@@ -56,18 +56,18 @@ and exported. The graphical visualization allows easy exploration of molecular o
    :width: 900px
 
 Using the Molecule Builder:
---------------------------
+---------------------------
 
 1. **Basic Drawing Rules**
-    - By default, all atoms are carbon (C) unless modified.
+    - By default, all atoms are carbon (C·) unless modified.
     - A bond can be created between two atoms by:
-        - Clicking and dragging from one atom to a new position → this adds a new carbon atom connected by a bond.
-        - Clicking and dragging from one atom to another existing atom → this creates a bond between the two.
+        - Clicking and dragging from one atom to a new position >> this adds a new carbon atom connected by a bond.
+        - Clicking and dragging from one atom to another existing atom >> this creates a bond between the two.
 
 2. **Atom Customization**
     - Right-click on an atom to open a context menu.
         - You can change the atom type to one of the predefined atoms with parameterized Hückel integrals.
-        - ⚠️ Warning: not all combinations are fully defined — if a bond between two atom types lacks a known kXY parameter, the Hückel matrix may be incomplete or raise a warning.
+        - (!) Warning: not all combinations are fully defined - if a bond between two atom types lacks a known kXY parameter, the Hückel matrix may be incomplete or raise a warning.
 
 3. **Charges**
     - You can add a formal charge using the "Add a charge" tool in the toolbar.
@@ -191,8 +191,7 @@ def lobes_sizes(df_MOs, mean_bond_length=None, scale=None, factor=0.90, max_disp
 
     This function supports two use cases:
     1. If `max_display_radius` is provided, the largest lobe will have this radius in display units.
-    2. Otherwise, the lobe size will be scaled as a fraction (`factor`) of the half bond length
-       (estimated as: factor × mean_bond_length × scale / 2).
+    2. Otherwise, the lobe size will be scaled as a fraction (`factor`) of the half bond length (estimated as: factor × mean_bond_length × scale / 2).
 
     Parameters
     ----------
@@ -725,7 +724,7 @@ class HMOViewer:
         - `self.occupations` : list of int (0, 1, 2),
         - `self.max_coef_global` : float, used for visual scaling,
         - `self.mean_bond_length` : float, used to normalize drawing,
-        - `self.energy_groups` : dict mapping rounded energy → list of MO indices.
+        - `self.energy_groups` : dict mapping rounded energy >> list of MO indices.
         """    
         def extract_beta_coeff(energy_str):
             """
@@ -1564,7 +1563,7 @@ class MoleculeDrawer:
         """
         Sanitize a string to make it safe for use as a filename.
     
-        Replaces characters that are invalid in most file systems (such as \ / : * ? " < > |) with underscores.
+        Replaces characters that are invalid in most file systems (such as `\ / : * ? " < > |`) with underscores.
     
         Parameters
         ----------
@@ -3560,30 +3559,6 @@ class MoleculeDrawer:
             pdf.savefig(fig)
             plt.close(fig)
     
-Using the Molecule Drawer
-Basic Drawing Rules
-
-    By default, all atoms are carbon (C) unless modified.
-
-    A bond can be created between two atoms by:
-
-        Clicking and dragging from one atom to a new position → this adds a new carbon atom connected by a bond.
-
-        Clicking and dragging from one atom to another existing atom → this creates a bond between the two.
-
-Atom Customization
-
-    Right-click on an atom to open a context menu.
-
-        You can change the atom type to one of the predefined atoms with parameterized Hückel integrals.
-
-        ⚠️ Warning: not all combinations are fully defined — if a bond between two atom types lacks a known kXY parameter, the Hückel matrix may be incomplete or raise a warning.
-
-Charges
-
-    You can add a formal charge using the "Add a charge" tool in the toolbar.
-
-    Right-clicking on a charge opens a dialog box to edit its value (e.g. change from +1 to -2).
         messagebox.showinfo("Success", f"PDF with all results exported to: {path2results}")
         
         # save_figure_as_pdf(fig, "energy_diagram.pdf")
@@ -3603,32 +3578,6 @@ Charges
 
 class ToolTip(object):
     """
-    A class to create and Using the Molecule Drawer
-Basic Drawing Rules
-
-    By default, all atoms are carbon (C) unless modified.
-
-    A bond can be created between two atoms by:
-
-        Clicking and dragging from one atom to a new position → this adds a new carbon atom connected by a bond.
-
-        Clicking and dragging from one atom to another existing atom → this creates a bond between the two.
-
-Atom Customization
-
-    Right-click on an atom to open a context menu.
-
-        You can change the atom type to one of the predefined atoms with parameterized Hückel integrals.
-
-        ⚠️ Warning: not all combinations are fully defined — if a bond between two atom types lacks a known kXY parameter, the Hückel matrix may be incomplete or raise a warning.
-
-Charges
-
-    You can add a formal charge using the "Add a charge" tool in the toolbar.
-
-    Right-clicking on a charge opens a dialog box to edit its value (e.g. change from +1 to -2).
-.
-
     This class attaches a tooltip (a small pop-up window displaying text) to any Tkinter widget. 
     The tooltip appears when the mouse hovers over the widget and disappears when the mouse leaves.
 
