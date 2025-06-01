@@ -102,14 +102,14 @@ if [[ "$REPLY" =~ ^[Yy]$ ]]; then
     echo -e "${GREEN}Updating version $CURRENT_VERSION to: $NEW_VERSION${RESET}"
     # Update pyproject.toml in place
     sed -i "s/^version = \".*\"/version = \"$NEW_VERSION\"/" $PYPROJECT
-    echo "     - in  pyproject.toml   ... Done"
+    echo "     - version update in  pyproject.toml   ... Done"
     # Update  hmo/__init__.py in place
     if grep -q "^__version__ *= *" hmo/__init__.py; then
         sed -i "s/^__version__ *= *.*/__version__ = \"$NEW_VERSION\"/" hmo/__init__.py
     else
         echo "__version__ = \"$NEW_VERSION\"" >> hmo/__init__.py
     fi
-    echo "     - in  hmo/__init__.py  ... Done"
+    echo "     - __version__ variable updated in hmo/__init__.py  ... Done"
     # Update __last_update__ field automatically
     today=$(date +%Y-%m-%d)
     if grep -q "^__last_update__ *= *" hmo/__init__.py; then
@@ -117,7 +117,7 @@ if [[ "$REPLY" =~ ^[Yy]$ ]]; then
     else
         echo "__last_update__ = \"$today\"" >> hmo/__init__.py
     fi
-    echo "last update field in hmo/__init__.py  ... Set to $today"
+    echo "     - __last-update__ variable in hmo/__init__.py  ... Set to $today"
 
     # --- GIT SECTION ---
     echo -e "$SEPARATOR"

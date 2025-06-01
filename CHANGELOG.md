@@ -4,6 +4,15 @@
 
 # Changelog
 
+## Version 0.7.4 - 2025-06-01
+### Added
+- added a **Using the Molecule Builder:** at the top of `HMO.py`, describing drawing rules, atom customization, and charge editing.
+
+### Changed
+- recompiled the documentation to reflect the new usage instructions.
+
+---
+
 ## Version 0.7.3 - 2025-06-01
 ### Added
 - added detailed docstrings to the following methods for improved documentation and future Sphinx integration: `sanitize_filename()`, `create_toolbar()`, `load_icons()`, `create_button()`, `bind_shortcuts()`, `toggle_eraser()`, `quit_program()`

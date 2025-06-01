@@ -55,13 +55,30 @@ and exported. The graphical visualization allows easy exploration of molecular o
    :alt: HMO Drawer and Commands GUI
    :width: 900px
 
+Using the Molecule Builder:
+--------------------------
+
+1. **Basic Drawing Rules**
+    - By default, all atoms are carbon (C) unless modified.
+    - A bond can be created between two atoms by:
+        - Clicking and dragging from one atom to a new position → this adds a new carbon atom connected by a bond.
+        - Clicking and dragging from one atom to another existing atom → this creates a bond between the two.
+
+2. **Atom Customization**
+    - Right-click on an atom to open a context menu.
+        - You can change the atom type to one of the predefined atoms with parameterized Hückel integrals.
+        - ⚠️ Warning: not all combinations are fully defined — if a bond between two atom types lacks a known kXY parameter, the Hückel matrix may be incomplete or raise a warning.
+
+3. **Charges**
+    - You can add a formal charge using the "Add a charge" tool in the toolbar.
+    - Right-clicking on a charge opens a dialog box to edit its value (e.g. change from -1 to +1).
+
 Notes:
 ------
-- Most graphical interactions (atom placement, bond drawing) are done with the mouse,
-  with keyboard shortcuts for efficiency.
+- Most graphical interactions (atom placement, bond drawing) are done with the mouse, with keyboard shortcuts for efficiency.
 - The program is structured around the main classes: `MoleculeDrawer` (main interface),
-  `HMOViewer` (MO visualization), `ResultsViewer` (numerical results), and `Node` (management of individual atoms).
-- Hückel parameters and some visulization settings are defined in the `HuckelParameters` class
+  `HMOViewer` (MO visualization), `ResultsViewer` (numerical results), `Node` (management of individual atoms), `ChargeNode` (management of the global charge, which is 0 y default), and `ToolTip` (management of tooltips for the icons of the main window).
+- Hückel parameters and some visualization settings are defined in the `HuckelParameters` class
 - Visualization and layout parameters for the HMOViewer interface are provided by the `HMOViewerParameters` class
 """
 
@@ -1729,7 +1746,7 @@ class MoleculeDrawer:
         # === Documentation ===
         def open_doc_link(event=None):
             import webbrowser
-            webbrowser.open_new("https://hmo.readthedocs.io/en/latest/")  
+            webbrowser.open_new_tab("https://hmo.readthedocs.io/en/latest/")  
         version_label = tk.Label(about_win, text="Documentation", font=("DejaVu Sans", 9, "underline"), fg="#aa0000", cursor="hand2")
         version_label.pack(pady=(5, 10))
         version_label.bind("<Button-1>", open_doc_link)
@@ -1738,7 +1755,7 @@ class MoleculeDrawer:
         from hmo import __last_update__
         def open_changelog(event=None):
             import webbrowser
-            webbrowser.open_new("https://github.com/rpoteau/HMO/blob/main/CHANGELOG.md")
+            webbrowser.open_new_tab("https://github.com/rpoteau/HMO/blob/main/CHANGELOG.md")
         
         update_label = tk.Label(
             about_win, text=f"Last update: {__last_update__} (view changelog)", font=("DejaVu Sans", 9, "underline"), fg="blue", cursor="hand2")
@@ -3543,6 +3560,30 @@ class MoleculeDrawer:
             pdf.savefig(fig)
             plt.close(fig)
     
+Using the Molecule Drawer
+Basic Drawing Rules
+
+    By default, all atoms are carbon (C) unless modified.
+
+    A bond can be created between two atoms by:
+
+        Clicking and dragging from one atom to a new position → this adds a new carbon atom connected by a bond.
+
+        Clicking and dragging from one atom to another existing atom → this creates a bond between the two.
+
+Atom Customization
+
+    Right-click on an atom to open a context menu.
+
+        You can change the atom type to one of the predefined atoms with parameterized Hückel integrals.
+
+        ⚠️ Warning: not all combinations are fully defined — if a bond between two atom types lacks a known kXY parameter, the Hückel matrix may be incomplete or raise a warning.
+
+Charges
+
+    You can add a formal charge using the "Add a charge" tool in the toolbar.
+
+    Right-clicking on a charge opens a dialog box to edit its value (e.g. change from +1 to -2).
         messagebox.showinfo("Success", f"PDF with all results exported to: {path2results}")
         
         # save_figure_as_pdf(fig, "energy_diagram.pdf")
@@ -3562,7 +3603,31 @@ class MoleculeDrawer:
 
 class ToolTip(object):
     """
-    A class to create and manage tooltips for Tkinter widgets.
+    A class to create and Using the Molecule Drawer
+Basic Drawing Rules
+
+    By default, all atoms are carbon (C) unless modified.
+
+    A bond can be created between two atoms by:
+
+        Clicking and dragging from one atom to a new position → this adds a new carbon atom connected by a bond.
+
+        Clicking and dragging from one atom to another existing atom → this creates a bond between the two.
+
+Atom Customization
+
+    Right-click on an atom to open a context menu.
+
+        You can change the atom type to one of the predefined atoms with parameterized Hückel integrals.
+
+        ⚠️ Warning: not all combinations are fully defined — if a bond between two atom types lacks a known kXY parameter, the Hückel matrix may be incomplete or raise a warning.
+
+Charges
+
+    You can add a formal charge using the "Add a charge" tool in the toolbar.
+
+    Right-clicking on a charge opens a dialog box to edit its value (e.g. change from +1 to -2).
+.
 
     This class attaches a tooltip (a small pop-up window displaying text) to any Tkinter widget. 
     The tooltip appears when the mouse hovers over the widget and disappears when the mouse leaves.
