@@ -70,7 +70,7 @@ Using the Molecule Builder:
         - (!) Warning: not all combinations are fully defined - if a bond between two atom types lacks a known kXY parameter, the Hückel matrix may be incomplete or raise a warning.
 
 3. **Charges**
-    - You can add a formal charge using the "Add a charge" tool in the toolbar.
+    - You can add a formal charge using the "Add a formal charge" tool in the right toolbar.
     - Right-clicking on a charge opens a dialog box to edit its value (e.g. change from -1 to +1).
 
 Notes:
@@ -80,6 +80,9 @@ Notes:
   `HMOViewer` (MO visualization), `ResultsViewer` (numerical results), `Node` (management of individual atoms), `ChargeNode` (management of the global charge, which is 0 y default), and `ToolTip` (management of tooltips for the icons of the main window).
 - Hückel parameters and some visualization settings are defined in the `HuckelParameters` class
 - Visualization and layout parameters for the HMOViewer interface are provided by the `HMOViewerParameters` class
+
+Classes and functions:
+----------------------
 """
 
 # ========================================================================================================
@@ -2343,9 +2346,9 @@ class MoleculeDrawer:
         for i1, i2 in self.bonds:
             n1, n2 = self.nodes[i1], self.nodes[i2]
             x1 = (n1.x - center_x) * scale_x
-            y1 = (n1.y - center_y) * scale_y
+            y1 = -(n1.y - center_y) * scale_y
             x2 = (n2.x - center_x) * scale_x
-            y2 = (n2.y - center_y) * scale_y
+            y2 = -(n2.y - center_y) * scale_y
             ax.plot([x1, x2], [y1, y2], color="black", linewidth=2)
     
             idx = (i1, i2) if (i1, i2) in self.bond_orders else (i2, i1)
@@ -2358,7 +2361,7 @@ class MoleculeDrawer:
     
         for i, node in enumerate(self.nodes):
             x = (node.x - center_x) * scale_x
-            y = (node.y - center_y) * scale_y
+            y = -(node.y - center_y) * scale_y
             color = HuckelParameters.ATOM_COLORS.get(node.atom_type, 'black')
 
             r = 12

@@ -1,6 +1,6 @@
 [project]
 name = "HMO"
-version = "0.7.5"
+version = "0.7.6"
 description = "interactive application that allows users to draw the sigma skeleton of conjugated systems, build the corresponding Hückel matrix, calculate π molecular orbitals, and visualize the numerical results as tables and graphics"
 authors = [{name = "Romuald POTEAU, LPCNO", email = "romuald.poteau@univ-tlse3.fr"}]
 readme = "README.md"

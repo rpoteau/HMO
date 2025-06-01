@@ -4,7 +4,13 @@
 
 # Changelog
 
-## Version 0.7.4 - 2025-06-01
+## Versions 0.7.6 - 2025-06-01
+### Changed
+- vertical flip of the molecule in `show_charge_bond_view()`, to match the orientation used in other graphical representations (e.g., MO diagrams and molecular overview), ensuring visual consistency across views
+
+---
+
+## Versions 0.7.4 & 0.7.5 - 2025-06-01
 ### Added
 - added a **Using the Molecule Builder:** at the top of `HMO.py`, describing drawing rules, atom customization, and charge editing.
 
