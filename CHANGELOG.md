@@ -4,7 +4,11 @@
 
 # Changelog
 
-## Versions 0.7.6 - 2025-06-01
+## Version 0.7.7 - 2025-09-02
+### Changed
+- update of the HMO_exercises.pdf document
+
+## Version 0.7.6 - 2025-06-01
 ### Changed
 - vertical flip of the molecule in `show_charge_bond_view()`, to match the orientation used in other graphical representations (e.g., MO diagrams and molecular overview), ensuring visual consistency across views
 

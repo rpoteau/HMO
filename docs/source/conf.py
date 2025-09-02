@@ -8,8 +8,8 @@
 
 project = 'HMO'
 copyright = '2025, Romuald Poteau'
-author = 'Romuald Poteau'
-release = '0.7.4'
+author = 'romuald.poteau@utoulouse.fr'
+release = '0.7.7'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
