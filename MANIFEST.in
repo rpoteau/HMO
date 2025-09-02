@@ -32,5 +32,5 @@ prune hmo/build
 prune hmo/dist
 prune hmo/HMO-Installer-Linux
 prune hmo/Tutorials
-exclude hmo/HMO-Installer.tar.gz
-exclude hmo/installer/HMO
+exclude hmo/HMO-Installer-Linux.tar.gz
+exclude hmo/installer-Linux/HMO
